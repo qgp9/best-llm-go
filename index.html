@@ -385,7 +385,7 @@
 
 <header>
   <div>
-    <h1><span data-i18n="h1_title">OpenCode Go Value Frontier</span> <span class="badge-go" data-i18n="badge_go">Official Go Catalog</span></h1>
+    <h1><span data-i18n="h1_title">OpenCode Go Value Frontier</span></h1>
     <p class="sub" id="hdrSub" data-i18n="hdr_sub">
       Pareto frontier value analyzer for OpenCode Go ($10/mo plan). Combines official model allowances ($15/$30/$60), API rates, and Artificial Analysis benchmarks to highlight true value champions.
     </p>
@@ -401,7 +401,7 @@
       <span data-i18n="btn_free_models">🎁 Free AI Models Guide</span>
     </a>
     <button class="btn" id="openUpdateHelpBtn" type="button">
-      <span data-i18n="btn_update_help">🔄 Update Data</span>
+      <span data-i18n="btn_about_sources">ℹ️ Data & Sources</span>
     </button>
     <a class="btn" href="https://opencode.ai/go" target="_blank" rel="noopener">OpenCode Go</a>
   </div>
@@ -641,33 +641,29 @@
 <div class="tip" id="tip" role="status" aria-live="polite"></div>
 <div class="toast" id="toast"></div>
 
-<!-- Modal: How to update -->
+<!-- Modal: About & Data Sources -->
 <div class="modal-overlay" id="updateModal">
   <div class="modal">
     <div class="modal-header">
-      <h2 data-i18n="modal_update_h2">🔄 How to Update Data</h2>
+      <h2 data-i18n="modal_sources_h2">ℹ️ About & Data Sources</h2>
       <button class="btn" id="closeUpdateModalBtn" type="button" style="padding:4px 10px;">✕</button>
     </div>
     <div class="modal-body">
-      <p style="margin-top:0;font-size:14.5px;" data-i18n="modal_update_p1">Run the command below in your project terminal to scrape the latest <b>OpenCode official pricing & limits</b> and <b>Artificial Analysis benchmarks</b>:</p>
-      <pre style="background:var(--page);padding:14px 16px;border-radius:10px;font-family:var(--mono);font-size:13px;border:1px solid var(--line);overflow-x:auto;"><code>./update.sh</code></pre>
-      <p style="color:var(--ink-2);font-size:13.5px;line-height:1.6;"><span data-i18n="modal_update_or">Or execute</span> <code>python3 update_data.py</code> <span data-i18n="modal_update_directly">directly.</span></p>
-      
-      <h3 style="font-size:15px;margin:20px 0 8px;" data-i18n="modal_update_sources_h">Automatically scraped sources:</h3>
-      <ul style="padding-left:20px;color:var(--ink-2);font-size:13.5px;line-height:1.8;margin:0;">
-        <li data-i18n="modal_update_src1"><b>Official models & pricing</b>: <code>opencode.ai/v2/docs/console/go/</code> (Token rates, $60/$30/$15 caps, context tiers)</li>
-        <li data-i18n="modal_update_src2"><b>5h rolling request limits</b>: <code>opencode.ai/go</code> (Max requests allowed per 5 hours)</li>
-        <li data-i18n="modal_update_src3"><b>Latest intelligence index</b>: <code>artificialanalysis.ai</code> (Intelligence Index & Coding Index)</li>
+      <h3 style="font-size:15px;margin:0 0 8px;" data-i18n="modal_sources_h">📊 Data Sources</h3>
+      <ul style="padding-left:20px;color:var(--ink-2);font-size:13.5px;line-height:1.8;margin:0 0 16px;">
+        <li data-i18n="modal_src1"><b>OpenCode Go</b>: <code>opencode.ai/go</code> (Official catalog, monthly caps & limits)</li>
+        <li data-i18n="modal_src2"><b>Market Rates</b>: <code>models.dev</code> (Standard unadjusted API rates)</li>
+        <li data-i18n="modal_src3"><b>Intelligence Benchmarks</b>: <code>artificialanalysis.ai</code> (Intelligence Index & Coding Index)</li>
       </ul>
 
-      <h3 style="font-size:15px;margin:20px 0 8px;" data-i18n="modal_update_cron_h">💡 Daily Automated Deployment via GitHub Actions:</h3>
-      <p style="color:var(--ink-2);font-size:13.5px;line-height:1.6;" data-i18n="modal_update_cron_p">GitHub Actions (<code>deploy.yml</code>) runs daily to automatically sync data and deploy to GitHub Pages.</p>
+      <h3 style="font-size:15px;margin:16px 0 8px;" data-i18n="modal_sync_h">🕒 Update Schedule</h3>
+      <p style="color:var(--ink-2);font-size:13.5px;line-height:1.6;margin:0 0 16px;" data-i18n="modal_sync_p">Data is automatically synchronized daily at 09:37 UTC via GitHub Actions.</p>
 
-      <h3 style="font-size:15px;margin:20px 0 8px;" data-i18n="modal_update_credit_h">🎨 Look & Feel Attribution:</h3>
-      <p style="color:var(--ink-2);font-size:13.5px;line-height:1.6;" data-i18n="modal_update_credit_p">Substantially cloned/adapted from Terry Djony's <a href="https://bestmodelforyourbudget.terrydjony.com/" target="_blank" rel="noopener">Best Model For Your Budget</a> project visualization. Built with AI vibe-coding.</p>
+      <h3 style="font-size:15px;margin:16px 0 8px;" data-i18n="modal_credit_h">🎨 Attribution</h3>
+      <p style="color:var(--ink-2);font-size:13.5px;line-height:1.6;margin:0;" data-i18n="modal_credit_p">UI visualization adapted from Terry Djony's <a href="https://bestmodelforyourbudget.terrydjony.com/" target="_blank" rel="noopener">Best Model For Your Budget</a>. Unofficial personal research project.</p>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-primary" id="confirmUpdateModalBtn" type="button" data-i18n="btn_confirm">Confirm</button>
+      <button class="btn btn-primary" id="confirmUpdateModalBtn" type="button" data-i18n="btn_confirm">Got It</button>
     </div>
   </div>
 </div>

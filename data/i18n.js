@@ -30,7 +30,7 @@
 
       // Buttons
       btn_free_models: "🎁 Free AI Models",
-      btn_update_help: "🔄 Update Data",
+      btn_about_sources: "ℹ️ Data & Sources",
       btn_save_preset: "Save Preset",
       btn_copy_link: "Copy Link",
       btn_mode_all: "Show All Models",
@@ -141,19 +141,16 @@
       th_all_quota: "Quota Burn %",
       th_all_raw_price: "Raw API $/1M",
 
-      // Update Modal
-      modal_update_h2: "🔄 Update Data",
-      modal_update_p1: "Run the command below in terminal to refresh <b>OpenCode official rates</b> and <b>Artificial Analysis benchmarks</b>:",
-      modal_update_or: "Or execute",
-      modal_update_directly: "directly.",
-      modal_update_sources_h: "Scraped sources:",
-      modal_update_src1: "<b>Official Catalog & Rates</b>: <code>opencode.ai/v2/docs/console/go/</code> (pricing, caps)",
-      modal_update_src2: "<b>5-Hour Request Limits</b>: <code>opencode.ai/go</code>",
-      modal_update_src3: "<b>Benchmark Indices</b>: <code>artificialanalysis.ai</code>",
-      modal_update_cron_h: "💡 Automated Daily Updates via GitHub Actions:",
-      modal_update_cron_p: "GitHub Actions (<code>deploy.yml</code>) runs daily to automatically sync data and deploy to GitHub Pages.",
-      modal_update_credit_h: "🎨 Design Attribution:",
-      modal_update_credit_p: "Adapted from Terry Djony's project <a href=\"https://bestmodelforyourbudget.terrydjony.com/\" target=\"_blank\" rel=\"noopener\">Best Model For Your Budget</a>. AI vibe-coded for personal reference.",
+      // About & Data Sources Modal
+      modal_sources_h2: "ℹ️ About & Data Sources",
+      modal_sources_h: "📊 Data Sources",
+      modal_src1: "<b>OpenCode Go</b>: <code>opencode.ai/go</code> (Official catalog, monthly caps & limits)",
+      modal_src2: "<b>Market Rates</b>: <code>models.dev</code> (Standard unadjusted API rates)",
+      modal_src3: "<b>Intelligence Benchmarks</b>: <code>artificialanalysis.ai</code> (Intelligence Index & Coding Index)",
+      modal_sync_h: "🕒 Update Schedule",
+      modal_sync_p: "Data is automatically synchronized daily at 09:37 UTC via GitHub Actions.",
+      modal_credit_h: "🎨 Attribution",
+      modal_credit_p: "UI visualization adapted from Terry Djony's <a href=\"https://bestmodelforyourbudget.terrydjony.com/\" target=\"_blank\" rel=\"noopener\">Best Model For Your Budget</a>. Unofficial personal research project.",
       btn_confirm: "Got It",
 
       // Tooltips & Toasts
@@ -280,7 +277,7 @@
 
       // Buttons
       btn_free_models: "🎁 무료 AI 모델",
-      btn_update_help: "🔄 데이터 업데이트",
+      btn_about_sources: "ℹ️ 데이터 출처",
       btn_save_preset: "프리셋 저장",
       btn_copy_link: "링크 복사",
       btn_mode_all: "전체 모델 표시",
@@ -391,19 +388,16 @@
       th_all_quota: "월 쿼터 소모율",
       th_all_raw_price: "API 정가 $/1M",
 
-      // Update Modal
-      modal_update_h2: "🔄 데이터 업데이트",
-      modal_update_p1: "터미널에서 아래 명령을 실행하면 <b>OpenCode 공식 가격표</b>와 <b>Artificial Analysis 벤치마크</b>를 새로고침합니다:",
-      modal_update_or: "또는",
-      modal_update_directly: "를 직접 실행해도 됩니다.",
-      modal_update_sources_h: "자동 수집 출처:",
-      modal_update_src1: "<b>공식 모델 및 요율표</b>: <code>opencode.ai/v2/docs/console/go/</code> (단가, 티어 한도)",
-      modal_update_src2: "<b>5시간 요청 제한</b>: <code>opencode.ai/go</code>",
-      modal_update_src3: "<b>지능 지수</b>: <code>artificialanalysis.ai</code>",
-      modal_update_cron_h: "💡 GitHub Actions를 통한 일일 자동 배포:",
-      modal_update_cron_p: "GitHub Actions (<code>deploy.yml</code>)가 매일 자동 실행되어 최신 데이터를 갱신하고 GitHub Pages에 배포합니다.",
-      modal_update_credit_h: "🎨 디자인 출처:",
-      modal_update_credit_p: "Terry Djony의 <a href=\"https://bestmodelforyourbudget.terrydjony.com/\" target=\"_blank\" rel=\"noopener\">Best Model For Your Budget</a> 프로젝트 시각화를 차용하여 제작되었습니다. AI 바이브 코딩으로 제작된 개인 연구용 도구입니다.",
+      // About & Data Sources Modal
+      modal_sources_h2: "ℹ️ 데이터 및 출처 안내",
+      modal_sources_h: "📊 데이터 출처",
+      modal_src1: "<b>OpenCode Go</b>: <code>opencode.ai/go</code> (공식 모델 목록, $15/$30/$60 월간 한도, 5시간 요청 제한)",
+      modal_src2: "<b>시장 원본 API 정가</b>: <code>models.dev</code> (할인 전 표준 시장 가격)",
+      modal_src3: "<b>지능 벤치마크 지표</b>: <code>artificialanalysis.ai</code> (공인 Intelligence Index & Coding Index)",
+      modal_sync_h: "🕒 갱신 주기",
+      modal_sync_p: "매일 09:37 UTC에 GitHub Actions를 통해 최신 데이터가 자동으로 동기화됩니다.",
+      modal_credit_h: "🎨 시각화 및 안내",
+      modal_credit_p: "Terry Djony의 <a href=\"https://bestmodelforyourbudget.terrydjony.com/\" target=\"_blank\" rel=\"noopener\">Best Model For Your Budget</a> 프로젝트 시각화 디자인을 참고한 비공식 개인 연구용 도구입니다.",
       btn_confirm: "확인",
 
       // Tooltips & Toasts
