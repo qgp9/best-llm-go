@@ -440,9 +440,26 @@
     background: var(--surface); color: var(--ink-2); cursor: pointer; transition: all .12s ease;
   }
   .preset-pill:hover { border-color: var(--ink-3); color: var(--ink); background: var(--wash); }
-  .preset-pill.active { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 600; }
-  .preset-pill .del-preset { margin-left: 2px; color: rgba(255,255,255,0.6); font-size: 11px; cursor: pointer; }
-  .preset-pill .del-preset:hover { color: #fff; }
+  .preset-pill.active { background: var(--ink); color: var(--page); border-color: var(--ink); font-weight: 600; }
+  .preset-pill .del-preset {
+    margin-left: 6px;
+    padding: 0 4px;
+    color: var(--ink-3);
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all .12s ease;
+  }
+  .preset-pill .del-preset:hover {
+    color: var(--bad);
+    background: var(--wash);
+  }
+  .preset-pill.active .del-preset {
+    color: var(--ink-3);
+  }
+  .preset-pill.active .del-preset:hover {
+    color: var(--bad);
+  }
 
   /* Toast notification */
   .toast {
@@ -2116,7 +2133,7 @@
     if (id && DEFAULT_PRESET_MAP[id]) {
       return isKo ? DEFAULT_PRESET_MAP[id].ko : DEFAULT_PRESET_MAP[id].en;
     }
-    for (const [key, def] of Object.values(DEFAULT_PRESET_MAP)) {
+    for (const def of Object.values(DEFAULT_PRESET_MAP)) {
       if (p.name === def.ko || p.name === def.en) {
         return isKo ? def.ko : def.en;
       }
@@ -2145,6 +2162,8 @@
     } catch(e) {}
   }
 
+  let activePresetId = "all_default";
+
   function renderPresetPills() {
     const bar = $("presetPillBar");
     if (!bar) return;
@@ -2157,10 +2176,17 @@
     allPresets.forEach((p) => {
       const pName = getPresetDisplayName(p, isKo);
       const pill = h("div", "preset-pill");
+      if (p.id && p.id === activePresetId) {
+        pill.classList.add("active");
+      }
       pill.textContent = pName;
       pill.title = isKo ? `설정 셋 적용: ${pName}` : `Apply preset: ${pName}`;
 
-      pill.addEventListener("click", () => applyPreset(p));
+      pill.addEventListener("click", () => {
+        activePresetId = p.id;
+        applyPreset(p);
+        renderPresetPills();
+      });
 
       // If user preset, allow delete
       if (p.isUser) {
@@ -2170,6 +2196,7 @@
           e.stopPropagation();
           const updated = getStoredPresets().filter((x) => x.id !== p.id);
           saveStoredPresets(updated);
+          if (activePresetId === p.id) activePresetId = null;
           renderPresetPills();
           showToast(isKo ? `'${pName}' 셋이 삭제되었습니다.` : `'${pName}' preset deleted.`);
         });
@@ -2303,6 +2330,7 @@
       const stored = getStoredPresets();
       stored.push(userPreset);
       saveStoredPresets(stored);
+      activePresetId = userPreset.id;
       renderPresetPills();
       showToast(window.I18N ? window.I18N.t("toast_preset_saved", { name }) : `'${name}' saved!`);
     });
