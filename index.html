@@ -2116,25 +2116,11 @@
       name_en: "Default",
       name_ko: "기본",
       state: { selectionMode: "all", cost: "go_effective", minIdx: 20, includeTrain: false, includeNoTrain: true }
-    },
-    {
-      id: "reasoning_champs",
-      name_en: "Reasoning",
-      name_ko: "추론",
-      state: {
-        selectionMode: "custom",
-        cost: "go_task",
-        minIdx: 35,
-        includeTrain: false,
-        includeNoTrain: true,
-        models: ["GLM-5.3", "MiMo-V2.6-Pro", "Grok 4.7 (≤ 200K tokens)", "Qwen3.8 Max", "Kimi K3"]
-      }
     }
   ];
 
   const DEFAULT_PRESET_MAP = {
-    all_default: { en: "Default", ko: "기본" },
-    reasoning_champs: { en: "Reasoning", ko: "추론" }
+    all_default: { en: "Default", ko: "기본" }
   };
 
   const LEGACY_PRESET_ALIASES = {
