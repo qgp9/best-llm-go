@@ -1,0 +1,3061 @@
+window.__TIERS_DATA__ = {
+  "49e70a38-4ac1-4659-b490-09b2c7ff21d6": {
+    "name": "Apertus 70B Instruct",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "891bcdf2-8dd2-4dc3-829b-d963fde25876": {
+    "name": "Apertus 8B Instruct",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "08242385-ee91-4de6-be7f-271a6d9780ce": {
+    "name": "Apodex 1.1",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "8014c311-fa23-4a4b-8485-8a864db8a113": {
+    "name": "Celeris-1",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "1fc54cef-d179-48b1-a27d-046874e9b208": {
+    "name": "Claude 3 Haiku",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "7829427f-f0e3-4f6d-a228-5fbf70dacc02": {
+    "name": "Claude 3 Opus",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "aca9c1ad-fc86-49f3-a312-b1e517ea100c": {
+    "name": "Claude 3.5 Sonnet (June '24)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "0a603978-03b9-4f47-a273-2f7fd969be85": {
+    "name": "Claude 3.5 Sonnet (Oct '24)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d925845d-39ad-4de3-8495-f176b79828c0": {
+    "name": "Claude 3.7 Sonnet (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "504412c2-2ada-499b-aebf-7e0a35c9d286": {
+    "name": "Claude 4 Opus (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "8a4a5ead-7789-4389-8400-30e9d20370b7": {
+    "name": "Claude 4 Opus (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "f2f60e3a-e5f5-4471-acd2-9f2f29c76007": {
+    "name": "Claude 4.1 Opus (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "ccbfa8c3-a762-480b-aade-34fb9697f98c": {
+    "name": "Claude 4.1 Opus (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "c2b1e769-7aee-4669-8076-73918bdebf6c": {
+    "name": "Claude 4.5 Haiku (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "a6340098-d7ae-462d-b372-0a0a67fc44b4": {
+    "name": "Claude 4.5 Haiku (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "91cb6144-4937-4e4e-aeda-b4341d355c10": {
+    "name": "Claude 4.5 Sonnet (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "90e078f2-051b-4c63-8919-76618971cb3f": {
+    "name": "Claude 4.5 Sonnet (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "cd55210d-358e-4df1-ba9c-9acb5f186cc9": {
+    "name": "Claude Fable 5 (Max, Opus 4.8 Fallback)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "9d7d72cd-d95d-45a0-b109-4ad292c9aabd": {
+    "name": "Claude Fable 5.1 (High, Default Fallback)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "05776db7-f5c0-40f7-b824-079160f8cfa8": {
+    "name": "Claude Fable 5.1 (Low, Default Fallback)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "3e87c73e-a257-495e-9730-367a66229811": {
+    "name": "Claude Fable 5.1 (Max, Default Fallback)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "3b7de71c-e034-4591-8ca6-6b6be2fa471f": {
+    "name": "Claude Fable 5.1 (Medium, Default Fallback)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "9b166bf3-42db-4f63-8338-1c4a1244ffe8": {
+    "name": "Claude Fable 5.1 (Xhigh, Default Fallback)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "4077490a-bbfb-404e-979a-a97a20e3b5de": {
+    "name": "Claude Opus 4.5 (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "2660d74f-ce79-48a8-8b53-6e668e2071a2": {
+    "name": "Claude Opus 4.5 (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "53c98840-47af-49aa-94e6-469fb17e9a1b": {
+    "name": "Claude Opus 4.6 (Max)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "4386585e-71b4-4a0c-8a63-afb333419cd6": {
+    "name": "Claude Opus 4.6 (Non-reasoning, High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "e9a09db3-8fd6-41dd-ba2f-20e0a2bff7f2": {
+    "name": "Claude Opus 4.7 (Max)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "2fa8e143-77a8-4d05-bfa8-d3b54634c00f": {
+    "name": "Claude Opus 4.7 (Non-reasoning, High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "992b7b84-5069-4c6a-9295-834252553d50": {
+    "name": "Claude Opus 4.8 (Max)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "712be54a-77ae-41b2-9a58-21181479d6ee": {
+    "name": "Claude Opus 5 (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "20928ba9-3a3f-415f-9519-b84ff64ecf34": {
+    "name": "Claude Opus 5 (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "b8fc61f7-5e9a-49e6-8547-6ac56db24627": {
+    "name": "Claude Opus 5 (Max)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "ff51be8f-e362-4a7e-9043-687ba15de207": {
+    "name": "Claude Opus 5 (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "1305c921-7aaa-4d6d-99b5-99b3acf15e19": {
+    "name": "Claude Opus 5 (Xhigh)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "f314eade-2232-44bf-a3ab-9b326bc67de6": {
+    "name": "Claude Opus 5.5 (High, Default Fallback)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "4416ca93-fde6-4b7b-abbc-3a6be109cc3d": {
+    "name": "Claude Opus 5.5 (Low, Default Fallback)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "2f3c4dc9-a450-4303-8697-0237257cf08f": {
+    "name": "Claude Opus 5.5 (Max, Default Fallback)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "ea9e0da6-169f-43c6-92f5-730a10d6ff8d": {
+    "name": "Claude Opus 5.5 (Medium, Default Fallback)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "df5bf99d-d228-4715-b41b-19ca86118777": {
+    "name": "Claude Opus 5.5 (Xhigh, Default Fallback)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "df8d14e0-3997-4e4d-b4ad-9c047acc9c69": {
+    "name": "Claude Sonnet 4.6 (Max)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "2e40e695-3cec-43da-83f9-615af30b8e91": {
+    "name": "Claude Sonnet 4.6 (Non-reasoning, High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "f2e21112-192e-4aed-ae82-68ca3b38e667": {
+    "name": "Claude Sonnet 4.6 (Non-reasoning, Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "ba0224cf-0351-4f56-8508-b3f1a740ae4a": {
+    "name": "Claude Sonnet 5 (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "142b93bf-09c4-42dc-9c3a-50b1a222cbd4": {
+    "name": "Claude Sonnet 5 (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "23c86e4a-c769-43c0-a056-79e3cd15834f": {
+    "name": "Claude Sonnet 5 (Max)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "effcd151-7c31-4437-af3d-e88daeae9385": {
+    "name": "Claude Sonnet 5 (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d58b9ada-fd9d-4fff-a086-242034657963": {
+    "name": "Claude Sonnet 5 (Non-reasoning, High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "99f376bf-cbcb-4124-bf3e-6b0a4e6e9bea": {
+    "name": "Claude Sonnet 5 (Xhigh)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "268525e2-f873-4178-bc07-e6a0ee1f002d": {
+    "name": "Claude Sonnet 5.5 (High, Default Fallback)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "bbc2ffea-cf6b-43be-8c41-1769347e234d": {
+    "name": "Claude Sonnet 5.5 (Low, Default Fallback)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "b171d979-5ec1-45de-b8b9-db1ee65e77ec": {
+    "name": "Claude Sonnet 5.5 (Max, Default Fallback)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "042e8a37-fcd0-40f4-8f41-99215fb68eda": {
+    "name": "Claude Sonnet 5.5 (Medium, Default Fallback)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "975aeaef-50bd-4a65-9c73-f1015adcd4d4": {
+    "name": "Claude Sonnet 5.5 (Xhigh, Default Fallback)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "3bc32f13-5afa-4e28-bce1-10e57376686b": {
+    "name": "Command A",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "0e34f05c-387e-4968-be15-ccec4a55d8c1": {
+    "name": "DeepSeek R1 (Jan '25)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "a83f84b3-473a-4276-9ae1-8909da723159": {
+    "name": "DeepSeek R1 0528 (May '25)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "4a845d7b-a52d-43bb-80b7-b58c7a0c155e": {
+    "name": "DeepSeek R1 Distill Llama 70B",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "43fc5506-c5ed-4dee-9b85-962bf7ae3986": {
+    "name": "DeepSeek V3 (Dec '24)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "75e1c197-f239-4361-a9d6-66dccfead236": {
+    "name": "DeepSeek V3 0324",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "fb65266f-5a7d-403c-85d5-ccdf0d1ca838": {
+    "name": "DeepSeek V3.1 (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "198b717f-42c8-4ab7-a699-ae9373d669d3": {
+    "name": "DeepSeek V3.1 (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "dfb9292d-bc7c-4425-a260-4256217e709f": {
+    "name": "DeepSeek V3.1 Terminus (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "0a7dda4d-cc9c-4a90-abc1-abb5772c901b": {
+    "name": "DeepSeek V3.1 Terminus (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "6d9a176d-feb8-4dac-8872-afe32b31897f": {
+    "name": "DeepSeek V3.2 (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d621247c-d47e-458c-82cb-a166bc3b37e5": {
+    "name": "DeepSeek V3.2 (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "07c35e00-2b12-44c8-91cc-408629cd569e": {
+    "name": "DeepSeek V3.2 Exp (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "af134350-8ba3-4629-b56b-00bd6dcf60c4": {
+    "name": "DeepSeek V3.2 Exp (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "89a2c945-1fab-4ee4-9f45-83a9f46cb221": {
+    "name": "DeepSeek V4 Flash 0420 (High)",
+    "tier": "30",
+    "cap": 30,
+    "multiplier": 3.0,
+    "go": true
+  },
+  "d8ddb241-b3e4-4c25-a6a3-72eb1b30c541": {
+    "name": "DeepSeek V4 Flash 0420 (Max)",
+    "tier": "30",
+    "cap": 30,
+    "multiplier": 3.0,
+    "go": true
+  },
+  "ad173c8d-f14f-4230-90e9-60979b7720e7": {
+    "name": "DeepSeek V4 Flash 0420 (Non-reasoning)",
+    "tier": "30",
+    "cap": 30,
+    "multiplier": 3.0,
+    "go": true
+  },
+  "fe4c0848-e284-4e52-a79d-cdc28392f1a9": {
+    "name": "DeepSeek V4 Flash 0731 (Max)",
+    "tier": "30",
+    "cap": 30,
+    "multiplier": 3.0,
+    "go": true
+  },
+  "7707a46f-895f-4247-b7a8-ddab87c9a11d": {
+    "name": "DeepSeek V4 Flash Vision (Max)",
+    "tier": "30",
+    "cap": 30,
+    "multiplier": 3.0,
+    "go": true
+  },
+  "5da3c0e2-65d2-4bff-a410-cb2132ddafb6": {
+    "name": "DeepSeek V4 Pro 0424 (High)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "bf220674-68bd-43cc-a1b8-ce5ed4d2f18d": {
+    "name": "DeepSeek V4 Pro 0424 (Max)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "6e2a2572-ed8d-4616-8d7d-68d125fc8ee7": {
+    "name": "DeepSeek V4 Pro 0424 (Non-reasoning)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "83173329-c09a-41f1-a028-a282a5f908d7": {
+    "name": "DeepSeek V4 Pro 0813 (Max)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "d4f5b250-be37-4801-85e6-32fda4179337": {
+    "name": "DeepSeek V4 Pro 0813 (Non-reasoning)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "dbe7c625-3100-4463-b479-a228c41f75dd": {
+    "name": "DeepSeek V4.1 Flash (Max)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "73c96f99-0de3-4668-a4bd-b106a0fe18f2": {
+    "name": "DeepSeek V4.1 Flash (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "ae4fe623-80ab-4ea3-8921-70a18ea0fc7e": {
+    "name": "ERNIE 4.5 300B A47B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "6afbfb62-27e4-435e-9c85-d9fe1b92519e": {
+    "name": "Gemini 2.5 Flash (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "219ed587-60c5-4a48-9517-8480e08d0ca1": {
+    "name": "Gemini 2.5 Flash (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "1d81aa1c-64c8-442a-9c41-81b37e407b91": {
+    "name": "Gemini 2.5 Flash-Lite (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "f4e8194a-d0e6-48eb-92be-4307de5aeeec": {
+    "name": "Gemini 2.5 Flash-Lite (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "71f51ea9-94fe-4635-a80d-4cfffbb685f4": {
+    "name": "Gemini 2.5 Flash-Lite Preview (Sep '25) (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "84922739-425f-46e1-87ac-bb4268dcacbb": {
+    "name": "Gemini 2.5 Flash-Lite Preview (Sep '25) (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "27202e5f-c82d-4710-92e9-4317877d4883": {
+    "name": "Gemini 2.5 Pro",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "073b5329-c4b3-4f1f-8f97-4753aadf4398": {
+    "name": "Gemini 2.5 Pro Preview (May' 25)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "783a0ea2-1eef-422a-8c3d-f6d40d943f54": {
+    "name": "Gemini 3 Flash Preview (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "7c73c3be-7f51-4d14-bec8-d5789488df25": {
+    "name": "Gemini 3 Flash Preview (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d1122eff-ee85-4fdc-8a9f-23bee6590667": {
+    "name": "Gemini 3 Pro Preview (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "b2f3191f-77d6-4155-8be6-330f0baa1ae5": {
+    "name": "Gemini 3 Pro Preview (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "598190f8-dc9c-4fea-a7ea-4b81c402ab18": {
+    "name": "Gemini 3.1 Flash-Lite",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "bbd93ebe-80da-4594-bb19-61e69d0331df": {
+    "name": "Gemini 3.1 Pro Preview",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "0097ebf5-124f-42f6-9463-33b00e711f03": {
+    "name": "Gemini 3.5 Flash (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "5016ea75-7b0e-4737-a7e6-1062c6d90fd4": {
+    "name": "Gemini 3.5 Flash (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "033ade17-d9ec-44e0-b792-b5f1fcd5ab4c": {
+    "name": "Gemini 3.5 Flash (Minimal)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "093b9df2-ebee-4309-943f-5a7e88360adf": {
+    "name": "Gemini 3.5 Flash-Lite",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "78332c88-fe60-42c8-af9d-3617e44cf1f5": {
+    "name": "Gemini 3.6 Flash (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "b2331108-72ed-415a-82d1-188633875bbc": {
+    "name": "Gemini 3.7 Flash (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "ddfdaf64-3f8e-40a6-a492-608ee83a1351": {
+    "name": "Gemini 3.7 Flash (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "eb0d4272-7204-42b9-b875-8866fed58548": {
+    "name": "Gemini 3.7 Flash (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "8a999846-4c1d-4ce7-a8b7-1310a7166fd7": {
+    "name": "Gemini 3.8 Flash (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "f6db039b-0f3b-485c-9d7f-982988e44f26": {
+    "name": "Gemini 3.8 Flash (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "744fa3c1-42a7-4995-b138-fb6be11f463c": {
+    "name": "Gemini 3.8 Flash (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d366dfa1-d940-4788-aa73-d298c45699b3": {
+    "name": "Gemini 4 Argon (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "025ec6b6-df4a-449f-9a03-24e4388d6863": {
+    "name": "Gemma 4 12B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "feb02d3b-ff8d-4ed4-b165-13f8d4a7192c": {
+    "name": "Gemma 4 12B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "70882ec6-914c-41f0-9754-5e8f75005f77": {
+    "name": "Gemma 4 26B A4B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "6e1b44ff-c227-496b-aef4-19b70cd18c76": {
+    "name": "Gemma 4 26B A4B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d0aa27aa-4705-4184-9a1d-483b78c9331c": {
+    "name": "Gemma 4 31B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "5303601c-8133-4f52-bc4e-5241ee6b3c10": {
+    "name": "Gemma 4 E4B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d80eb0f1-f62e-4d31-99d2-7a925eb126b0": {
+    "name": "Gemma 4 E4B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "19496b81-9f41-4214-a77a-1df803b3c5ae": {
+    "name": "GLM 5.3 Flash",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "5d303dc9-c027-401f-9803-4e9aa3331007": {
+    "name": "GLM-4.5-Air",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "0081ab31-d10a-44a0-a10d-eee5533fec65": {
+    "name": "GLM-4.5V (Non-reasoning)",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "3068def4-7270-4c06-a320-6f6a5623d564": {
+    "name": "GLM-4.5V (Reasoning)",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "946e7aab-db1c-4c3f-b0b3-7720d0cff187": {
+    "name": "GLM-4.6 (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "6a5d56e1-bb68-4205-8d9b-26b97888bc84": {
+    "name": "GLM-4.6 (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "43098bd0-77ca-408b-b698-9d60b1d1c3b8": {
+    "name": "GLM-4.6V (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d2d7dd95-770f-4cb0-9bbc-d275ac19c265": {
+    "name": "GLM-4.6V (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "81b6ddfc-111e-4422-bd44-42ee6165b699": {
+    "name": "GLM-4.7 (Non-reasoning)",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "6fc35842-0165-44cf-8570-c484a92b3d8c": {
+    "name": "GLM-4.7 (Reasoning)",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "c8673741-5e1a-46a1-9e4f-710a5c920982": {
+    "name": "GLM-4.7-Flash (Non-reasoning)",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "2c4394a2-b443-470a-908e-5c4a271b780c": {
+    "name": "GLM-4.7-Flash (Reasoning)",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "f164b41f-44c5-4675-bca3-fea1db4bd9ae": {
+    "name": "GLM-5 (Non-reasoning)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "40663ad2-b218-471e-bdd4-a1e0c2360e2b": {
+    "name": "GLM-5 (Reasoning)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "92f245a7-43b4-4ffd-8bfb-866746bf824d": {
+    "name": "GLM-5.1 (Non-reasoning)",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "5aa1c578-af76-4b91-8699-cdd43582b3af": {
+    "name": "GLM-5.1 (Reasoning)",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "f7a4ea75-e548-4069-80d4-9be8bc7c009b": {
+    "name": "GLM-5.2 (Max)",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "e8aa417f-18fe-46b0-ba62-ef99785a9585": {
+    "name": "GLM-5.2 (Non-reasoning)",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "cc1e488b-8ba4-464d-875d-690166b15ad3": {
+    "name": "GLM-5.3 (Low)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "cd684ea4-b475-4269-b001-d469d06d8a7a": {
+    "name": "GLM-5.3 (Max)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "037dec2f-51e8-4127-a1f1-85155dae7a1d": {
+    "name": "GPT-3.5 Turbo",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "6a7c0e25-1dcb-4b15-8495-a8536a9da051": {
+    "name": "GPT-4",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "76aa6af5-fdc6-4739-a300-983f14e74a67": {
+    "name": "GPT-4 Turbo",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "3b608b70-6434-4baa-99ad-45d499703c67": {
+    "name": "GPT-4.1",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "9f7c7566-a704-49a2-a383-cb3181da33a4": {
+    "name": "GPT-4.1 mini",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "72c358fd-7d45-4d68-89aa-699743710924": {
+    "name": "GPT-4.1 nano",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "8c1be908-67b6-4cf4-ba08-83ddbe44fde3": {
+    "name": "GPT-4o (Aug '24)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "e98e911e-9fb2-4a9a-826e-3d681d0cdca8": {
+    "name": "GPT-4o (May '24)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "c1045dc0-4fd3-4adb-9548-18763e0d051f": {
+    "name": "GPT-4o (Nov '24)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "b5c1c91a-7474-4409-9a9c-9c2ac45d9eb6": {
+    "name": "GPT-4o mini",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "48e50f00-1fd1-4acc-b337-61078aa341e6": {
+    "name": "GPT-5 (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "7f3c9423-3ee3-4369-a6d9-3f2a40aff00e": {
+    "name": "GPT-5 (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "5e965af0-ca5c-4f47-9ba9-06000508b84a": {
+    "name": "GPT-5 (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "c3738fb0-3408-4430-a699-760ae4b70c93": {
+    "name": "GPT-5 (Minimal)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "5d11e7a1-4f70-4e5a-9364-e193761d6757": {
+    "name": "GPT-5 Codex (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "29855680-7469-43eb-8b88-cd3fb1d99da3": {
+    "name": "GPT-5 mini (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "c3274a19-6d3c-4d01-ab9b-5055a0a40429": {
+    "name": "GPT-5 mini (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "bc26bfdb-4923-4442-a6ca-e77392923581": {
+    "name": "GPT-5 mini (Minimal)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "e18e5e6a-5a31-4c0b-b80b-ac401392f446": {
+    "name": "GPT-5 nano (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "8eb02396-f231-4189-ae15-05f7facebd9b": {
+    "name": "GPT-5 nano (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "05e45a36-b5c6-47a1-8adb-9ddc19add5b3": {
+    "name": "GPT-5 nano (Minimal)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "4dc12a38-b18f-4c43-8e1b-678f8434b5b1": {
+    "name": "GPT-5.1 (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d0b3d47e-aec6-425e-9de7-168dcc6d1e28": {
+    "name": "GPT-5.1 (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "04d023f3-025c-4d78-9571-53edda3eaf2a": {
+    "name": "GPT-5.1 Codex (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "fd4454ff-e703-46c0-a7f5-fa69af09486d": {
+    "name": "GPT-5.1 Codex mini (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "84e3f11e-d659-4941-8988-1dbfabbaf538": {
+    "name": "GPT-5.2 (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "6dd8ba55-5680-44a9-b309-82928165d5f0": {
+    "name": "GPT-5.2 (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "498862c3-f9ac-49d2-852f-16a02bb0c38f": {
+    "name": "GPT-5.2 (Xhigh)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "019e86f6-e66b-42d8-8a50-235a06b53003": {
+    "name": "GPT-5.2 Codex (Xhigh)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "59b5b14b-5365-4ee7-824a-18a8e6309644": {
+    "name": "GPT-5.3 Codex (Xhigh)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "538e945c-6c27-4fd3-995d-ded80a36cd10": {
+    "name": "GPT-5.4 (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "493f6a1e-7717-4e98-9d6f-548b92c4702d": {
+    "name": "GPT-5.4 (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "a89c4b28-2d8c-456e-88ea-255fb51fd2b6": {
+    "name": "GPT-5.4 (Xhigh)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "392063ba-c3b5-47e8-ba67-a7b0b34f6824": {
+    "name": "GPT-5.4 mini (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "ae447455-940d-4d30-9139-a664fa896eaf": {
+    "name": "GPT-5.4 mini (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "ba242e40-83b7-4cd3-a0e0-b56237984914": {
+    "name": "GPT-5.4 mini (Xhigh)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "8869f28a-a6ff-487f-8d32-93fe335fdda5": {
+    "name": "GPT-5.4 nano (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "c298d1a8-606c-4971-8613-ccdaaf941043": {
+    "name": "GPT-5.4 nano (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d4fc3f33-f2b0-4da1-88ee-f1f82bd4de31": {
+    "name": "GPT-5.4 nano (Xhigh)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "b13c1257-d746-4027-8fc8-4892dc14701c": {
+    "name": "GPT-5.5 (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "c77cfe51-f4a0-4692-9dee-5061ef667f23": {
+    "name": "GPT-5.5 (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "6b79f899-e3c0-45f6-923c-243faccdb2fc": {
+    "name": "GPT-5.5 (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "6f1a7562-6e96-46ac-af4f-6ba5a7a3da96": {
+    "name": "GPT-5.5 (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "1f054429-397e-4fdb-9e71-67bc92c1735e": {
+    "name": "GPT-5.5 (Xhigh)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "c4169d75-9d24-4794-a9c3-69e1fe364de5": {
+    "name": "GPT-5.5 Instant (June 2026)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "e34ffffb-d8e1-4f5c-a2c7-3ca19c235eeb": {
+    "name": "GPT-5.5 Instant (May 2026)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "aa55297e-8fbf-4372-b4ab-9b068dc6396c": {
+    "name": "GPT-5.6 Luna (High)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "050c61cd-cddc-463a-a30a-a82aaa37be59": {
+    "name": "GPT-5.6 Luna (Low)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "426d24c8-49ae-482a-b4a8-20f1c53f21c1": {
+    "name": "GPT-5.6 Luna (Max)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "58b812bf-8498-46db-b834-f43ccc614b61": {
+    "name": "GPT-5.6 Luna (Medium)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "dc64f856-3ded-497d-9527-d41d31267ed5": {
+    "name": "GPT-5.6 Luna (Non-reasoning)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "87110ff0-1f79-41b4-9976-eda250597317": {
+    "name": "GPT-5.6 Luna (Xhigh)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "8afc250d-b538-45a2-812a-4605f4ffd87e": {
+    "name": "GPT-5.6 Sol (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "0904b596-8932-43bd-9b21-324f128e1723": {
+    "name": "GPT-5.6 Sol (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d93edfe8-bf35-49ad-b56e-b18116142a1c": {
+    "name": "GPT-5.6 Sol (Max)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "6f174934-5b7d-4333-86cb-f5ebf4a862e3": {
+    "name": "GPT-5.6 Sol (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "7c4d1e30-6ecb-46cf-880c-41446d7b51f1": {
+    "name": "GPT-5.6 Sol (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d998db47-9b67-4727-a2bb-2e1261020ac0": {
+    "name": "GPT-5.6 Sol (Xhigh)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "81972fba-1219-477e-bbfb-18c656a63ff7": {
+    "name": "GPT-5.6 Terra (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "cc4a20cd-09fe-4962-a430-119c815e85fa": {
+    "name": "GPT-5.6 Terra (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "bcf8db0a-3bb6-4d82-9516-0f57370c85a6": {
+    "name": "GPT-5.6 Terra (Max)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "26e0f83a-ca98-4f34-94ac-7c5e251ee410": {
+    "name": "GPT-5.6 Terra (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "9b97a35e-6ac7-44d9-91c6-422fa678963e": {
+    "name": "GPT-5.6 Terra (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "9e30696f-16fa-4b4f-ba53-161895a85fed": {
+    "name": "GPT-5.6 Terra (Xhigh)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "e05a4828-0536-4876-870d-a235023f992b": {
+    "name": "GPT-6 Astra (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "a3f8100d-e38f-408b-b0fa-0085dae18dc1": {
+    "name": "GPT-6 Astra (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "2f339a97-9a0d-499a-9cb5-e0db665bfa25": {
+    "name": "GPT-6 Astra (Max)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "e97a4ef5-e817-480e-9595-12f81dc4974f": {
+    "name": "GPT-6 Astra (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "1f541ef3-913f-4eb2-9d07-0e93c7a9a5e3": {
+    "name": "GPT-6 Astra (Xhigh)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "7d1229bc-deea-4717-ba5b-f59a35d991e3": {
+    "name": "GPT-6 Luna (High)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "bf9708d8-933d-44f6-affa-b696a7a650c9": {
+    "name": "GPT-6 Luna (Low)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "6fb13851-40ce-4bda-ad3f-6b38e0c5daa7": {
+    "name": "GPT-6 Luna (Max)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "36667da0-9222-4967-adbb-f7efa15ad213": {
+    "name": "GPT-6 Luna (Medium)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "63cb48ea-0b0c-4e07-8ded-6d28dec4fa28": {
+    "name": "GPT-6 Luna (Non-reasoning)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "19813eb2-460a-475c-af65-810bb8660fec": {
+    "name": "GPT-6 Luna (Xhigh)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "52eebe3e-6ede-4e46-92db-c5dea49fc410": {
+    "name": "GPT-6 Sol (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "01459872-433a-4ab2-8e99-7083162172eb": {
+    "name": "GPT-6 Sol (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "c50ea08c-88c0-4eb7-85b8-27f2bbf6d527": {
+    "name": "GPT-6 Sol (Max)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "780a4a85-17ff-4175-a8dd-ebca4823e61b": {
+    "name": "GPT-6 Sol (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d3e20e76-9e1a-45b6-b809-ad6aa37430cf": {
+    "name": "GPT-6 Sol (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "da2642fe-9f73-4788-b5af-24edcd55b37e": {
+    "name": "GPT-6 Sol (Xhigh)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "3b84fee3-b70a-41bc-819e-5fbdef9a0042": {
+    "name": "GPT-6.1 Sol (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "e76e0fe5-93ca-4272-9359-2eb1740467d1": {
+    "name": "GPT-6.1 Sol (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "b25ac058-1e33-4c31-bbc9-a20c3ad0717a": {
+    "name": "GPT-6.1 Sol (Max)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "a2e51d62-ea4e-4f15-8be0-be9dc1fb489d": {
+    "name": "GPT-6.1 Sol (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "092a3b0e-c5c8-45dc-bf1b-53673c8ff352": {
+    "name": "GPT-6.1 Sol (Xhigh)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "f0083258-8646-45b8-8082-7aaf6c2ea82a": {
+    "name": "gpt-oss-120b (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "c99f3bde-7c08-4de8-bd5c-8ee9123ebffa": {
+    "name": "gpt-oss-120b (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "36f73aaf-d38a-4b56-a2b3-d04d17186910": {
+    "name": "gpt-oss-20b (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "16149b9c-a1e9-4669-a5cb-ff3c00d78f89": {
+    "name": "gpt-oss-20b (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "2cff73da-4855-403c-afc9-5540feadcc15": {
+    "name": "Granite 3.3 8B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "5dba8d07-9992-483c-81db-dac97cb15ba8": {
+    "name": "Granite 4.0 H Small",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "1071dea1-43e7-4fe9-b936-3034bb622b2e": {
+    "name": "Granite 4.2 30B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "0c64b008-20c3-408d-bd68-15136df8cd2c": {
+    "name": "Granite 4.2 3B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "adfae555-f489-4f3e-9064-c6b7fcdd0783": {
+    "name": "Granite 4.2 8B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "2443ac9e-a3db-423d-accb-8963f6fb0a53": {
+    "name": "Grok 3",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "ff9bc5e5-a02f-4270-983e-4b3f834f3363": {
+    "name": "Grok 3 mini Reasoning (High)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "5ea94a4a-55ac-4ea1-8898-2b3971e94af6": {
+    "name": "Grok 4",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "2dbb6dc7-8c40-4b6d-af9c-cf805f83b79a": {
+    "name": "Grok 4 Fast (Non-reasoning)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "573bbd93-114c-4b71-9ede-a73a7d4bdf84": {
+    "name": "Grok 4 Fast (Reasoning)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "523125f4-a1da-4990-9abd-dd08a069100e": {
+    "name": "Grok 4.20 0309 (Non-reasoning)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "04787c2b-0751-4269-8029-075b727d7aed": {
+    "name": "Grok 4.20 0309 (Reasoning)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "64312f37-3701-4243-a4c9-7c07a58cd6b9": {
+    "name": "Grok 4.20 0309 v2 (Non-reasoning)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "c72cb85a-18a4-4235-b455-77dff2f16c50": {
+    "name": "Grok 4.20 0309 v2 (Reasoning)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "948892b5-db03-4118-a4a8-ccd51ed871ea": {
+    "name": "Grok 4.3 (High)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "fe2c2289-d261-4433-8681-46448372c1f6": {
+    "name": "Grok 4.3 (Low)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "5e8b0d98-a3b4-42b5-93d8-ecb748788754": {
+    "name": "Grok 4.3 (Medium)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "90c2a9cf-ad7e-4332-9be2-2fd1309833e2": {
+    "name": "Grok 4.3 (Non-reasoning)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "794f69b5-cede-482b-b1cc-d769478497cd": {
+    "name": "Grok 4.5 (High)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "c8adc5cf-fd5a-407b-af51-dc3bede3e49c": {
+    "name": "Grok 4.6 (High)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "c07e65e6-32fc-451e-938d-7477a1c3ffcc": {
+    "name": "Grok 4.6 (Low)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "26614164-6840-4e17-a65a-2deb2fe7e87b": {
+    "name": "Grok 4.6 (Medium)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "d6f43d0a-e8c4-447c-9ff7-5cf0a9d59aa3": {
+    "name": "Grok 4.6 (Xhigh)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "272f5f03-aea9-4675-a244-2b753b618cdf": {
+    "name": "Grok 4.7 (High)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "208c16f0-8c5b-4524-ac8a-ac74c02e80a9": {
+    "name": "Grok 4.7 (Low)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "59627802-1546-422c-9a65-65b61c022d36": {
+    "name": "Grok 4.7 (Xhigh)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "0b7efa66-2115-49e0-a1b7-a2ba225fe9f6": {
+    "name": "Grok Build 0.1 0616",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "1dcea4f7-7e8b-49f8-abe2-5860ff9f349e": {
+    "name": "Hermes 3 - Llama-3.1 70B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d3968fd3-97d8-4693-8d26-19cefc6f5d5f": {
+    "name": "Hermes 4 - Llama-3.1 405B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "82b207dd-d285-4a52-b2fc-2cbd27543899": {
+    "name": "Hermes 4 - Llama-3.1 405B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "b23e6c69-96e5-44c9-8f58-4b42e0c399d5": {
+    "name": "Hy3",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "b58b8272-cd3f-44b9-9b68-612f40779ce2": {
+    "name": "Hy3-preview (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "8ca48626-ff5e-48b3-8401-38081376d706": {
+    "name": "Hy3-preview (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "0de09623-2b1a-4c8d-86ef-7f5245d4e24b": {
+    "name": "Inkling (Xhigh)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "7261504e-503c-4a66-a9d3-a3272cdf9ad6": {
+    "name": "Inkling Small",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "b4ddb4c8-1400-44ab-8c2b-e2472088e7ff": {
+    "name": "Jamba 1.5 Large",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "540ebc58-a2d8-4dc9-ba6b-973efa52fab1": {
+    "name": "Jamba 1.5 Mini",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "fc4223e8-4586-4ca1-97ca-bb55ff586947": {
+    "name": "KAT Coder Pro V2",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "441734a9-8901-4850-9bae-b474c370291f": {
+    "name": "Kimi K2",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "66445f84-b2e3-4202-afdc-92ba0f0e5f36": {
+    "name": "Kimi K2 0905",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "bddebfd3-0a8d-47f5-b722-bc4c2ca5a5dc": {
+    "name": "Kimi K2 Thinking",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "ba04694d-326a-4a6a-8f1b-46316f872a7f": {
+    "name": "Kimi K2.5 (Non-reasoning)",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "a550ffca-f89e-4381-ade6-a85dc6a1fb4c": {
+    "name": "Kimi K2.5 (Reasoning)",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "0fc6308e-fbd2-42d3-a216-06da3c43e34e": {
+    "name": "Kimi K2.6 (Non-reasoning)",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "0de67206-4d36-4d10-b8f6-cf37fa747a03": {
+    "name": "Kimi K2.6 (Reasoning)",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "8d0cb231-7303-452c-9923-a9620b948475": {
+    "name": "Kimi K2.7 Code",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "512d17ef-13d2-4f65-bf9b-154b0dec7e8d": {
+    "name": "Kimi K3 (Low)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "f7d2fc3e-1f7b-405f-818c-07952a4af78f": {
+    "name": "Kimi K3 (Max)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "e33dc369-ae81-40e0-8c4e-28b002d02197": {
+    "name": "Ling 3.0 Flash",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "a6043b9b-628a-4a76-a021-2834e0627d05": {
+    "name": "Ling 3.1 Flash",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "2e46d2fd-eb2b-42b9-9fe4-be50630fe870": {
+    "name": "Ling-2.6-1T",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "6d6fa1c9-b833-40b2-8a58-fa810e24a84e": {
+    "name": "Ling-3.0-flash-Fin",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "433d5c5d-3092-4026-9727-1587ca07915d": {
+    "name": "Ling-3.0-flash-VL",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "882a5da3-94ca-4602-8693-c45970df17e2": {
+    "name": "Ling-flash-2.0",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "ffd65ef7-fbdb-4145-98ae-b5d01cda770b": {
+    "name": "Llama 2 Chat 7B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "aa83359a-d804-4f0b-b5bf-dc637711c26f": {
+    "name": "Llama 3 Instruct 70B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "82879bb8-89fb-4adc-b519-315b8ef30b77": {
+    "name": "Llama 3 Instruct 8B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "466aecdb-3d96-4191-bc52-b3366db38851": {
+    "name": "Llama 3.1 Instruct 70B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "739684ba-0f63-4e2a-b4ee-30741c9e9320": {
+    "name": "Llama 3.1 Instruct 8B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "5fb47ff6-a30e-4c2c-96f2-55e95a13390f": {
+    "name": "Llama 3.2 Instruct 11B (Vision)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "976cc8ad-7904-4056-83c5-960181f47d5f": {
+    "name": "Llama 3.3 Instruct 70B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "922c69c7-9037-43c6-8bcf-a1c555e7f3eb": {
+    "name": "Llama 4 Maverick",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "adf9a85e-abc3-4f28-937b-db6655cc5238": {
+    "name": "Llama 4 Scout",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "5c3bdc0d-abab-4526-8079-34de4089bb4a": {
+    "name": "LongCat 2.0",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "70152cb0-fb36-4732-a925-89ef40994be1": {
+    "name": "Magistral Small 1.2",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "016d330a-2141-4afa-b2fc-62b314423dc1": {
+    "name": "Mercury 2",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "765c9f31-95ec-4f14-900a-80614c3b0777": {
+    "name": "Mercury 2.5",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "be185709-ddb4-4268-9597-856464359b25": {
+    "name": "MiMo-V2-Flash (Reasoning)",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "22d09131-343b-4adf-8760-533e20a2155f": {
+    "name": "MiMo-V2.5",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "4764d31d-f4af-4297-8bd1-e993f26bcb64": {
+    "name": "MiMo-V2.5-Pro (Non-reasoning)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "00f1248e-78e3-4230-8dc8-5e13ba8645e2": {
+    "name": "MiMo-V2.5-Pro (Reasoning)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "127de816-57d3-4037-8484-480a613cd413": {
+    "name": "MiMo-V2.6-Flash",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "24d8fdfe-6241-424e-b7b7-1b6efb06e4fb": {
+    "name": "MiMo-V2.6-Pro",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "9ca246a7-cf13-42c9-9182-5b5ad6b79026": {
+    "name": "MiniMax M1 80k",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "f74ea286-cd29-4eb4-af14-1389b19c21e5": {
+    "name": "MiniMax-M2",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "272ff333-442f-4169-a804-ac9177bc99d7": {
+    "name": "MiniMax-M2.1",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "12adec16-19fe-4d92-aeff-5ef3eb7e780a": {
+    "name": "MiniMax-M2.5",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "4bbceacb-cf47-464b-b60f-e1d1fe016d67": {
+    "name": "MiniMax-M2.7",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "277f939a-985b-4b37-859d-b3eabc7c0b26": {
+    "name": "MiniMax-M3",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "713fae11-c75c-4f10-ae2c-8e4074cd58af": {
+    "name": "Ministral 3 14B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "66f4ce73-9a9b-4b49-9c6e-bedb9bfdc720": {
+    "name": "Ministral 3 3B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "9741f3c2-cbb1-4a3f-99ee-7bd7384d9038": {
+    "name": "Ministral 3 8B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "217b34ec-5920-4fc1-8886-6a70a324837d": {
+    "name": "Mistral 7B Instruct",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "5e4e4590-a77e-4b66-95f8-f3960a1a7c68": {
+    "name": "Mistral Large (Feb '24)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "1b05e346-e86a-4a20-8feb-7da8c65a99aa": {
+    "name": "Mistral Large 2 (Jul '24)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "4928e950-7f37-4475-b0dc-c5bad781a321": {
+    "name": "Mistral Large 3",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "59e22326-1bca-4432-a5fa-147fbe8854e7": {
+    "name": "Mistral Medium 3",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "dd059b25-d82a-4ead-82a4-4adceaaec48b": {
+    "name": "Mistral Medium 3.5",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "e5dd499f-c330-45ec-9ff0-a99209c82af7": {
+    "name": "Mistral Small 3",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "24ac5b00-5f03-4c47-8e37-522d1195383e": {
+    "name": "Mistral Small 3.1",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "43da3718-3d6e-40dd-901a-05664179ff7f": {
+    "name": "Mistral Small 3.2",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "12f6a061-0ab3-4c76-b225-49abee253651": {
+    "name": "Mistral Small 4 (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "3fd96175-4ef1-434c-8795-f873aec2abc1": {
+    "name": "Mistral Small 4 (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "3edcb2ed-6981-4f88-a556-563f7f8f00aa": {
+    "name": "Mixtral 8x7B Instruct",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "583f98fb-c4b8-4df3-8d40-60ac0ed69882": {
+    "name": "Muse Glimmer (High)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "d61493e2-43ff-460c-9054-eaf6ba317360": {
+    "name": "Muse Spark 1.1 (Xhigh)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "04ee6719-0327-463b-a1a1-70a6a78254f9": {
+    "name": "Muse Spark 1.2 (Xhigh)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "9999672c-b687-4026-9c15-5cef02ff53bb": {
+    "name": "Muse Spark 1.3 (Max)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "d5170215-69be-4129-849b-26d8d8825bfc": {
+    "name": "Muse Spark 1.3 (Xhigh)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "8c748e53-61ae-48b8-af8d-eb8298b1e9db": {
+    "name": "Nemotron 3 Nano Omni 30B A3B Reasoning",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "63872e9c-3377-4a6b-b477-7bba244c38e9": {
+    "name": "Nemotron 3 Super 120B A12B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "5b52def2-ac9b-4465-ad80-91ea8079e253": {
+    "name": "Nemotron 3 Ultra 550B A55B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "29976311-665a-4b2f-ac72-557c33e0758e": {
+    "name": "Nemotron 3.5 Lightning",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "61bd9367-e520-4ec8-989e-5fbf50e61610": {
+    "name": "Nova 2.0 Lite (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "6fd796d3-f346-4f66-97df-5da81714fc73": {
+    "name": "Nova 2.0 Lite (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "fbdf8da1-b341-448c-b3cb-8aff1d8f70b9": {
+    "name": "Nova 2.0 Lite (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "76bce7fb-3a3f-4b66-a78d-35ccf3edf5d2": {
+    "name": "Nova 2.0 Lite (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "b36ff8f3-0323-49d1-a063-ab09704fdb0c": {
+    "name": "Nova 2.0 Omni (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "018c60e8-e908-431a-ba57-c840b1df3987": {
+    "name": "Nova 2.0 Omni (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "1f6478c9-3e22-4586-adbe-841782859677": {
+    "name": "Nova 2.0 Omni (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "f4274721-ef28-4121-aa88-8e97267a5a82": {
+    "name": "Nova 2.0 Pro Preview (Low)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "0d94dc87-12c8-4d4a-8d99-804ce3f17bc2": {
+    "name": "Nova 2.0 Pro Preview (Medium)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "a20ae33a-46e1-41e6-81a0-fe8b00d2e538": {
+    "name": "Nova 2.0 Pro Preview (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "5c3dd927-48a3-4f3c-8045-9b135f62dfbb": {
+    "name": "Nova Lite",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "344c6718-c573-41d4-9556-10287a3fa1fc": {
+    "name": "Nova Micro",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "546ec53f-273c-4af7-b13f-b88c41f45905": {
+    "name": "Nova Pro",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "23b379f7-18df-492a-9fc1-a56c5a5b9cfc": {
+    "name": "NVIDIA Nemotron 3 Nano 30B A3B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "76dcf6ef-39ea-4be0-b693-b88da25b4caf": {
+    "name": "NVIDIA Nemotron 3 Nano 30B A3B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "ab7f016c-a29b-4710-bdf6-6a5cd96aacca": {
+    "name": "NVIDIA Nemotron Nano 12B v2 VL (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "2e8694f9-7782-47a6-a6ba-fdce89d939c8": {
+    "name": "NVIDIA Nemotron Nano 9B V2 (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "f1d52583-9d20-4099-99ac-b5df9430c3b6": {
+    "name": "NVIDIA Nemotron Nano 9B V2 (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "5ad2f60f-ee05-49fd-85a0-cef69aa7cb7b": {
+    "name": "o1",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "078f4dc8-5350-40a2-a5ea-e8359f795b70": {
+    "name": "o1-preview",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "e8d4100e-165b-4c5d-ac11-ac553590a334": {
+    "name": "o1-pro",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "16c5b637-8bce-4252-81f2-1b87a36a4e4c": {
+    "name": "o3",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "2dad8957-4c16-4e74-bf2d-8b21514e0ae9": {
+    "name": "o3-mini",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "076f2674-bc4b-4925-be59-50832eb8c090": {
+    "name": "o3-mini (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "ca04852c-eaae-4881-a208-f9b2ca3b7cd6": {
+    "name": "o3-pro",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "84b49308-6b93-47aa-a4f6-776ee1a1e8cd": {
+    "name": "o4-mini (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "8f74a6ed-f82f-4a2f-a96b-4914993e47da": {
+    "name": "Olmo 3 7B Instruct",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "ee708f92-374e-4123-b900-e22d7b2afc19": {
+    "name": "Phi-4",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "f9739750-6d42-450f-ba1e-2f76c869b4fe": {
+    "name": "Quasar 438B (Max, Based on GLM-5.2)",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "b4f7d7a4-869a-4ee7-b17a-4046cd1e79fd": {
+    "name": "Qwen2.5 Instruct 72B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "352f834f-a03c-4117-8a29-c3ccd8a568ce": {
+    "name": "Qwen2.5 Turbo",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "ecc6524a-d521-458a-8327-5009e8ce6549": {
+    "name": "Qwen3 14B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "4559e9f0-8aad-4681-89fb-68cb915e0f16": {
+    "name": "Qwen3 14B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "43573c57-2403-46fb-af4b-a93de9a0c3f5": {
+    "name": "Qwen3 235B A22B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "bbe6d782-e630-48d5-b11c-3ce37f373f1e": {
+    "name": "Qwen3 235B A22B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "f6ccbe1d-bd7e-484b-9795-18cc9f91552d": {
+    "name": "Qwen3 235B A22B 2507 (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "3373245b-e6dc-4b66-a7b0-3f06f9b7bd46": {
+    "name": "Qwen3 235B A22B 2507 Instruct",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "f3169f25-8c6f-48e4-ae87-0cf872dc0ec1": {
+    "name": "Qwen3 30B A3B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "3e6cf518-a1f4-42d3-8fcf-827c9bd8e6d5": {
+    "name": "Qwen3 30B A3B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "5e0164b3-d902-4bcb-a1b2-83b4f4cd6143": {
+    "name": "Qwen3 30B A3B 2507 (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "7ec1065a-c90e-41e4-bd17-abb7042eed76": {
+    "name": "Qwen3 30B A3B 2507 Instruct",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "bf60740e-6aa5-422f-ba49-ef6e9d171205": {
+    "name": "Qwen3 32B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "b00ecd62-a53f-4aed-b833-3e9d6b0170ba": {
+    "name": "Qwen3 32B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "b2dd592a-fbc5-458a-b26d-f3964cbab82f": {
+    "name": "Qwen3 8B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "9dba61f5-78ee-4190-8d1d-8e7063ffd386": {
+    "name": "Qwen3 8B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "da9fe224-8af3-46d7-a8c4-6220779c3f35": {
+    "name": "Qwen3 Coder 30B A3B Instruct",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "093883ed-f5fc-443b-8e18-afbfb166699e": {
+    "name": "Qwen3 Coder 480B A35B Instruct",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "fc92f822-04b7-420d-9c07-a21af5e9aac7": {
+    "name": "Qwen3 Coder Next",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "7ae943a9-9310-4472-a834-c61f0ab68485": {
+    "name": "Qwen3 Max",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "5b2beb12-81a9-47a1-8a2a-d0a727185b50": {
+    "name": "Qwen3 Max (Preview)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "cbac8c35-e069-4c73-823e-0953e6ed0e85": {
+    "name": "Qwen3 Max Thinking (Preview)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "c8a79180-7d16-4474-8701-9a77c0baa56a": {
+    "name": "Qwen3 Next 80B A3B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "2698f6c6-e436-47ce-a583-dbc25596c571": {
+    "name": "Qwen3 Next 80B A3B Instruct",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "b97ef678-2d31-4375-9416-67ea97f87204": {
+    "name": "Qwen3 Omni 30B A3B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "0b226b82-1462-4860-bf1a-f8aed7024791": {
+    "name": "Qwen3 Omni 30B A3B Instruct",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "a803d3d0-d22e-49a0-ac2c-b9c6f1141065": {
+    "name": "Qwen3 VL 235B A22B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d58cf573-1bd3-4d1f-9182-5482a460f570": {
+    "name": "Qwen3 VL 235B A22B Instruct",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "ce3d286e-093d-413d-a81a-0270309f039e": {
+    "name": "Qwen3 VL 30B A3B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "51d0b717-953d-4b44-af61-406c6b7dff39": {
+    "name": "Qwen3 VL 30B A3B Instruct",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d370fcbf-c4a1-41a2-abc4-d204fcc3fcbf": {
+    "name": "Qwen3 VL 32B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "6da314d3-a984-4734-8f31-47dd32fb4699": {
+    "name": "Qwen3 VL 32B Instruct",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "dec8073c-57e2-41c0-b1aa-7a62960f103f": {
+    "name": "Qwen3 VL 8B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "3cf875b8-b6b5-42c0-ad70-617d5be59d00": {
+    "name": "Qwen3 VL 8B Instruct",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "021b1b31-d2fc-4653-ab74-c10bd2f41c8e": {
+    "name": "Qwen3.5 122B A10B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "2236df45-0699-40d1-b5cc-69ee345d2257": {
+    "name": "Qwen3.5 122B A10B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "509e94e3-f1cb-43fb-98ff-e0e9872cfd1f": {
+    "name": "Qwen3.5 27B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "169e47f5-3d4d-4ad4-8f8b-ab46f0c73f67": {
+    "name": "Qwen3.5 27B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "eebfef01-709e-4ffe-b72f-0db75ef2434b": {
+    "name": "Qwen3.5 35B A3B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "46d8315e-1630-463f-ab62-84185fa0faab": {
+    "name": "Qwen3.5 35B A3B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "30ef2a79-e800-4165-9f13-2a338f120db7": {
+    "name": "Qwen3.5 397B A17B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "0e66bae9-41f1-42fc-9276-ce8cb6f72919": {
+    "name": "Qwen3.5 397B A17B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "30c9ba61-d0a1-4794-938e-35865f379d15": {
+    "name": "Qwen3.5 4B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "651ef7ae-9a8f-477e-9c8e-460aa156ba02": {
+    "name": "Qwen3.5 4B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "20da3b31-fc0a-4359-abec-d59367bf1d9f": {
+    "name": "Qwen3.5 9B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "2d28a13a-096e-475a-beb8-26bbd1c7d51c": {
+    "name": "Qwen3.5 9B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "6f3534b1-1168-472e-b3e3-23ab521504f5": {
+    "name": "Qwen3.5 Omni Flash",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "0179b427-93dc-415c-bb4c-f980ddf8d088": {
+    "name": "Qwen3.5 Omni Plus",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "3b156101-b0d7-4438-b350-2d1f1168f40a": {
+    "name": "Qwen3.6 27B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "8c29d66d-bf98-4ea3-8572-5409353ecc66": {
+    "name": "Qwen3.6 27B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "66938aab-78fa-49d7-8461-b48b6833e837": {
+    "name": "Qwen3.6 35B A3B (Non-reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "8665ca00-c687-44c7-875c-22618cb31c4f": {
+    "name": "Qwen3.6 35B A3B (Reasoning)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "6000692c-f9a6-47f8-a5c0-e0874ac488bb": {
+    "name": "Qwen3.6 Max Preview",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "f371ad68-6947-4767-a78f-1f6c81f96b93": {
+    "name": "Qwen3.6 Plus",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "69534bed-2ffd-4235-832b-e20a810333ab": {
+    "name": "Qwen3.7 Max",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "a87fce42-eea3-4e45-a96d-fe057814f371": {
+    "name": "Qwen3.7 Plus",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "8df710d3-9dae-4498-9b4e-9818238e6f31": {
+    "name": "Qwen3.8 2.4T A95B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "7e30585f-fad7-40df-a8cb-03c1d96df38a": {
+    "name": "Qwen3.8 27B (Low)",
+    "tier": "30",
+    "cap": 30,
+    "multiplier": 3.0,
+    "go": true
+  },
+  "6657d7de-a2a9-40bc-a32f-86e80ad63698": {
+    "name": "Qwen3.8 27B (Medium)",
+    "tier": "30",
+    "cap": 30,
+    "multiplier": 3.0,
+    "go": true
+  },
+  "353c92f3-2148-4c2d-9231-aa7e1322a1fd": {
+    "name": "Qwen3.8 27B (Non-reasoning)",
+    "tier": "30",
+    "cap": 30,
+    "multiplier": 3.0,
+    "go": true
+  },
+  "b01dee41-c62b-48ed-8d16-984adc405e5c": {
+    "name": "Qwen3.8 27B (Xhigh)",
+    "tier": "30",
+    "cap": 30,
+    "multiplier": 3.0,
+    "go": true
+  },
+  "5e5b4ce7-bc54-47b2-b911-21b9cad8394c": {
+    "name": "Qwen3.8 Max",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "b112af07-3bd5-4647-b09f-b23204361bb2": {
+    "name": "Qwen3.8 Max (0902)",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "9ac3908c-9eb2-44db-8c01-3ec7da6fc2ae": {
+    "name": "Qwen3.8-Flash-Next",
+    "tier": "60",
+    "cap": 60,
+    "multiplier": 6.0,
+    "go": true
+  },
+  "ceb4d610-d0a4-48c1-bea0-80ed76f1e5ca": {
+    "name": "QwQ 32B",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "a971b0c0-4c0f-484a-b018-e36b5be3409e": {
+    "name": "Reka Flash (Sep '24)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "dbbcf240-a69e-4078-8f16-7c94c7a8c514": {
+    "name": "Reka Flash 3",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "eb4ba465-3fcd-4065-9fe2-e8225e7b2c6c": {
+    "name": "Ring-2.6-1T",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "47b7df55-5804-40de-ba11-317de786710a": {
+    "name": "Ring-flash-2.0",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "45790612-02e3-4c42-b5bd-cd7ed2ea1f2f": {
+    "name": "Sarvam 105B (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "764dd095-6ebd-4760-8eb3-cbc40964db2e": {
+    "name": "Sarvam 30B (High)",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "5c6533f3-75a2-4109-b9a9-3623afc6b86a": {
+    "name": "Seed-OSS-36B-Instruct",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "d97713f2-afa6-4f8d-b2f3-ac89a24c4d6c": {
+    "name": "Solar Mini",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "62ea3198-9866-4d9f-8406-a79ee78c7164": {
+    "name": "Solar Mini 4",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "b89c4faf-219e-4171-a1aa-e3bd2fd0a924": {
+    "name": "Solar Pro 3",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "1b64aa81-c223-4b8f-909b-82185a234765": {
+    "name": "Solar Pro 4",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "c8158c23-6fff-4c31-911d-954c32d80c28": {
+    "name": "Step 3.5 Flash",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "1aa3694e-b656-4dbe-8f84-0c65d8897abb": {
+    "name": "Step 3.5 Flash 2603",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  },
+  "6c7b322e-2f35-48ff-9171-fb621a726fc0": {
+    "name": "Step 3.7 Flash",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "094ea3e3-ce41-419e-8bd1-723389663158": {
+    "name": "Step 5 Preview",
+    "tier": "15",
+    "cap": 15,
+    "multiplier": 1.5,
+    "go": true
+  },
+  "b6d2e43d-3082-43f5-9318-0f4dbcb54163": {
+    "name": "Trinity Large Thinking",
+    "tier": "none",
+    "cap": 10,
+    "multiplier": 1.0,
+    "go": false
+  }
+};

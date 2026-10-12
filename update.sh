@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+cd "$(dirname "$0")"
+
+if [ -x "/usr/bin/python3" ]; then
+    PYTHON_BIN="/usr/bin/python3"
+else
+    PYTHON_BIN="python3"
+fi
+
+echo "🔄 Updating OpenCode Go models & Artificial Analysis benchmarks..."
+$PYTHON_BIN update_data.py
+echo "🔄 Updating Free Models catalog for OpenCode, OpenRouter & CommandCode..."
+$PYTHON_BIN build_free_catalog.py
+echo "✅ Update complete! Refresh index.html or free_models.html in your browser to see the latest data."

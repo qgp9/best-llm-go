@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>무료 AI 모델 종합 가이드 · OpenCode Zen/Go · OpenRouter · CommandCode · Groq · Gemini</title>
+<meta name="description" content="OpenCode Zen/Go, OpenRouter, CommandCode.ai, Groq, Google Gemini의 $0 무료 모델 총정리. 벤치마크 지능 지수, 컨텍스트 용량, Base URL 및 실전 연동 가이드">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page: #f8f6f2;
+    --surface: #ffffff;
+    --line: #e5e0d8;
+    --line-subtle: #eeebe5;
+    --wash: #f0ece3;
+    --ink: #1a1917;
+    --ink-2: #4a4742;
+    --ink-3: #7d7871;
+    --accent: #d97757;
+    --accent-hover: #c46344;
+    --accent-soft: rgba(217, 119, 87, 0.12);
+    --accent-ink: #b24827;
+    --green: #2e7d32;
+    --green-soft: #e8f5e9;
+    --blue: #1565c0;
+    --blue-soft: #e3f2fd;
+    --purple: #7b1fa2;
+    --purple-soft: #f3e5f5;
+    --orange: #e65100;
+    --orange-soft: #fff3e0;
+    --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    --font: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent-ink); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Top Navigation Bar */
+  .nav-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--ink);
+  }
+  .nav-brand .badge {
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-2);
+    border: 1px solid transparent;
+    transition: all .15s ease;
+  }
+  .nav-link:hover {
+    background: var(--wash);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .nav-link.active {
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    border-color: rgba(217, 119, 87, 0.3);
+  }
+
+  /* Main Container */
+  .wrap {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px 24px 64px;
+  }
+
+  /* Hero Section */
+  .hero {
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 10px;
+    letter-spacing: -0.02em;
+  }
+  .hero p {
+    font-size: 15px;
+    color: var(--ink-2);
+    margin: 0 0 12px;
+    max-width: 900px;
+    line-height: 1.6;
+  }
+  .hero-credits {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--ink-2);
+  }
+  .hero-credits a { font-weight: 600; }
+
+  /* Platform Overview Cards Grid */
+  .platform-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+  .plat-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .plat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+  }
+  .plat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .plat-card-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .plat-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 999px;
+  }
+  .badge-opencode { background: #fee2e2; color: #991b1b; }
+  .badge-openrouter { background: #e0f2fe; color: #075985; }
+  .badge-cmd { background: #f3e8ff; color: #6b21a8; }
+  .badge-groq { background: #ffedd5; color: #c2410c; }
+  .badge-google { background: #dcfce7; color: #15803d; }
+  .badge-nvidia { background: #ecfccb; color: #3f6212; }
+  .badge-cerebras { background: #fef08a; color: #854d0e; }
+  .badge-cohere { background: #ccfbf1; color: #0f766e; }
+
+  .plat-card-body p {
+    font-size: 13.5px;
+    color: var(--ink-2);
+    margin: 0 0 12px;
+    line-height: 1.55;
+  }
+  .plat-specs {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+  }
+  .plat-specs li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--ink-2);
+  }
+  .plat-specs li b { color: var(--ink); }
+  .plat-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--line-subtle);
+    font-size: 12.5px;
+  }
+
+  /* Accordion Card (Awesome Providers & Tool Configs) */
+  .accordion-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  .accordion-header {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    background: var(--surface);
+    transition: background .12s ease;
+  }
+  .accordion-header:hover {
+    background: var(--wash);
+  }
+  .accordion-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .accordion-body {
+    padding: 20px;
+    border-top: 1px solid var(--line);
+    background: #fff;
+  }
+
+  /* Code Tabs */
+  .tabs-nav {
+    display: flex;
+    gap: 6px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 16px;
+    overflow-x: auto;
+  }
+  .tab-btn {
+    appearance: none;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-2);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active {
+    color: var(--accent-ink);
+    border-bottom-color: var(--accent);
+  }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+  .code-block-wrap {
+    position: relative;
+    background: var(--page);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    overflow-x: auto;
+    color: var(--ink);
+    line-height: 1.6;
+  }
+  .code-copy-float {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--ink-2);
+  }
+  .code-copy-float:hover { background: var(--wash); color: var(--ink); }
+
+  /* Filter Toolbar */
+  .toolbar-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .toolbar-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    justify-content: space-between;
+  }
+  .filter-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .filter-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-right: 4px;
+  }
+  .pill-btn {
+    appearance: none;
+    background: var(--page);
+    border: 1px solid var(--line);
+    color: var(--ink-2);
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .12s ease;
+    user-select: none;
+  }
+  .pill-btn:hover {
+    background: var(--wash);
+    color: var(--ink);
+    border-color: var(--ink-3);
+  }
+  .pill-btn.active {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+    font-weight: 600;
+  }
+
+  .search-box {
+    position: relative;
+    flex: 1;
+    min-width: 240px;
+    max-width: 360px;
+  }
+  .search-box input {
+    width: 100%;
+    padding: 7px 14px 7px 32px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--page);
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--ink);
+  }
+  .search-box input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: #fff;
+  }
+  .search-box::before {
+    content: "🔍";
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    opacity: 0.6;
+  }
+
+  .select-styled {
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--page);
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--ink);
+    cursor: pointer;
+  }
+
+  /* Catalog View Container */
+  .catalog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 13.5px;
+    color: var(--ink-2);
+  }
+  .catalog-count b { color: var(--ink); }
+
+  /* Model Cards Grid View */
+  .model-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 18px;
+  }
+  .model-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .model-card:hover {
+    border-color: var(--ink-3);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+  }
+  .card-top {
+    margin-bottom: 14px;
+  }
+  .card-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .card-model-name {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--ink);
+  }
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 12px;
+  }
+  .tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+  }
+  .tag-plat { background: var(--wash); color: var(--ink-2); }
+  .tag-cat { background: var(--blue-soft); color: var(--blue); }
+  .tag-safe { background: var(--green-soft); color: var(--green); }
+  .tag-train { background: #fee2e2; color: #991b1b; }
+
+  /* Benchmarks Pill Bar */
+  .benchmark-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: var(--page);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-bottom: 14px;
+    text-align: center;
+    gap: 8px;
+  }
+  .bench-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .bench-lbl { font-size: 11px; color: var(--ink-3); margin-bottom: 2px; }
+  .bench-val { font-size: 14.5px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .bench-val.accent { color: var(--accent-ink); }
+  .bench-val.dim { color: var(--ink-3); font-weight: 400; }
+
+  /* Identity Callout */
+  .identity-box {
+    background: #fff8f5;
+    border-left: 3px solid var(--accent);
+    padding: 8px 12px;
+    border-radius: 0 8px 8px 0;
+    font-size: 12.5px;
+    color: var(--ink);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .identity-box b { color: var(--accent-ink); }
+
+  .card-summary {
+    font-size: 13px;
+    color: var(--ink-2);
+    margin: 0 0 12px;
+    line-height: 1.55;
+  }
+
+  .feature-list {
+    margin: 0 0 14px;
+    padding-left: 18px;
+    font-size: 12.5px;
+    color: var(--ink-2);
+    line-height: 1.6;
+  }
+  .feature-list li b { color: var(--ink); }
+
+  .recommendation {
+    background: var(--wash);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--ink-2);
+    margin-bottom: 14px;
+  }
+  .recommendation b { color: var(--ink); }
+
+  /* Card Bottom Action Bar */
+  .card-bottom {
+    padding-top: 14px;
+    border-top: 1px solid var(--line-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .cmd-copy-box {
+    background: var(--page);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-2);
+    overflow: hidden;
+  }
+  .cmd-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 8px;
+  }
+  .btn-copy {
+    background: transparent;
+    border: none;
+    color: var(--accent-ink);
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 11.5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex: none;
+  }
+  .btn-copy:hover { background: var(--wash); }
+
+  .card-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+  }
+  .card-links-left { display: flex; gap: 10px; }
+
+  /* Table View Styles */
+  .tbl-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    overflow-x: auto;
+  }
+  table.compact-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+  }
+  table.compact-tbl th {
+    background: var(--page);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-3);
+    font-weight: 600;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  table.compact-tbl td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--line-subtle);
+    color: var(--ink-2);
+    vertical-align: middle;
+  }
+  table.compact-tbl tr:hover td {
+    background: var(--wash);
+  }
+
+  /* Provider Reference Table */
+  table.prov-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  table.prov-tbl th {
+    background: var(--page);
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink-3);
+    font-weight: 600;
+    font-size: 12px;
+  }
+  table.prov-tbl td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line-subtle);
+    vertical-align: middle;
+  }
+  table.prov-tbl tr:hover td {
+    background: var(--wash);
+  }
+
+  /* Toast Notification */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    transition: all .25s ease;
+    z-index: 300;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
+
+  @media (max-width: 768px) {
+    .nav-inner { flex-direction: column; align-items: stretch; }
+    .model-grid { grid-template-columns: 1fr; }
+    .platform-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Navigation -->
+<header class="nav-bar">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <span>⚡ OpenCode & Free LLM Intel</span>
+      <span class="badge">무료 모델 통합 허브</span>
+    </div>
+    <nav class="nav-links">
+      <a href="index.html" class="nav-link">📊 OpenCode Go 가치 프론티어 분석기</a>
+      <a href="free_models.html" class="nav-link active">🎁 무료 AI 모델 종합 가이드</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- Hero Section -->
+  <section class="hero">
+    <h1>🎁 무료(Free) AI 모델 종합 가이드 & 벤치마크</h1>
+    <p>
+      <b>OpenCode (Zen & Go)</b>, <b>OpenRouter</b>, <b>CommandCode</b>, <b>Groq</b>, <b>Google Gemini</b>에서 
+      토큰 비용 $0으로 제공되는 대표 무료 모델들을 한데 모았습니다. 각 모델의 <b>실제 정체(Identity)</b>, 
+      <b>공식 벤치마크 지능 지수</b>, <b>컨텍스트 용량</b> 및 <b>프라이버시(학습 수집 여부)</b>를 투명하게 비교합니다.
+    </p>
+    <div class="hero-credits">
+      <span>⭐ 데이터 참조:</span>
+      <a href="https://github.com/open-free-llm-api/awesome-freellm-apis" target="_blank" rel="noopener">awesome-freellm-apis (505+ Free APIs)</a>
+      <span>·</span>
+      <a href="https://freellm.net" target="_blank" rel="noopener">freellm.net</a>
+      <span>· Artificial Analysis</span>
+    </div>
+  </section>
+
+  <!-- Platform Overview Cards Grid -->
+  <section class="platform-grid">
+    <!-- OpenCode Card -->
+    <div class="plat-card">
+      <div>
+        <div class="plat-card-header">
+          <h3 class="plat-card-title">
+            <span>OpenCode (Zen & Go)</span>
+          </h3>
+          <span class="plat-badge badge-opencode">14개 무료 모델</span>
+        </div>
+        <div class="plat-card-body">
+          <p>
+            OpenCode Zen API(<code>/zen/v1/</code>) 및 Go 플랜에서 $0으로 지원하는 프리뷰 및 기여자 모델들입니다.
+          </p>
+          <ul class="plat-specs">
+            <li><b>대표 모델:</b> Space Bunny Free, LongCat 2.0, MiMo Flash, Muse Spark</li>
+            <li><b>과금 정책:</b> 토큰당 $0.00 (Input / Output / Cache 모두 Free)</li>
+            <li><b>요청 한도:</b> 표준 롤링 5시간 한도 적용 (일부 무제한)</li>
+            <li><b>주의점:</b> Contributor 모델은 데이터 개선 학습에 수집될 수 있음</li>
+          </ul>
+        </div>
+      </div>
+      <div class="plat-footer">
+        <span>🔗 <a href="https://opencode.ai/v2/docs/console/models/" target="_blank" rel="noopener">OpenCode 모델 카탈로그</a></span>
+        <span style="color:var(--ink-3);">API & Go 구독</span>
+      </div>
+    </div>
+
+    <!-- OpenRouter Card -->
+    <div class="plat-card">
+      <div>
+        <div class="plat-card-header">
+          <h3 class="plat-card-title">
+            <span>OpenRouter</span>
+          </h3>
+          <span class="plat-badge badge-openrouter">17개 무료 모델</span>
+        </div>
+        <div class="plat-card-body">
+          <p>
+            <code>:free</code> 태그가 붙은 엔드포인트로 전 세계 최상위 오픈 웨이트 모델들을 무료 서빙합니다.
+          </p>
+          <ul class="plat-specs">
+            <li><b>대표 모델:</b> Ling 3.1 Flash (지능 41.1), Nemotron 3 Ultra (550B), Inkling (1M)</li>
+            <li><b>과금 정책:</b> $0 / 토큰, 신용카드 등록 없이 사용 가능</li>
+            <li><b>요청 한도:</b> 분당 20회(20 RPM), 미결제 50 RPD, 결제 계정 1,000 RPD</li>
+            <li><b>자동 라우터:</b> <code>openrouter/free</code> 호출 시 최적 무료 모델 자동 선택</li>
+          </ul>
+        </div>
+      </div>
+      <div class="plat-footer">
+        <span>🔗 <a href="https://openrouter.ai/models?max_price=0" target="_blank" rel="noopener">OpenRouter Free Models 실시간</a></span>
+        <span style="color:var(--ink-3);">REST API 호환</span>
+      </div>
+    </div>
+
+    <!-- CommandCode Card -->
+    <div class="plat-card">
+      <div>
+        <div class="plat-card-header">
+          <h3 class="plat-card-title">
+            <span>CommandCode.ai</span>
+          </h3>
+          <span class="plat-badge badge-cmd">4개 무료 모델</span>
+        </div>
+        <div class="plat-card-body">
+          <p>
+            터미널 AI 코딩 에이전트로, 독자적인 <b>taste-1</b> 스타일 학습과 함께 스텔스 프리뷰 모델을 $0 제공합니다.
+          </p>
+          <ul class="plat-specs">
+            <li><b>대표 모델:</b> Ox Alpha (GLM-5.3 Flash 실체), Space Bunny, Glyph Cluster</li>
+            <li><b>과금 정책:</b> 무료 플랜에서도 프로모션 기간 동안 $0 제공</li>
+            <li><b>요청 한도:</b> Ox Alpha (100T/day 한도 없음), Glyph (100 req/day)</li>
+            <li><b>터미널 실행:</b> <code>cmd --model stealth/ox-alpha</code> 즉시 호출</li>
+          </ul>
+        </div>
+      </div>
+      <div class="plat-footer">
+        <span>🔗 <a href="https://commandcode.ai" target="_blank" rel="noopener">CommandCode 공식 웹</a></span>
+        <span style="color:var(--ink-3);">CLI & Desktop Studio</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACCORDION 1: 30 Free API Providers & Base URLs Reference -->
+  <section class="accordion-card">
+    <div class="accordion-header" id="toggleProvAccordion">
+      <h3>
+        <span>⚡ 30개 무료 API 제공사 & Base URL 퀵 레퍼런스</span>
+        <span style="font-size:12px;font-weight:500;color:var(--ink-3);">(awesome-free-llm-apis 연동)</span>
+      </h3>
+      <span id="provArrow" style="font-size:14px;color:var(--ink-3);">▼ 클릭하여 열기</span>
+    </div>
+    <div class="accordion-body" id="provAccordionBody" style="display:none;">
+      <p style="font-size:13.5px;color:var(--ink-2);margin-top:0;">
+        신용카드 없이 이메일 가입만으로 무료 키를 발급해주는 <b>30개 검증된 LLM API 프로바이더</b>의 
+        OpenAI 호환 Base URL과 키 발급 링크 목록입니다. <code>Base URL 복사</code> 후 바로 도구에 붙여넣으세요.
+      </p>
+      <div style="overflow-x:auto;">
+        <table class="prov-tbl">
+          <thead>
+            <tr>
+              <th>제공사 (Provider)</th>
+              <th>무료 모델 수</th>
+              <th>신용카드 요구?</th>
+              <th>최대 컨텍스트</th>
+              <th>OpenAI 호환 Base URL</th>
+              <th>추천 베스트 모델</th>
+              <th>API Key 발급</th>
+            </tr>
+          </thead>
+          <tbody id="provTbody">
+            <!-- Rendered by JS from awesome_freellm_providers.json -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACCORDION 2: 1-Click Tool Config Snippets -->
+  <section class="accordion-card">
+    <div class="accordion-header" id="toggleToolAccordion">
+      <h3>
+        <span>🛠️ 인기 개발 도구별 1클릭 무료 API 연동 가이드</span>
+        <span style="font-size:12px;font-weight:500;color:var(--ink-3);">(Claude Code, Cursor, Codex, OpenCode, Aider)</span>
+      </h3>
+      <span id="toolArrow" style="font-size:14px;color:var(--ink-3);">▼ 클릭하여 열기</span>
+    </div>
+    <div class="accordion-body" id="toolAccordionBody" style="display:none;">
+      <div class="tabs-nav" id="configTabsNav">
+        <button type="button" class="tab-btn active" data-tab="groq-cursor">Cursor (Groq 무료 키)</button>
+        <button type="button" class="tab-btn" data-tab="claudecode">Claude Code (OpenRouter)</button>
+        <button type="button" class="tab-btn" data-tab="codex">Codex CLI (Groq)</button>
+        <button type="button" class="tab-btn" data-tab="commandcode">CommandCode CLI (Ox Alpha)</button>
+        <button type="button" class="tab-btn" data-tab="python">Python (OpenAI SDK)</button>
+      </div>
+
+      <!-- Tab 1: Cursor -->
+      <div class="tab-pane active" id="pane-groq-cursor">
+        <p style="font-size:13px;color:var(--ink-2);margin-top:0;">Cursor에서 <b>Groq</b>의 초고속 Llama 3.3 70B(30 RPM, 14,400 RPD)를 무료 연동하는 방법:</p>
+        <div class="code-block-wrap">
+          <button type="button" class="code-copy-float" data-copy="Cursor Settings → Models → Add Model&#10;Model Name: llama-3.3-70b-versatile&#10;Base URL: https://api.groq.com/openai/v1&#10;API Key: gsk_... (console.groq.com/keys 에서 발급)">복사</button>
+<pre style="margin:0;"><code>Cursor Settings (Cmd + ,) → Models → Add Model:
+  • Model Name: llama-3.3-70b-versatile
+  • Base URL: https://api.groq.com/openai/v1
+  • API Key: [console.groq.com/keys 에서 무료 발급받은 gsk_ 키]</code></pre>
+        </div>
+      </div>
+
+      <!-- Tab 2: Claude Code -->
+      <div class="tab-pane" id="pane-claudecode">
+        <p style="font-size:13px;color:var(--ink-2);margin-top:0;">Claude Code 터미널에서 OpenRouter 엔드포인트를 연결하여 사용할 때:</p>
+        <div class="code-block-wrap">
+          <button type="button" class="code-copy-float" data-copy="export ANTHROPIC_BASE_URL=&quot;https://openrouter.ai/api&quot;&#10;export ANTHROPIC_AUTH_TOKEN=&quot;sk-or-v1-YOUR_KEY&quot;&#10;export ANTHROPIC_API_KEY=&quot;&quot;">복사</button>
+<pre style="margin:0;"><code># Claude Code는 Anthropic 호환 엔드포인트를 사용합니다:
+export ANTHROPIC_BASE_URL="https://openrouter.ai/api"
+export ANTHROPIC_AUTH_TOKEN="sk-or-v1-YOUR_OPENROUTER_KEY"
+export ANTHROPIC_API_KEY=""  # 비워두어야 AUTH_TOKEN이 작동합니다</code></pre>
+        </div>
+      </div>
+
+      <!-- Tab 3: Codex CLI -->
+      <div class="tab-pane" id="pane-codex">
+        <p style="font-size:13px;color:var(--ink-2);margin-top:0;">Codex CLI에서 Groq 무료 엔드포인트를 호출할 때:</p>
+        <div class="code-block-wrap">
+          <button type="button" class="code-copy-float" data-copy="export OPENAI_BASE_URL=&quot;https://api.groq.com/openai/v1&quot;&#10;export OPENAI_API_KEY=&quot;gsk_YOUR_GROQ_KEY&quot;&#10;codex --model &quot;llama-3.3-70b-versatile&quot;">복사</button>
+<pre style="margin:0;"><code>export OPENAI_BASE_URL="https://api.groq.com/openai/v1"
+export OPENAI_API_KEY="gsk_YOUR_GROQ_KEY"  # console.groq.com/keys 무료 발급
+codex --model "llama-3.3-70b-versatile"</code></pre>
+        </div>
+      </div>
+
+      <!-- Tab 4: CommandCode CLI -->
+      <div class="tab-pane" id="pane-commandcode">
+        <p style="font-size:13px;color:var(--ink-2);margin-top:0;">CommandCode CLI에서 GLM-5.3 Flash 기반 <b>Ox Alpha</b>(100T/day 무제한급)를 무료 호출할 때:</p>
+        <div class="code-block-wrap">
+          <button type="button" class="code-copy-float" data-copy="npm i -g command-code&#10;cmd --model stealth/ox-alpha">복사</button>
+<pre style="margin:0;"><code>npm i -g command-code
+# 100만(1M) 토큰 컨텍스트 & 하루 100T 토큰의 넉넉한 한도
+cmd --model stealth/ox-alpha</code></pre>
+        </div>
+      </div>
+
+      <!-- Tab 5: Python OpenAI SDK -->
+      <div class="tab-pane" id="pane-python">
+        <p style="font-size:13px;color:var(--ink-2);margin-top:0;">파이썬 표준 OpenAI SDK로 Groq 등 무료 엔드포인트를 호출하는 예시:</p>
+        <div class="code-block-wrap">
+          <button type="button" class="code-copy-float" data-copy="from openai import OpenAI&#10;&#10;client = OpenAI(&#10;    base_url=&quot;https://api.groq.com/openai/v1&quot;,&#10;    api_key=&quot;gsk_YOUR_KEY&quot;&#10;)&#10;res = client.chat.completions.create(&#10;    model=&quot;llama-3.3-70b-versatile&quot;,&#10;    messages=[{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Hello!&quot;}]&#10;)&#10;print(res.choices[0].message.content)">복사</button>
+<pre style="margin:0;"><code>from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://api.groq.com/openai/v1",  # 신용카드 불필요
+    api_key="gsk_YOUR_KEY",                     # console.groq.com/keys 무료 발급
+)
+
+res = client.chat.completions.create(
+    model="llama-3.3-70b-versatile",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+print(res.choices[0].message.content)</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter & Controls Toolbar -->
+  <section class="toolbar-card">
+    <!-- Row 1: Platforms & Search -->
+    <div class="toolbar-row">
+      <div class="filter-group" id="platformFilterBar">
+        <span class="filter-label">플랫폼:</span>
+        <button type="button" class="pill-btn active" data-plat="all">전체 (<span id="cntAll">0</span>)</button>
+        <button type="button" class="pill-btn" data-plat="OpenRouter">OpenRouter (<span id="cntOR">0</span>)</button>
+        <button type="button" class="pill-btn" data-plat="OpenCode">OpenCode (<span id="cntOC">0</span>)</button>
+        <button type="button" class="pill-btn" data-plat="CommandCode">CommandCode (<span id="cntCmd">0</span>)</button>
+        <button type="button" class="pill-btn" data-plat="Groq">Groq (<span id="cntGroq">0</span>)</button>
+        <button type="button" class="pill-btn" data-plat="Google Gemini">Gemini (<span id="cntGemini">0</span>)</button>
+        <button type="button" class="pill-btn" data-plat="NVIDIA NIM">NVIDIA NIM (<span id="cntNIM">0</span>)</button>
+      </div>
+
+      <div class="search-box">
+        <input type="search" id="modelSearch" placeholder="모델명, 정체, 제조사 검색… (예: GLM, Llama, 1M)" aria-label="Search models">
+      </div>
+    </div>
+
+    <!-- Row 2: Categories, Privacy, Sort, View Toggle -->
+    <div class="toolbar-row" style="border-top: 1px dashed var(--line); padding-top: 12px;">
+      <div class="filter-group" id="categoryFilterBar">
+        <span class="filter-label">특기/분류:</span>
+        <button type="button" class="pill-btn active" data-cat="all">전체</button>
+        <button type="button" class="pill-btn" data-cat="coding">💻 코딩 특화</button>
+        <button type="button" class="pill-btn" data-cat="reasoning">🧠 고난도 추론</button>
+        <button type="button" class="pill-btn" data-cat="long_context">📜 1M 대용량 컨텍스트</button>
+        <button type="button" class="pill-btn" data-cat="lightweight">⚡ 고속/경량</button>
+      </div>
+
+      <div class="filter-group">
+        <label style="font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; cursor:pointer;">
+          <input type="checkbox" id="safeOnlyChk" style="accent-color:var(--accent); width:15px; height:15px;">
+          <span>🛡️ 학습 미사용(Safe/ZDR)만 보기</span>
+        </label>
+
+        <span style="color:var(--line); margin: 0 4px;">|</span>
+
+        <select id="sortSelect" class="select-styled" aria-label="정렬 방식">
+          <option value="intel_desc">지능 지수 높은 순 (추천)</option>
+          <option value="coding_desc">코딩 지수 높은 순</option>
+          <option value="context_desc">컨텍스트 크기 큰 순</option>
+          <option value="name_asc">모델 이름 가나다순</option>
+        </select>
+
+        <div class="filter-group" id="viewModeBar" style="margin-left:4px;">
+          <button type="button" class="pill-btn active" data-view="grid" title="카드 뷰">🗂️ 카드 뷰</button>
+          <button type="button" class="pill-btn" data-view="table" title="테이블 뷰">📋 테이블 뷰</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Catalog Results Count -->
+  <div class="catalog-header">
+    <div class="catalog-count" id="catalogCountMsg">
+      조건에 맞는 무료 모델 <b>0개</b> 표시 중
+    </div>
+    <div style="font-size:12.5px; color:var(--ink-3);">
+      ※ 지능 점수는 Artificial Analysis 공인 Intelligence Index 기준입니다.
+    </div>
+  </div>
+
+  <!-- Cards Grid View Container -->
+  <div id="gridContainer" class="model-grid">
+    <!-- Generated dynamically -->
+  </div>
+
+  <!-- Table View Container -->
+  <div id="tableContainer" class="tbl-card" style="display:none;">
+    <table class="compact-tbl">
+      <thead>
+        <tr>
+          <th>모델명 & 정체</th>
+          <th>제공 플랫폼</th>
+          <th>분류</th>
+          <th>지능 지수 (AA)</th>
+          <th>코딩 지수 (AA)</th>
+          <th>컨텍스트</th>
+          <th>프라이버시 (학습 여부)</th>
+          <th>요청 한도 / 비고</th>
+          <th>호출 및 링크</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- Generated dynamically -->
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<!-- Data Scripts -->
+<script src="data/awesome_freellm_providers.js"></script>
+<script src="data/free_models_catalog.js"></script>
+<script>
+(function() {
+  const $ = (id) => document.getElementById(id);
+  const data = window.__FREE_MODELS_CATALOG__ || [];
+  const providers = window.__AWESOME_FREE_PROVIDERS__ || [];
+
+  // State
+  const state = {
+    platform: "all",
+    category: "all",
+    safeOnly: false,
+    search: "",
+    sortBy: "intel_desc",
+    viewMode: "grid"
+  };
+
+  // Toast
+  function showToast(msg) {
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+  // Update counts on filter pills
+  function updateCounts() {
+    $("cntAll").textContent = data.length;
+    $("cntOR").textContent = data.filter(m => m.platform.includes("OpenRouter")).length;
+    $("cntOC").textContent = data.filter(m => m.platform.some(p => p.startsWith("OpenCode"))).length;
+    $("cntCmd").textContent = data.filter(m => m.platform.includes("CommandCode")).length;
+    $("cntGroq").textContent = data.filter(m => m.platform.includes("Groq")).length;
+    $("cntGemini").textContent = data.filter(m => m.platform.includes("Google Gemini")).length;
+    $("cntNIM").textContent = data.filter(m => m.platform.includes("NVIDIA NIM")).length;
+  }
+
+  // Render Providers Table in Accordion
+  function renderProvidersAccordion() {
+    const tbody = $("provTbody");
+    if (!tbody) return;
+    tbody.replaceChildren();
+
+    providers.forEach(p => {
+      const tr = document.createElement("tr");
+
+      // Badge for Credit card
+      let ccBadge = '<span style="color:var(--green);font-weight:600;">No (불필요)</span>';
+      if (p.credit_card === "Registration") {
+        ccBadge = '<span style="color:var(--blue);font-weight:500;">Email 가입</span>';
+      } else if (p.credit_card && p.credit_card.includes("Phone")) {
+        ccBadge = '<span style="color:var(--orange);font-weight:500;">전화 인증</span>';
+      }
+
+      // Best model text
+      let bestStr = "—";
+      if (p.best_models && p.best_models.length) {
+        bestStr = p.best_models.map(m => `<b>${m.name}</b> (${m.rate_limit || m.context})`).join("<br>");
+      }
+
+      tr.innerHTML = `
+        <td><b>${p.provider}</b></td>
+        <td><span class="tag tag-plat">${p.free_models_count}개 모델</span></td>
+        <td>${ccBadge}</td>
+        <td><b>${p.max_context || '128K'}</b></td>
+        <td>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <code style="font-family:var(--mono);font-size:11px;background:var(--page);padding:2px 6px;border-radius:4px;border:1px solid var(--line);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.base_url}</code>
+            <button type="button" class="btn-copy" data-cmd="${encodeURIComponent(p.base_url)}" style="font-size:11px;">복사</button>
+          </div>
+        </td>
+        <td style="font-size:12px;color:var(--ink-2);">${bestStr}</td>
+        <td>
+          ${p.key_url ? `<a href="${p.key_url}" target="_blank" rel="noopener" class="pill-btn" style="padding:3px 10px;font-size:11.5px;background:var(--accent);color:#fff;border-color:var(--accent);">발급 →</a>` : '—'}
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+
+    // Attach copy button listeners in provider table
+    tbody.querySelectorAll(".btn-copy").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const cmd = decodeURIComponent(btn.dataset.cmd);
+        navigator.clipboard.writeText(cmd).then(() => {
+          showToast(`Base URL이 복사되었습니다: ${cmd}`);
+        });
+      });
+    });
+  }
+
+  // Filter and sort
+  function filterAndSort() {
+    let list = [...data];
+
+    // Platform
+    if (state.platform !== "all") {
+      if (state.platform === "OpenCode") {
+        list = list.filter(m => m.platform.some(p => p.startsWith("OpenCode")));
+      } else {
+        list = list.filter(m => m.platform.includes(state.platform));
+      }
+    }
+
+    // Category
+    if (state.category !== "all") {
+      list = list.filter(m => m.category === state.category);
+    }
+
+    // Safe only
+    if (state.safeOnly) {
+      list = list.filter(m => m.privacy && m.privacy.is_safe);
+    }
+
+    // Search query
+    const q = state.search.trim().toLowerCase();
+    if (q) {
+      list = list.filter(m => {
+        const str = `${m.name} ${m.model_id} ${m.provider} ${m.summary.identity || ''} ${m.summary.one_liner || ''} ${m.category}`.toLowerCase();
+        return str.includes(q);
+      });
+    }
+
+    // Sort
+    list.sort((a, b) => {
+      if (state.sortBy === "intel_desc") {
+        const va = a.intelligence_index != null ? a.intelligence_index : -999;
+        const vb = b.intelligence_index != null ? b.intelligence_index : -999;
+        return vb - va;
+      } else if (state.sortBy === "coding_desc") {
+        const va = a.coding_index != null ? a.coding_index : -999;
+        const vb = b.coding_index != null ? b.coding_index : -999;
+        return vb - va;
+      } else if (state.sortBy === "context_desc") {
+        return (b.context_tokens || 0) - (a.context_tokens || 0);
+      } else if (state.sortBy === "name_asc") {
+        return a.name.localeCompare(b.name);
+      }
+      return 0;
+    });
+
+    return list;
+  }
+
+  // Render Grid
+  function renderGrid(models) {
+    const container = $("gridContainer");
+    container.replaceChildren();
+
+    if (!models.length) {
+      container.innerHTML = `
+        <div style="grid-column: 1 / -1; padding: 48px; text-align: center; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; color: var(--ink-3);">
+          <h3>검색 조건에 맞는 무료 모델이 없습니다.</h3>
+          <p style="margin-top: 6px;">필터를 초기화하거나 검색어를 변경해보세요.</p>
+        </div>
+      `;
+      return;
+    }
+
+    models.forEach(m => {
+      const card = document.createElement("div");
+      card.className = "model-card";
+
+      // Platform Badges HTML
+      const platBadges = m.platform.map(p => {
+        let cls = "badge-opencode";
+        if (p === "OpenRouter") cls = "badge-openrouter";
+        if (p === "CommandCode") cls = "badge-cmd";
+        if (p === "Groq") cls = "badge-groq";
+        if (p === "Google Gemini") cls = "badge-google";
+        if (p === "NVIDIA NIM") cls = "badge-nvidia";
+        if (p === "Cerebras") cls = "badge-cerebras";
+        if (p === "Cohere") cls = "badge-cohere";
+        return `<span class="plat-badge ${cls}">${p}</span>`;
+      }).join(" ");
+
+      // Category text
+      const catMap = {
+        coding: "💻 코딩 특화",
+        reasoning: "🧠 고난도 추론",
+        general: "🌐 범용 지능",
+        lightweight: "⚡ 고속/경량",
+        long_context: "📜 1M 대용량"
+      };
+      const catLabel = catMap[m.category] || m.category;
+
+      // Benchmarks
+      const intelStr = m.intelligence_index != null ? `${m.intelligence_index.toFixed(1)}점` : "—";
+      const codingStr = m.coding_index != null ? `${m.coding_index.toFixed(1)}점` : "—";
+      const ctxStr = m.context_window || "—";
+
+      // Identity Box HTML
+      let idBox = "";
+      if (m.summary.identity) {
+        idBox = `<div class="identity-box"><b>💡 모델의 실체:</b> ${m.summary.identity}</div>`;
+      }
+
+      // Strengths HTML
+      let featList = "";
+      if (m.summary.strengths && m.summary.strengths.length) {
+        const lis = m.summary.strengths.map(s => `<li>${s}</li>`).join("");
+        featList = `<ul class="feature-list">${lis}</ul>`;
+      }
+
+      // Recommendation
+      let recBox = "";
+      if (m.summary.recommended_for) {
+        recBox = `<div class="recommendation"><b>🎯 추천 용도:</b> ${m.summary.recommended_for}</div>`;
+      }
+
+      // Safe Tag
+      const isSafe = m.privacy && m.privacy.is_safe;
+      const safeTag = isSafe 
+        ? `<span class="tag tag-safe">🛡️ 학습 미사용 (Safe)</span>` 
+        : `<span class="tag tag-train">⚠️ 학습 활용 / 기여자</span>`;
+
+      // Links
+      let linksHtml = [];
+      if (m.links.model_page) linksHtml.push(`<a href="${m.links.model_page}" target="_blank" rel="noopener">공식 페이지 ↗</a>`);
+      if (m.links.benchmark) linksHtml.push(`<a href="${m.links.benchmark}" target="_blank" rel="noopener">AA 벤치마크 ↗</a>`);
+      if (m.links.docs) linksHtml.push(`<a href="${m.links.docs}" target="_blank" rel="noopener">사용 가이드 ↗</a>`);
+
+      card.innerHTML = `
+        <div class="card-top">
+          <div class="card-title-row">
+            <h3 class="card-model-name">${m.name}</h3>
+            <div style="display:flex;gap:4px;flex-wrap:wrap;">${platBadges}</div>
+          </div>
+          <div class="card-tags">
+            <span class="tag tag-cat">${catLabel}</span>
+            ${safeTag}
+            <span class="tag tag-plat">${m.provider}</span>
+          </div>
+
+          <div class="benchmark-bar">
+            <div class="bench-item">
+              <span class="bench-lbl">지능 지수 (AA)</span>
+              <span class="bench-val ${m.intelligence_index != null ? 'accent' : 'dim'}">${intelStr}</span>
+            </div>
+            <div class="bench-item">
+              <span class="bench-lbl">코딩 지수 (AA)</span>
+              <span class="bench-val ${m.coding_index != null ? 'accent' : 'dim'}">${codingStr}</span>
+            </div>
+            <div class="bench-item">
+              <span class="bench-lbl">컨텍스트</span>
+              <span class="bench-val">${ctxStr}</span>
+            </div>
+          </div>
+
+          ${idBox}
+          <p class="card-summary">${m.summary.one_liner || ''}</p>
+          ${featList}
+          ${recBox}
+        </div>
+
+        <div class="card-bottom">
+          <div class="cmd-copy-box">
+            <span class="cmd-text" title="${m.cli_usage || m.model_id}">${m.cli_usage || m.model_id}</span>
+            <button type="button" class="btn-copy" data-cmd="${encodeURIComponent(m.cli_usage || m.model_id)}">복사</button>
+          </div>
+          <div class="card-links">
+            <div class="card-links-left">${linksHtml.join(" · ")}</div>
+            <span style="font-size:11px;color:var(--ink-3);" title="${m.rate_limit || ''}">${m.rate_limit ? m.rate_limit.split('·')[0] : ''}</span>
+          </div>
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+
+    // Attach copy button listeners
+    container.querySelectorAll(".btn-copy").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const cmd = decodeURIComponent(btn.dataset.cmd);
+        navigator.clipboard.writeText(cmd).then(() => {
+          showToast(`명령어가 복사되었습니다: ${cmd.substring(0, 32)}…`);
+        });
+      });
+    });
+  }
+
+  // Render Table
+  function renderTable(models) {
+    const tbody = $("tableBody");
+    tbody.replaceChildren();
+
+    if (!models.length) {
+      tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:32px;color:var(--ink-3);">조건에 맞는 무료 모델이 없습니다.</td></tr>`;
+      return;
+    }
+
+    models.forEach(m => {
+      const tr = document.createElement("tr");
+
+      const platBadges = m.platform.map(p => {
+        let cls = "badge-opencode";
+        if (p === "OpenRouter") cls = "badge-openrouter";
+        if (p === "CommandCode") cls = "badge-cmd";
+        if (p === "Groq") cls = "badge-groq";
+        if (p === "Google Gemini") cls = "badge-google";
+        if (p === "NVIDIA NIM") cls = "badge-nvidia";
+        if (p === "Cerebras") cls = "badge-cerebras";
+        if (p === "Cohere") cls = "badge-cohere";
+        return `<span class="plat-badge ${cls}" style="font-size:10px;">${p}</span>`;
+      }).join(" ");
+
+      const isSafe = m.privacy && m.privacy.is_safe;
+      const safeBadge = isSafe 
+        ? `<span class="tag tag-safe" style="font-size:10px;">🛡️ Safe</span>` 
+        : `<span class="tag tag-train" style="font-size:10px;">⚠️ 학습활용</span>`;
+
+      tr.innerHTML = `
+        <td>
+          <b style="color:var(--ink);">${m.name}</b><br>
+          <code style="font-family:var(--mono);font-size:11px;color:var(--ink-3);">${m.model_id}</code>
+          ${m.summary.identity ? `<div style="font-size:11.5px;color:var(--accent-ink);margin-top:2px;">↳ ${m.summary.identity}</div>` : ''}
+        </td>
+        <td>${platBadges}</td>
+        <td><span class="tag tag-cat" style="font-size:10.5px;">${m.category}</span></td>
+        <td style="font-weight:700;color:var(--accent-ink);">${m.intelligence_index != null ? m.intelligence_index.toFixed(1) + '점' : '—'}</td>
+        <td style="font-weight:600;">${m.coding_index != null ? m.coding_index.toFixed(1) + '점' : '—'}</td>
+        <td style="font-weight:600;">${m.context_window || '—'}</td>
+        <td>${safeBadge}</td>
+        <td style="font-size:12px;color:var(--ink-2);max-width:200px;">${m.rate_limit || '—'}</td>
+        <td>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button type="button" class="btn-copy" style="border:1px solid var(--line);border-radius:4px;padding:2px 8px;font-size:11px;" data-cmd="${encodeURIComponent(m.cli_usage || m.model_id)}">코드 복사</button>
+            ${m.links.model_page ? `<a href="${m.links.model_page}" target="_blank" rel="noopener" style="font-size:11.5px;">스펙 ↗</a>` : ''}
+          </div>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+
+    tbody.querySelectorAll(".btn-copy").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const cmd = decodeURIComponent(btn.dataset.cmd);
+        navigator.clipboard.writeText(cmd).then(() => {
+          showToast(`명령어가 복사되었습니다: ${cmd.substring(0, 32)}…`);
+        });
+      });
+    });
+  }
+
+  // Main Render
+  function render() {
+    const list = filterAndSort();
+    $("catalogCountMsg").innerHTML = `조건에 맞는 무료 모델 <b>${list.length}개</b> 표시 중 (전체 ${data.length}개)`;
+
+    if (state.viewMode === "grid") {
+      $("gridContainer").style.display = "grid";
+      $("tableContainer").style.display = "none";
+      renderGrid(list);
+    } else {
+      $("gridContainer").style.display = "none";
+      $("tableContainer").style.display = "block";
+      renderTable(list);
+    }
+  }
+
+  // Setup Event Listeners
+  function initEvents() {
+    // Accordion 1 (Providers)
+    $("toggleProvAccordion").addEventListener("click", () => {
+      const b = $("provAccordionBody");
+      const isHidden = b.style.display === "none";
+      b.style.display = isHidden ? "block" : "none";
+      $("provArrow").textContent = isHidden ? "▲ 닫기" : "▼ 클릭하여 열기";
+    });
+
+    // Accordion 2 (Tool Configs)
+    $("toggleToolAccordion").addEventListener("click", () => {
+      const b = $("toolAccordionBody");
+      const isHidden = b.style.display === "none";
+      b.style.display = isHidden ? "block" : "none";
+      $("toolArrow").textContent = isHidden ? "▲ 닫기" : "▼ 클릭하여 열기";
+    });
+
+    // Tool Config Tabs
+    $("configTabsNav").querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        $("configTabsNav").querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+        btn.classList.add("active");
+        const targetPane = $("pane-" + btn.dataset.tab);
+        if (targetPane) targetPane.classList.add("active");
+      });
+    });
+
+    // Code copy buttons inside Tool Accordion
+    document.querySelectorAll(".code-copy-float").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const text = btn.dataset.copy;
+        navigator.clipboard.writeText(text).then(() => {
+          showToast("설정 코드가 클립보드에 복사되었습니다!");
+        });
+      });
+    });
+
+    // Platform pills
+    $("platformFilterBar").querySelectorAll(".pill-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        $("platformFilterBar").querySelectorAll(".pill-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        state.platform = btn.dataset.plat;
+        render();
+      });
+    });
+
+    // Category pills
+    $("categoryFilterBar").querySelectorAll(".pill-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        $("categoryFilterBar").querySelectorAll(".pill-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        state.category = btn.dataset.cat;
+        render();
+      });
+    });
+
+    // Search input
+    $("modelSearch").addEventListener("input", (e) => {
+      state.search = e.target.value;
+      render();
+    });
+
+    // Safe only checkbox
+    $("safeOnlyChk").addEventListener("change", (e) => {
+      state.safeOnly = e.target.checked;
+      render();
+    });
+
+    // Sort select
+    $("sortSelect").addEventListener("change", (e) => {
+      state.sortBy = e.target.value;
+      render();
+    });
+
+    // View mode toggle
+    $("viewModeBar").querySelectorAll(".pill-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        $("viewModeBar").querySelectorAll(".pill-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        state.viewMode = btn.dataset.view;
+        render();
+      });
+    });
+  }
+
+  // Initial Run
+  updateCounts();
+  renderProvidersAccordion();
+  initEvents();
+  render();
+})();
+</script>
+</body>
+</html>

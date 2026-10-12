@@ -1,0 +1,1826 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenCode Go Model Value Frontier (가치 최적선 분석)</title>
+<meta name="description" content="OpenCode Go 공식 모델, 정액제 한도($15/$30/$60), API 비용 및 Artificial Analysis 벤치마크 지수를 반영한 파레토 가치 프론티어 분석">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page:        #f4f3ee;   /* warm ivory */
+    --surface:     #fffefb;
+    --ink:         #191919;
+    --ink-2:       #57564f;
+    --ink-3:       #8a8880;
+    --line:        #e6e4dc;
+    --grid:        #eceae2;
+    --accent:      #d97757;   /* clay / terracotta */
+    --accent-ink:  #b5563a;
+    --accent-soft: rgba(217,119,87,0.14);
+    --demote:      #b4b2a9;
+    --demote-bar:  #e1dfd6;
+    --good:        #2e7d32;
+    --bad:         #c0392b;
+    --wash:        rgba(25,25,25,0.04);
+    --tier60:      #10b981;   /* emerald for $60 tier */
+    --tier30:      #f59e0b;   /* amber for $30 tier */
+    --tier15:      #6366f1;   /* indigo for $15 tier */
+    --serif: "Lora", Georgia, "Times New Roman", serif;
+    --sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { background: var(--page); }
+  body {
+    margin: 0; padding: 48px 20px 80px;
+    background: var(--page); color: var(--ink);
+    font-family: var(--sans); font-size: 15px; line-height: 1.6;
+    -webkit-font-smoothing: antialiased; overflow-x: clip;
+  }
+  .viz-root { max-width: 1140px; margin: 0 auto; }
+  a { color: var(--accent-ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:hover { color: var(--ink); }
+
+  header { margin-bottom: 28px; display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+  h1 { font-family: var(--serif); font-size: 36px; font-weight: 500; line-height: 1.2; letter-spacing: -0.01em; margin: 0 0 14px; }
+  .badge-go {
+    display: inline-block; font-family: var(--sans); font-size: 13px; font-weight: 600; vertical-align: middle;
+    padding: 3px 10px; border-radius: 999px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;
+    margin-left: 8px; letter-spacing: 0;
+  }
+  .sub { color: var(--ink-2); font-size: 16px; line-height: 1.6; margin: 0; max-width: 76ch; }
+  .sub b { color: var(--ink); font-weight: 600; }
+  .meta { font-size: 13.5px; color: var(--ink-3); margin-top: 12px; }
+  .btn {
+    flex: none; font: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; cursor: pointer;
+    background: var(--surface); color: var(--ink); text-decoration: none;
+    border: 1px solid var(--line); border-radius: 999px; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { background: var(--wash); color: var(--ink); }
+  .btn-primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .btn-primary:hover { background: #333; color: #fff; }
+  .hdr-actions { display: flex; gap: 8px; flex: none; margin-top: 6px; }
+
+  /* filters */
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center;
+    margin: 0 0 22px; padding: 16px 20px; font-size: 14px; color: var(--ink-2);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  }
+  .filters-row { width: 100%; display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; }
+  .filters label { display: inline-flex; align-items: center; gap: 7px; user-select: none; }
+  .filters input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; }
+  .filters input[type=range] { accent-color: var(--accent); width: 100px; cursor: pointer; }
+  .filters select, .filters input[type=search] {
+    font: inherit; font-size: 14px; color: var(--ink);
+    background: var(--page); border: 1px solid var(--line); border-radius: 999px; padding: 7px 12px;
+  }
+  .filters input[type=search] { min-width: 170px; }
+  .filters select:focus, .filters input:focus { outline: 2px solid var(--accent-soft); outline-offset: 1px; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--page); padding: 3px; gap: 2px; }
+  .seg button {
+    font: inherit; font-size: 13.5px; font-weight: 500; padding: 5px 13px; border: 0; border-radius: 999px;
+    background: transparent; color: var(--ink-2); cursor: pointer; transition: all .15s ease;
+  }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .seg button:not([aria-pressed="true"]):hover { background: var(--wash); color: var(--ink); }
+  .count { margin-left: auto; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+  .mode-indicator {
+    display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 10px;
+    background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; font-size: 13px; font-weight: 500;
+  }
+  .mode-indicator.standard {
+    background: #f8fafc; border-color: #e2e8f0; color: #475569;
+  }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 20px; padding: 28px 32px 24px; margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  }
+  h2 { font-family: var(--serif); font-size: 23px; font-weight: 500; margin: 0 0 6px; letter-spacing: -0.005em; }
+  .cap { font-size: 14.5px; color: var(--ink-2); margin: 0 0 22px; line-height: 1.55; max-width: 80ch; }
+
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .tick { font-size: 11.5px; fill: var(--ink-3); font-variant-numeric: tabular-nums; font-family: var(--sans); }
+  .axis-title { font-size: 12.5px; fill: var(--ink-2); font-weight: 500; }
+  .pt-label { font-size: 11.5px; fill: var(--ink-3); font-weight: 500; pointer-events: none; }
+  .pt-label.on { fill: var(--ink); font-weight: 600; }
+  .hit:focus { outline: none; }
+  .hit:focus + .focus-ring { opacity: 1; }
+  .focus-ring { opacity: 0; fill: none; stroke: var(--accent); stroke-width: 2; pointer-events: none; }
+
+  .legend { display: flex; gap: 20px; flex-wrap: wrap; margin: 18px 0 0; font-size: 13.5px; color: var(--ink-2); align-items: center; }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .key { width: 11px; height: 11px; border-radius: 50%; flex: none; }
+  .key.line { width: 18px; height: 2px; border-radius: 1px; }
+  .key.ring-60 { border: 2px solid var(--tier60); background: #fff; width: 11px; height: 11px; }
+  .key.ring-30 { border: 2px solid var(--tier30); background: #fff; width: 11px; height: 11px; }
+  .key.ring-15 { border: 2px solid var(--tier15); background: #fff; width: 11px; height: 11px; }
+
+  /* pill tags */
+  .tag-tier {
+    display: inline-flex; align-items: center; font-size: 11.5px; font-weight: 600;
+    padding: 1px 8px; border-radius: 999px; line-height: 1.5; font-family: var(--sans);
+  }
+  .tag-60 { background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
+  .tag-30 { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+  .tag-15 { background: #e0e7ff; color: #3730a3; border: 1px solid #c7d2fe; }
+  .tag-none { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
+  .tag-train { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+  .tag-clean { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+  .tag-free { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; font-weight: 700; }
+  .tag-zen { background: #f3e8ff; color: #6b21a8; border: 1px solid #e9d5ff; }
+  .tag-zengo { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+
+  /* custom model picker */
+  .custom-select-wrap { position: relative; display: inline-block; }
+  .custom-select-panel {
+    display: none; position: absolute; top: calc(100% + 6px); left: 0; z-index: 150;
+    width: 380px; max-height: 480px; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 16px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.12); padding: 14px;
+    flex-direction: column; gap: 10px;
+  }
+  .custom-select-panel.open { display: flex; }
+  .custom-select-header { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  .custom-select-list { overflow-y: auto; max-height: 320px; display: flex; flex-direction: column; gap: 4px; padding-right: 4px; }
+  .custom-model-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 13px;
+    user-select: none; transition: background .12s ease;
+  }
+  .custom-model-item:hover { background: var(--wash); }
+  .custom-model-item input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; flex: none; }
+  .custom-model-label { display: flex; align-items: center; gap: 8px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .chip-badge {
+    background: var(--accent); color: #fff; font-size: 11px; font-weight: 600;
+    padding: 1px 7px; border-radius: 999px; vertical-align: middle;
+  }
+  .btn-sm { font-size: 12px; padding: 4px 10px; border-radius: 999px; }
+
+  /* Provider / Group Model Sections Drawer */
+  .section-card {
+    background: var(--page); border: 1px solid var(--line); border-radius: 14px;
+    padding: 12px 14px; margin-bottom: 10px; transition: border-color .15s ease;
+  }
+  .section-card:hover { border-color: var(--ink-3); }
+  .section-header {
+    display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; user-select: none; font-size: 13.5px; font-weight: 600;
+  }
+  .section-header-left { display: flex; align-items: center; gap: 8px; }
+  .section-header-right { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-3); }
+  .section-chips {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; padding-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+  .model-chip {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 12px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+    padding: 3px 10px; cursor: pointer; user-select: none; transition: all .12s ease;
+  }
+  .model-chip:hover { border-color: var(--accent); background: #fff; }
+  .model-chip.active {
+    background: #fbeee8; border-color: var(--accent); color: var(--accent-ink); font-weight: 600;
+  }
+  .model-chip input[type=checkbox] { accent-color: var(--accent); width: 13px; height: 13px; cursor: pointer; margin: 0; }
+
+  /* Preset Pills */
+  .preset-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .preset-pill {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 12px;
+    padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--surface); color: var(--ink-2); cursor: pointer; transition: all .12s ease;
+  }
+  .preset-pill:hover { border-color: var(--ink-3); color: var(--ink); background: var(--wash); }
+  .preset-pill.active { background: var(--ink); color: #fff; border-color: var(--ink); font-weight: 600; }
+  .preset-pill .del-preset { margin-left: 2px; color: rgba(255,255,255,0.6); font-size: 11px; cursor: pointer; }
+  .preset-pill .del-preset:hover { color: #fff; }
+
+  /* Toast notification */
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 999px;
+    font-size: 13px; font-weight: 500; opacity: 0; pointer-events: none; transition: all .25s ease;
+    z-index: 300; box-shadow: 0 8px 24px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+
+  /* frontier edge glow */
+  .frontier-edge {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2.75px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 2px 4px rgba(217,119,87,0.35));
+  }
+  .frontier-step {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.5px;
+    stroke-dasharray: 4 3;
+    opacity: 0.55;
+  }
+  .frontier-area {
+    fill: var(--accent-soft);
+    opacity: 0.35;
+  }
+
+  /* bars */
+  .rows { display: flex; flex-direction: column; gap: 10px; }
+  .row { display: grid; grid-template-columns: minmax(0, 200px) 1fr 64px; align-items: center; gap: 14px; }
+  .row-name { font-size: 13.5px; color: var(--ink-2); text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row.on .row-name { color: var(--ink); font-weight: 600; }
+  .track { height: 20px; position: relative; border-radius: 4px; cursor: default; }
+  .track:hover, .track:focus { background: var(--wash); outline: none; }
+  .bar { height: 20px; background: var(--demote-bar); border-radius: 0 6px 6px 0; }
+  .row.on .bar { background: var(--accent); }
+  .row-val { font-size: 13.5px; color: var(--ink); font-variant-numeric: tabular-nums; font-weight: 500; }
+  .more { margin-top: 16px; }
+
+  /* tooltip */
+  .tip {
+    position: fixed; pointer-events: none; opacity: 0; transition: opacity .1s;
+    background: var(--ink); color: #fff; border-radius: 12px; padding: 14px 16px; font-size: 12.5px;
+    box-shadow: 0 10px 30px rgba(25,25,25,.25); z-index: 100; min-width: 260px;
+  }
+  .tip.show { opacity: 1; }
+  .tip-h { display: flex; align-items: center; gap: 8px; font-weight: 600; margin-bottom: 8px; font-size: 13.5px; }
+  .tip-r { display: flex; justify-content: space-between; gap: 20px; line-height: 1.85; }
+  .tip-r b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tip-r span { color: rgba(255,255,255,.7); }
+  .tip-divider { height: 1px; background: rgba(255,255,255,0.15); margin: 6px 0; }
+
+  /* table */
+  .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { border-collapse: collapse; width: 100%; min-width: 860px; font-size: 13.5px; }
+  th, td { text-align: right; padding: 10px 12px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; font-variant-numeric: normal; white-space: normal; min-width: 180px; }
+  th { color: var(--ink-3); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; cursor: pointer; user-select: none; }
+  th:hover { color: var(--ink); }
+  th[aria-sort="ascending"]::after { content: " \2191"; }
+  th[aria-sort="descending"]::after { content: " \2193"; }
+  td { color: var(--ink); }
+  tbody tr:hover { background: var(--wash); }
+  tr.on td:first-child { font-weight: 600; }
+  tr.on td:first-child::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-right: 8px; vertical-align: 1px; }
+  .na { color: var(--ink-3); }
+  td a { color: var(--ink); text-decoration: none; }
+  td a:hover { color: var(--accent-ink); text-decoration: underline; }
+
+  table.budget { min-width: 720px; }
+  table.budget th { cursor: default; }
+  table.budget th:nth-child(2), table.budget th:nth-child(6) { text-align: left; }
+  table.budget td { padding: 13px 12px; font-size: 14px; }
+  table.budget td:first-child { color: var(--ink-2); white-space: nowrap; font-weight: 500; }
+  table.budget td.pick { font-weight: 600; text-align: left; font-size: 14.5px; }
+  table.budget td.pick::before { content: ""; display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); margin-right: 9px; vertical-align: 1px; }
+  table.budget td.ru { text-align: left; color: var(--ink-2); white-space: normal; }
+  table.budget td.ru b { color: var(--ink); font-weight: 500; }
+
+  /* insights grid */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+  .insight-box {
+    background: var(--page); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px;
+  }
+  .insight-box h3 { margin: 0 0 8px; font-size: 16px; font-weight: 600; font-family: var(--serif); }
+  .insight-box p { margin: 0; font-size: 14px; color: var(--ink-2); line-height: 1.6; }
+
+  /* modal */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45);
+    display: none; align-items: center; justify-content: center; z-index: 200; backdrop-filter: blur(2px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border-radius: 20px; max-width: 680px; width: 90%; max-height: 85vh;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden;
+  }
+  .modal-header {
+    padding: 20px 24px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-header h2 { margin: 0; font-size: 20px; font-family: var(--serif); }
+  .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; font-size: 14px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--line); display: flex; justify-content: flex-end; gap: 10px; background: var(--page); }
+
+  @media (max-width: 640px) {
+    body { padding: 28px 16px 56px; }
+    h1 { font-size: 28px; }
+    header { flex-direction: column; gap: 12px; }
+    .card { padding: 20px 18px 18px; border-radius: 16px; }
+    .row { grid-template-columns: minmax(0, 140px) 1fr 50px; }
+    .count { margin-left: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="viz-root">
+
+<header>
+  <div>
+    <h1>OpenCode Go Value Frontier <span class="badge-go">Official Go Catalog</span></h1>
+    <p class="sub">
+      <b>opencode.ai/go</b> 공식 모델 목록과 한도(\$15/\$30/\$60), <b>models.dev</b>의 API 비용, <b>Artificial Analysis</b> Intelligence Index를 결합한 가치 최적선 분석입니다.
+      월 \$10 구독 시 체감 가치 배율(<b>x6.0</b> vs <b>x3.0</b> vs <b>x1.5</b>)을 적용하여, Go 플랜 사용 시 어떤 모델이 진짜 가성비 챔피언인지 한눈에 확인하세요.
+    </p>
+    <p class="meta" id="meta">데이터 로딩 중…</p>
+  </div>
+  <div class="hdr-actions">
+    <a class="btn" href="free_models.html" style="background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;">🎁 무료 모델 통합 가이드</a>
+    <button class="btn" id="openUpdateHelpBtn" type="button">🔄 데이터 업데이트 방법</button>
+    <a class="btn" href="https://opencode.ai/go" target="_blank" rel="noopener">OpenCode Go 공식 웹</a>
+    <a class="btn" href="https://models.dev" target="_blank" rel="noopener">models.dev API</a>
+  </div>
+</header>
+
+<div class="filters" id="filters">
+  <div class="filters-row">
+    <!-- View Mode: Effective vs Task vs Quota vs Raw -->
+    <div class="seg" role="group" aria-label="Cost basis" id="costSeg">
+      <button type="button" data-cost="go_effective" aria-pressed="true" title="OpenCode Go: $10 요금제 기준 체감 단가 (API 단가 ÷ 배율)">🚀 Go 체감 $/1M</button>
+      <button type="button" data-cost="go_task" aria-pressed="false" title="Artificial Analysis 태스크 1회 완수당 Go 체감 비용 (추론 토큰량 및 Go 배율 반영)">🎯 Go 체감 /task</button>
+      <button type="button" data-cost="task" aria-pressed="false" title="Artificial Analysis 태스크 1회 완수당 원본 API 비용 (추론 토큰량 반영)">🎯 원본 /task</button>
+      <button type="button" data-cost="go_quota" aria-pressed="false" title="OpenCode Go: 100만 토큰당 한 달 쿼터 소모율 (%)">📊 월 쿼터 소모율 %</button>
+      <button type="button" data-cost="blended" aria-pressed="false" title="공식 API 정가 (3:1 input:output blend)">💵 원본 API $/1M</button>
+    </div>
+
+    <!-- Catalog Scope -->
+    <div class="seg" role="group" aria-label="Scope" id="scopeSeg">
+      <button type="button" data-scope="go_only" aria-pressed="true" title="OpenCode Go에서 지원하는 모델들만 표시">OpenCode Go 모델만</button>
+      <button type="button" data-scope="all" aria-pressed="false" title="Claude 등 외부 정가 모델을 포함한 전체 비교">전체 모델 포함</button>
+    </div>
+
+    <div class="mode-indicator" id="modeIndicator">
+      <span>⚡ 기준: <b>OpenCode Go 체감 단가</b> ($10/월 구독 레버리지 반영)</span>
+    </div>
+  </div>
+
+  <div class="filters-row" style="margin-top: 4px;">
+    <label>최소 지능 지수 <input type="range" id="minIdx" min="0" max="50" step="5" value="20" aria-label="Minimum index"> <span id="minIdxVal" style="font-weight:600;min-width:18px;">20</span></label>
+    <label title="최고 점수 variant만 남기기"><input type="checkbox" id="collapse" checked> 1 모델당 1행</label>
+    <label>제조사 <select id="makerSel"><option value="">전체 제조사</option></select></label>
+    <label><input type="search" id="search" placeholder="모델 검색…" aria-label="Search model"></label>
+    <label><input type="checkbox" id="frontierOnly"> 프론티어만 보기</label>
+    <label><input type="checkbox" id="labelsAll"> 모든 점 라벨 표시</label>
+    <span class="count" id="count"></span>
+  </div>
+
+  <!-- Presets & URL Share Toolbar Row -->
+  <div class="filters-row" style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 13.5px; align-items: center;">
+    <span style="font-weight:600;color:var(--ink);">💾 설정 셋 (Presets):</span>
+    <div class="preset-bar" id="presetPillBar">
+      <!-- Built-in & Custom Presets will be rendered here -->
+    </div>
+    <div style="display:flex; gap:6px; margin-left:auto; align-items:center;">
+      <button type="button" class="btn btn-sm" id="btnSavePreset" title="현재 필터 및 선택된 모델 상태를 브라우저에 이름 붙여 저장">➕ 현재 셋 저장</button>
+      <button type="button" class="btn btn-sm" id="btnShareUrl" title="현재 상태가 담긴 URL 링크를 클립보드에 복사">🔗 링크 복사</button>
+    </div>
+  </div>
+
+  <!-- Custom Model Selection Mode & Provider Group Sections -->
+  <div class="filters-row" style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 13.5px; align-items: center;">
+    <span style="font-weight:600;color:var(--ink);">🎯 모델 선택 모드:</span>
+    <div class="seg" role="group" id="selectionModeSeg">
+      <button type="button" id="btnModeAll" class="btn-sm" aria-pressed="true">전체 모델 표시</button>
+      <button type="button" id="btnModeCustom" class="btn-sm" aria-pressed="false">내가 선택한 모델만 비교 <span id="customSelectedBadge" class="chip-badge" style="display:none;margin-left:4px;">0</span></button>
+    </div>
+
+    <button type="button" class="btn btn-sm" id="btnToggleSectionsDrawer" style="font-weight:600;display:inline-flex;align-items:center;gap:6px;">
+      <span>📂 제조사/그룹별 모델 섹션 열기 (<span id="drawerCountLabel">0개 선택됨</span>)</span>
+      <span id="drawerArrow">▼</span>
+    </button>
+
+    <div style="display:flex; gap:6px; margin-left:auto;">
+      <button type="button" class="btn btn-sm" id="btnSelectAllDrawer" style="font-size:12px;">전체 선택</button>
+      <button type="button" class="btn btn-sm" id="btnClearAllDrawer" style="font-size:12px;">선택 해제</button>
+    </div>
+  </div>
+
+  <!-- Collapsible Provider/Group Sections Drawer Container -->
+  <div id="providerSectionsDrawer" style="display:none; width:100%; margin-top:8px; padding-top:10px; border-top:1px solid var(--line);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:12.5px; color:var(--ink-2);">
+      <span>각 제조사(Provider) 헤더를 클릭하면 <b>그룹 전체를 한 번에 On/Off</b> 할 수 있고, 개별 칩을 눌러 세부 선택할 수 있습니다.</span>
+      <input type="search" id="drawerSearchInput" placeholder="섹션 내 모델 검색…" style="font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:var(--page); width:180px;">
+    </div>
+    <div id="providerSectionsContainer">
+      <!-- Generated dynamically by JS -->
+    </div>
+  </div>
+
+  <div class="filters-row" style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 13.5px;">
+    <span style="font-weight:600;color:var(--ink);">🛡️ 데이터 프라이버시 / 학습 정책:</span>
+    <label title="사용자 프롬프트 및 완성 데이터를 모델 학습에 활용하지 않는(Zero Data Retention 등) 모델">
+      <input type="checkbox" id="filterNoTrain" checked> 학습 미사용 (Safe / No Training)
+    </label>
+    <label title="초저가 요율/무료 제공 대가로 사용자 데이터를 학습에 활용하는 기여자(Contributor) 모델 (예: Muse Spark Contributor)">
+      <input type="checkbox" id="filterTrain"> 학습 활용 / 기여자 모델 (Model Training: Yes)
+    </label>
+    <span style="font-size:12px;color:var(--ink-3);margin-left:auto;">※ 학습 활용/기여자 모델은 기본 비활성화되어 있으며, 체크 시 포함하여 <b>가치 최적선(Frontier Edge)</b>이 실시간으로 재계산됩니다.</span>
+  </div>
+</div>
+
+<div class="card">
+  <h2 id="scatterTitle">지능 지수 vs 체감 비용 (Pareto Value Frontier)</h2>
+  <p class="cap" id="scatterCap">성능 대비 비용 분석. 가장 상단의 주황색 선이 현재 선택된 모델들 중 가격대비 최고 성능을 나타내는 <b>최외곽 최적선(Frontier Edge)</b>입니다.</p>
+  <svg id="scatter" viewBox="0 0 960 540" role="img" aria-label="Scatter plot of capability index versus price"></svg>
+  <div class="legend">
+    <span><i class="key" style="background:var(--accent)"></i>가치 프론티어 (파레토 최적점)</span>
+    <span><i class="key" style="background:var(--demote)"></i>열위 (더 싼 모델이 더 우수함)</span>
+    <span><i class="key line" style="background:var(--accent);height:3px;"></i><b>최상단 최적선 (Frontier Edge)</b></span>
+    <span style="margin-left:auto"><i class="key ring-60"></i>$60 티어 (x6.0)</span>
+    <span><i class="key ring-30"></i>$30 티어 (x3.0)</span>
+    <span><i class="key ring-15"></i>$15 티어 (x1.5)</span>
+    <span><span class="tag-tier tag-train" style="font-size:10.5px;">Training: Yes</span></span>
+  </div>
+</div>
+
+<!-- 전략적 모델 가이드 -->
+<div class="card">
+  <h2>OpenCode Go 실전 모델 선택 가이드</h2>
+  <p class="cap">OpenCode Go 공식 $10/월 구독 환경에서 최적의 모델 운용 전략:</p>
+  <div class="grid-2">
+    <div class="insight-box">
+      <h3>1. 일상 코딩 메인: $60/월 티어 (x6.0 배율)</h3>
+      <p>
+        <b>GLM-5.3-Flash</b> (점수 41.8)는 100만 토큰당 체감 <b>$0.040</b>이며 5시간당 6,320건의 여유로운 제한을 제공합니다. 
+        초저비용 서브로는 <b>MiMo-V2.6-Flash</b> (점수 37.9, 체감 $0.029, 30,100건/5h)가 압도적인 가성비를 자랑합니다.
+      </p>
+    </div>
+    <div class="insight-box">
+      <h3>2. $15/월 티어의 저가 함정 (GPT-6 Luna 탈락)</h3>
+      <p>
+        API 정가(\$0.20)만 보면 싸 보이는 <b>GPT 6 Luna</b>는 Go에서 \$15 한도(x1.5 배율)에 묶여 체감 단가가 <b>$0.133</b>입니다. 
+        체감 <b>$0.040</b>이면서 점수는 훨씬 높은 <b>GLM-5.3-Flash</b>(41.8점)에 완전히 밀려 프론티어에서 탈락합니다.
+      </p>
+    </div>
+    <div class="insight-box">
+      <h3>3. 고난도 추론 / 에이전틱 작업</h3>
+      <p>
+        복잡한 리팩토링이나 디버깅이 필요할 때는 <b>MiMo-V2.6-Pro</b> (점수 46.3, 체감 $0.362)가 가장 훌륭한 균형을 보입니다. 
+        동일 점수대의 <b>Grok 4.7</b>(체감 $2.000, 169건/5h) 대비 쿼터를 1/5 이하로 아낄 수 있습니다.
+      </p>
+    </div>
+    <div class="insight-box">
+      <h3>4. 5시간 롤링 윈도우 관리 팁</h3>
+      <p>
+        $15 티어의 <b>Kimi K3</b>(110건/5h), <b>Grok 4.7</b>(169건/5h)은 연속 코딩 시 금방 5시간 락에 걸립니다. 
+        대량 생성 작업은 반드시 $60 티어(GLM-5.3-Flash, MiMo Flash)로 라우팅하는 것이 효율적입니다.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h2>예산별 추천 모델 (Best Model for Your Budget)</h2>
+  <p class="cap" id="budgetCap">가치 프론티어 룩업 테이블. 본인의 체감 예산 또는 쿼터에 맞는 최적의 Pick과 차선책(Runner-up)입니다.</p>
+  <div class="tbl-wrap">
+    <table id="budget" class="budget">
+      <thead><tr><th id="budgetHead">체감 예산 (/1M 토큰)</th><th>추천 Pick</th><th>지능 점수</th><th id="budgetPrice">체감 단가</th><th>Go 티어 (한도)</th><th>차선책 (Runner-up)</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <h2 id="barIndexTitle">순수 지능 랭킹</h2>
+  <p class="cap">비용을 제외한 Artificial Analysis Intelligence Index 순위.</p>
+  <div class="rows" id="barIndex"></div>
+  <button class="btn more" id="moreIndex" type="button" hidden></button>
+</div>
+
+<!-- Free Models Dedicated Section -->
+<div class="card" id="freeSection" style="border-left: 4px solid #3b82f6;">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+    <div>
+      <h2 style="display:flex; align-items:center; gap:10px;">
+        🎁 OpenCode Zen & Go 무료 모델 목록 (100% Free / $0.00)
+        <span class="tag-tier tag-free" id="freeCountBadge">13개 모델</span>
+      </h2>
+      <p class="cap" style="margin-bottom:0;">
+        OpenCode Zen(<code>/v2/docs/console/models/</code>) 및 Go(<code>/v2/docs/console/go/</code>)에서 토큰 비용이 <b>$0(Free)</b>로 제공되는 특별 모델들입니다.<br>
+        <span style="color:var(--accent-ink);font-weight:500;">💡 무료 모델은 비용이 $0이므로 log scale 산점도(비용 대비 지능 그래프)에는 x=0이 정의되지 않아 별도의 무료 전용 카탈로그로 완벽 정리했습니다.</span>
+      </p>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center;">
+      <a href="free_models.html" class="btn btn-sm" style="background:#2563eb;color:#fff;border-color:#2563eb;font-weight:600;font-size:12px;padding:4px 10px;">🎁 OpenRouter & CommandCode 포함 통합 가이드 ↗</a>
+      <label style="font-size:13px; color:var(--ink-2); display:flex; align-items:center; gap:6px;">
+        <input type="checkbox" id="freeFilterTrain" style="accent-color:var(--accent);"> 학습 활용 모델 포함
+      </label>
+    </div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table id="tblFree" class="budget">
+      <thead>
+        <tr>
+          <th>무료 모델명</th>
+          <th>OpenCode 모델 ID</th>
+          <th>제조사</th>
+          <th>제공 플랫폼</th>
+          <th>지능 점수 (AA)</th>
+          <th>코딩 점수 (AA)</th>
+          <th>데이터 프라이버시 (학습 여부)</th>
+          <th>비용 (Input / Output / Cache)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p style="margin:14px 0 0;font-size:12.5px;color:var(--ink-3);line-height:1.6;">
+    ※ <b>Zen Only</b> 모델은 OpenCode Zen API 키(Pay-as-you-go 계정)에서 $0으로 호출 가능하며, <b>Zen & Go</b>(예: LongCat 2.5 Preview Free) 모델은 Go 구독 플랜에서도 월 한도 차감 없이 무제한 사용 가능합니다.<br>
+    ※ <b>주의</b>: 대부분의 무료 모델은 프로모션/피드백 수집 기간 동안 사용자 프롬프트가 모델 학습에 활용될 수 있으므로 사내 기밀 및 민감 정보 전송 시 유의하시기 바랍니다.
+  </p>
+</div>
+
+<div class="card">
+  <h2>전체 유료 모델 데이터 (OpenCode Go)</h2>
+  <p class="cap">열 제목을 클릭하면 정렬됩니다. OpenCode 공식 모델 ID와 5시간당 요청 제한을 확인하세요.</p>
+  <div class="tbl-wrap">
+    <table id="tbl">
+      <thead><tr>
+        <th style="width:40px;text-align:center;" title="비교 차트에 포함할 모델 선택">선택</th>
+        <th data-k="name" aria-sort="none">모델 (OpenCode ID)</th>
+        <th data-k="creator" aria-sort="none">제조사</th>
+        <th data-k="index" aria-sort="descending">지능 점수</th>
+        <th data-k="trains_on_data" aria-sort="none">프라이버시 (학습 여부)</th>
+        <th data-k="allowance" aria-sort="none">Go 월간 한도</th>
+        <th data-k="multiplier" aria-sort="none">가치 배율</th>
+        <th data-k="requests_5h" aria-sort="none">5시간 제한</th>
+        <th data-k="effective_task" aria-sort="none" title="Artificial Analysis 1회 태스크 완료당 Go 체감 비용">Go 체감/task</th>
+        <th data-k="task" aria-sort="none" title="Artificial Analysis 1회 태스크 완료당 원본 API 비용">정가/task</th>
+        <th data-k="effective_price" aria-sort="none">Go 체감 $/1M</th>
+        <th data-k="quota_burn" aria-sort="none">월 쿼터 소모율</th>
+        <th data-k="blended" aria-sort="none">API 정가 $/1M</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+<div class="toast" id="toast"></div>
+
+<!-- Modal: How to update -->
+<div class="modal-overlay" id="updateModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>🔄 데이터 최신 업데이트 방법</h2>
+      <button class="btn" id="closeUpdateModalBtn" type="button" style="padding:4px 10px;">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-top:0;font-size:14.5px;">터미널(프로젝트 폴더)에서 아래 명령을 실행하면 <b>OpenCode 공식 가격표</b>와 <b>Artificial Analysis 일일 벤치마크</b>를 한 번에 새로고침합니다:</p>
+      <pre style="background:var(--page);padding:14px 16px;border-radius:10px;font-family:var(--mono);font-size:13px;border:1px solid var(--line);overflow-x:auto;"><code>./update.sh</code></pre>
+      <p style="color:var(--ink-2);font-size:13.5px;line-height:1.6;">또는 <code>python3 update_data.py</code>를 직접 실행하셔도 됩니다.</p>
+      
+      <h3 style="font-size:15px;margin:20px 0 8px;">자동 수집되는 공식 출처:</h3>
+      <ul style="padding-left:20px;color:var(--ink-2);font-size:13.5px;line-height:1.8;margin:0;">
+        <li><b>공식 모델 및 단가표</b>: <code>opencode.ai/v2/docs/console/go/</code> (토큰 단가, $60/$30/$15 한도, 컨텍스트별 요율)</li>
+        <li><b>5시간 롤링 요청 제한</b>: <code>opencode.ai/go</code> (5시간당 최대 허용 횟수)</li>
+        <li><b>최신 지능 지수</b>: <code>artificialanalysis.ai</code> (Intelligence Index & Coding Index)</li>
+      </ul>
+
+      <h3 style="font-size:15px;margin:20px 0 8px;">💡 매일 자동 업데이트 설정 (선택):</h3>
+      <p style="color:var(--ink-2);font-size:13px;margin:0 0 8px;">터미널에서 <code>crontab -e</code>를 열고 아래 행을 추가하면 매일 오전 9시에 자동 갱신됩니다 (프로젝트 디렉터리 경로 지정):</p>
+      <pre style="background:var(--page);padding:10px 14px;border-radius:10px;font-family:var(--mono);font-size:12px;border:1px solid var(--line);margin:0;"><code>0 9 * * * cd /path/to/project && ./update.sh > /dev/null 2>&1</code></pre>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="confirmUpdateModalBtn" type="button">확인</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- Data scripts -->
+<script src="data/opencode_go_complete.js"></script>
+<script src="data/opencode_free_models.js"></script>
+<script src="data/models.js"></script>
+<script>
+(async function () {
+  const $ = (id) => document.getElementById(id);
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (t, a = {}) => { const n = document.createElementNS(NS, t); for (const k in a) n.setAttribute(k, a[k]); return n; };
+  const h = (t, cls, text) => { const n = document.createElement(t); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  const money = (v) => v == null ? "—" : "$" + v.toFixed(v < 0.01 ? 4 : v < 0.1 ? 3 : 2);
+  const percent = (v) => v == null ? "—" : v.toFixed(2) + "%";
+  const num = (v, dp = 0) => v == null ? "—" : (+v).toFixed(dp);
+  const METRIC = "Intelligence Index";
+
+  const TIER_DEFS = {
+    60: { name: "$60/월", mult: 6.0, class: "tag-60" },
+    30: { name: "$30/월", mult: 3.0, class: "tag-30" },
+    15: { name: "$15/월", mult: 1.5, class: "tag-15" },
+    0:  { name: "Free", mult: 1.0, class: "tag-60" },
+    none: { name: "Non-Go", mult: 1.0, class: "tag-none" }
+  };
+
+  /* ---------- load data ---------- */
+  let goData = window.__OPENCODE_GO_MODELS__ || [];
+  let freeData = window.__OPENCODE_FREE_MODELS__ || [];
+  let allData = (window.__MODELS_DATA__ && window.__MODELS_DATA__.models) || [];
+
+  if (!goData.length) {
+    try {
+      const r = await fetch("data/opencode_go_complete.json");
+      if (r.ok) goData = await r.json();
+    } catch(e) {}
+  }
+  if (!freeData.length) {
+    try {
+      const r = await fetch("data/opencode_free_models.json");
+      if (r.ok) freeData = await r.json();
+    } catch(e) {}
+  }
+
+  // Enrich all models with Go info if they match
+  const goMap = new Map();
+  goData.forEach((m) => {
+    goMap.set(m.go_id, m);
+    if (m.name) goMap.set(m.name.toLowerCase(), m);
+  });
+
+  const ALL_ENRICHED = allData.map((m) => {
+    const match = goData.find((g) => g.aa_name === m.name || (m.name && m.name.toLowerCase().includes(g.go_id)));
+    if (match) {
+      return {
+        ...m,
+        isGo: true,
+        go_id: match.go_id,
+        allowance: match.allowance,
+        requests_5h: match.requests_5h,
+        multiplier: match.multiplier,
+        effective_price: match.effective_price,
+        task: match.task != null ? match.task : m.task,
+        effective_task: match.effective_task != null ? match.effective_task : (m.task != null ? (m.task / match.multiplier) : null),
+        quota_burn: match.quota_burn,
+        trains_on_data: match.trains_on_data || false,
+        retention: match.retention || "0 days",
+        privacy_note: match.privacy_note || "No training · 0 days",
+        blended: match.blended || m.blended
+      };
+    } else {
+      return {
+        ...m,
+        isGo: false,
+        go_id: null,
+        allowance: null,
+        requests_5h: null,
+        multiplier: 1.0,
+        effective_price: m.blended,
+        task: m.task,
+        effective_task: m.task,
+        quota_burn: (m.blended / 10.0) * 100.0,
+        trains_on_data: false,
+        retention: "Unknown",
+        privacy_note: "외부 API 표준 약관",
+        blended: m.blended
+      };
+    }
+  });
+
+  $("meta").textContent = `OpenCode Go 모델 ${goData.filter(m => m.index > 0).length}개 로드 완료 (전체 ${ALL_ENRICHED.length}개 모델) · 출처: opencode.ai + models.dev + artificialanalysis.ai`;
+
+  /* ---------- state ---------- */
+  const state = {
+    cost: "go_effective", // 'go_effective', 'go_quota', 'blended'
+    scope: "go_only",      // 'go_only', 'all'
+    selectionMode: "all",  // 'all' or 'custom'
+    selectedModelIds: new Set(), // Set of model.id or model.name
+    minIdx: 20,
+    collapse: true,
+    includeNoTrain: true,
+    includeTrain: false,
+    maker: "",
+    q: "",
+    frontierOnly: false,
+    labelsAll: false,
+    showAllIndex: false,
+    sortK: "effective_price",
+    sortDir: 1
+  };
+
+  const COST_CONFIG = {
+    go_effective: {
+      key: "effective_price",
+      title: "OpenCode Go 체감 단가",
+      unit: "/1M 토큰",
+      axis: "체감 단가 $/1M 토큰 ($10 OpenCode Go 구독 레버리지 반영, log scale)",
+      cap: "OpenCode Go $10 월간 플랜 기준 체감 비용 (API 정가 ÷ 가치 배율).",
+      col: "체감 $/1M",
+      fmt: (v) => money(v)
+    },
+    go_task: {
+      key: "effective_task",
+      title: "태스크당 Go 체감 비용 (Cost per task)",
+      unit: "/task",
+      axis: "지능 지수 1회 태스크 완료당 Go 체감 비용 $ (추론 토큰 소모량 및 Go 구독 레버리지 반영, log scale)",
+      cap: "Artificial Analysis 기준 Intelligence Index 1회 태스크를 실제로 완수할 때 소모된 전체 토큰(생각/추론 토큰 포함)의 Go 체감 비용입니다.",
+      col: "Go 체감/task",
+      fmt: (v) => v == null ? "—" : "$" + v.toFixed(v < 0.01 ? 4 : v < 0.1 ? 3 : 2)
+    },
+    task: {
+      key: "task",
+      title: "공식 1회 태스크 완료 비용 (Cost per task)",
+      unit: "/task",
+      axis: "Artificial Analysis 지능 지수 1회 태스크 완료당 원본 API 비용 $ (log scale)",
+      cap: "Artificial Analysis 기준 1회 태스크 완수 시 실제로 발생한 원본 API 비용입니다. (추론 토큰 소모량 반영)",
+      col: "정가/task",
+      fmt: (v) => v == null ? "—" : "$" + v.toFixed(v < 0.01 ? 4 : v < 0.1 ? 3 : 2)
+    },
+    go_quota: {
+      key: "quota_burn",
+      title: "월 쿼터 소모율",
+      unit: "% (100만 토큰당 소모 비율)",
+      axis: "100만 토큰당 월간 쿼터 소모율 % (log scale)",
+      cap: "100만 토큰 사용 시 월간 한도에서 차감되는 비율 (API 정가 ÷ 티어 한도).",
+      col: "쿼터 소모 %",
+      fmt: (v) => percent(v)
+    },
+    blended: {
+      key: "blended",
+      title: "공식 API 정가",
+      unit: "/1M 토큰",
+      axis: "API 정가 $/1M 토큰 (3:1 input:output blend, log scale)",
+      cap: "OpenCode Go 할인 전 원본 API 정가.",
+      col: "API 정가",
+      fmt: (v) => money(v)
+    }
+  };
+
+  // Populate makers
+  const updateMakers = () => {
+    const list = state.scope === "go_only" ? goData : ALL_ENRICHED;
+    const makers = [...new Set(list.map((m) => m.creator).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+    $("makerSel").replaceChildren();
+    $("makerSel").appendChild(h("option", null, "전체 제조사"));
+    makers.forEach((mk) => { const o = h("option", null, mk); o.value = mk; $("makerSel").appendChild(o); });
+  };
+  updateMakers();
+
+  /* ---------- compute ---------- */
+  function compute() {
+    const cfg = COST_CONFIG[state.cost];
+    const xKey = cfg.key;
+
+    let baseList = state.scope === "go_only" ? goData : ALL_ENRICHED;
+    let rows = baseList.filter((m) => {
+      if (m.index == null || m.index < state.minIdx || !(m[xKey] > 0)) return false;
+      const isTrain = !!m.trains_on_data;
+      if (isTrain && !state.includeTrain) return false;
+      if (!isTrain && !state.includeNoTrain) return false;
+
+      // Custom user selection filter
+      if (state.selectionMode === "custom") {
+        if (!state.selectedModelIds.has(m.id) && !state.selectedModelIds.has(m.name)) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    rows = rows.map((m) => ({
+      ...m,
+      v: m.index,
+      x: m[xKey],
+      label: m.name
+    }));
+
+    if (state.collapse) {
+      const best = new Map();
+      rows.forEach((d) => {
+        const baseKey = (d.name || "").replace(/\s*\([^)]*\)/g, "").trim();
+        const b = best.get(baseKey);
+        if (!b || d.v > b.v || (d.v === b.v && d.x < b.x)) best.set(baseKey, d);
+      });
+      rows = [...best.values()];
+    }
+
+    const q = state.q.trim().toLowerCase();
+    const vis = rows.filter((d) => 
+      (!state.maker || d.creator === state.maker) &&
+      (!q || (d.name && d.name.toLowerCase().includes(q)) || (d.creator && d.creator.toLowerCase().includes(q)))
+    );
+
+    // Pareto frontier calculated strictly on currently active/visible models
+    const frontier = [];
+    [...vis].sort((a, b) => a.x - b.x || b.v - a.v).forEach((d) => {
+      if (!frontier.length || d.v > frontier[frontier.length - 1].v) frontier.push(d);
+    });
+    const onF = new Set(frontier.map((d) => d.id));
+    vis.forEach((d) => (d.front = onF.has(d.id)));
+
+    const finalVis = state.frontierOnly ? vis.filter((d) => d.front) : vis;
+
+    return { rows, vis: finalVis, frontier };
+  }
+
+  /* ---------- tooltip ---------- */
+  const tip = $("tip");
+  function tipHTML(d) {
+    tip.replaceChildren();
+    const head = h("div", "tip-h");
+    const k = h("i", "key"); k.style.background = d.front ? "var(--accent)" : "var(--demote)";
+    head.append(k, document.createTextNode(d.name));
+    tip.appendChild(head);
+
+    const tInfo = TIER_DEFS[d.allowance] || TIER_DEFS["none"];
+    const rows = [
+      [METRIC, num(d.v, 1) + "점"],
+      ["제조사", d.creator || "—"],
+      ["Go 월간 한도", d.allowance ? `$${d.allowance} (배율 x${d.multiplier})` : "—"],
+      ["5시간 롤링 제한", d.requests_5h ? `${num(d.requests_5h)} requests / 5h` : "—"],
+      ["데이터 프라이버시", d.trains_on_data ? "⚠️ 모델 학습 활용 (Yes)" : `보호됨 (학습 안함 · ${d.retention || '0 days'})`],
+      ["태스크당 Go 체감", d.effective_task != null ? (money(d.effective_task) + " /task") : "—"],
+      ["태스크당 정가", d.task != null ? (money(d.task) + " /task") : "—"],
+      ["Go 체감 단가", money(d.effective_price) + " /1M"],
+      ["월 쿼터 소모율", percent(d.quota_burn) + " /1M 토큰"],
+      ["API 정가", money(d.blended) + " /1M"]
+    ];
+
+    rows.forEach(([lab, val], i) => {
+      if (i === 2 || i === 4 || i === 6) {
+        const div = h("div", "tip-divider");
+        tip.appendChild(div);
+      }
+      const r = h("div", "tip-r");
+      r.append(h("span", null, lab), h("b", null, val));
+      tip.appendChild(r);
+    });
+
+    const s = h("div", "tip-r");
+    s.style.marginTop = "6px";
+    const st = h("span", null, d.front ? "★ 가치 프론티어 (파레토 최적)" : "열위 모델 (더 싼 모델이 더 우수)");
+    st.style.color = d.front ? "var(--accent)" : "var(--demote)";
+    st.style.fontWeight = "600";
+    s.appendChild(st);
+    tip.appendChild(s);
+  }
+
+  function place(px, py) {
+    tip.classList.add("show");
+    const r = tip.getBoundingClientRect();
+    let l = px + 16, t = py - r.height / 2;
+    if (l + r.width > innerWidth - 10) l = px - r.width - 16;
+    if (l < 10) l = 10;
+    t = Math.max(10, Math.min(t, innerHeight - r.height - 10));
+    tip.style.left = l + "px"; tip.style.top = t + "px";
+  }
+  const tipShow = (e, d) => { tipHTML(d); place(e.clientX, e.clientY); };
+  const tipHide = () => tip.classList.remove("show");
+  function bindHover(node, d, focusPos) {
+    node.addEventListener("pointerenter", (e) => tipShow(e, d));
+    node.addEventListener("pointermove", (e) => tipShow(e, d));
+    node.addEventListener("pointerleave", tipHide);
+    node.addEventListener("focus", () => { tipHTML(d); const [x, y] = focusPos(); place(x, y); });
+    node.addEventListener("blur", tipHide);
+  }
+
+  /* ---------- nice log ticks ---------- */
+  function niceLogTicks(lo, hi) {
+    const out = [];
+    for (let e = Math.floor(Math.log10(lo)); e <= Math.ceil(Math.log10(hi)); e++) {
+      for (const m of [1, 2, 5]) {
+        const v = m * 10 ** e;
+        if (v >= lo * 0.999 && v <= hi * 1.001) out.push(v);
+      }
+    }
+    return out;
+  }
+  const fmtTick = (v) => {
+    if (state.cost === "go_quota") return (v < 0.1 ? v.toFixed(2) : +v.toPrecision(2)) + "%";
+    return "$" + +v.toPrecision(2);
+  };
+
+  /* ---------- scatter ---------- */
+  function drawScatter(rows, vis, frontier) {
+    const svg = $("scatter"); svg.replaceChildren();
+    const W = 960, H = 540, M = { t: 26, r: 40, b: 56, l: 62 };
+    const pw = W - M.l - M.r, ph = H - M.t - M.b;
+
+    if (!vis.length) {
+      const t = el("text", { x: W / 2, y: H / 2, "text-anchor": "middle", class: "tick" });
+      t.textContent = "조건에 일치하는 모델이 없습니다.";
+      svg.appendChild(t);
+      return;
+    }
+
+    const xs = rows.map((d) => d.x), ys = rows.map((d) => d.v);
+    const xmin = Math.min(...xs) / 1.5, xmax = Math.max(...xs) * 1.5;
+    const x0 = Math.log10(xmin), x1 = Math.log10(xmax);
+    const ystep = 5;
+    const y0 = Math.floor((Math.min(...ys) - 2) / ystep) * ystep;
+    const y1 = Math.ceil((Math.max(...ys) + 2) / ystep) * ystep;
+
+    const X = (v) => M.l + (Math.log10(v) - x0) / (x1 - x0) * pw;
+    const Y = (v) => M.t + ph - (v - y0) / (y1 - y0) * ph;
+
+    // Y grid
+    for (let v = y0; v <= y1; v += ystep) {
+      svg.appendChild(el("line", { x1: M.l, x2: M.l + pw, y1: Y(v), y2: Y(v), stroke: "var(--grid)", "stroke-width": 1 }));
+      const t = el("text", { x: M.l - 12, y: Y(v) + 4, "text-anchor": "end", class: "tick" });
+      t.textContent = v;
+      svg.appendChild(t);
+    }
+
+    // X grid
+    niceLogTicks(xmin, xmax).forEach((v) => {
+      svg.appendChild(el("line", { x1: X(v), x2: X(v), y1: M.t, y2: M.t + ph, stroke: "var(--grid)", "stroke-width": 1 }));
+      const t = el("text", { x: X(v), y: M.t + ph + 22, "text-anchor": "middle", class: "tick" });
+      t.textContent = fmtTick(v);
+      svg.appendChild(t);
+    });
+
+    svg.appendChild(el("line", { x1: M.l, x2: M.l + pw, y1: M.t + ph, y2: M.t + ph, stroke: "var(--line)", "stroke-width": 1 }));
+
+    // Axis titles
+    const cfg = COST_CONFIG[state.cost];
+    const xt = el("text", { x: M.l + pw / 2, y: M.t + ph + 46, "text-anchor": "middle", class: "axis-title" });
+    xt.textContent = cfg.axis;
+    svg.appendChild(xt);
+
+    const yt = el("text", { x: 16, y: M.t + ph / 2, "text-anchor": "middle", class: "axis-title", transform: `rotate(-90 16 ${M.t + ph / 2})` });
+    yt.textContent = "Artificial Analysis " + METRIC;
+    svg.appendChild(yt);
+
+    // Frontier upper edge and fill
+    if (frontier.length > 0) {
+      // Step-wise frontier points (holding highest capability achieved so far across price domain)
+      const stepPoints = [];
+      frontier.forEach((d, i) => {
+        const currX = X(d.x), currY = Y(d.v);
+        if (i === 0) {
+          stepPoints.push(`${currX},${currY}`);
+        } else {
+          const prevY = Y(frontier[i - 1].v);
+          // horizontal run at previous capability level to current cost, then rise to new capability
+          stepPoints.push(`${currX},${prevY}`);
+          stepPoints.push(`${currX},${currY}`);
+        }
+      });
+
+      // Shaded area under frontier
+      if (frontier.length > 1) {
+        const first = frontier[0], last = frontier[frontier.length - 1];
+        const areaPoints = `${X(first.x)},${M.t + ph} ` + stepPoints.join(" ") + ` ${X(last.x)},${M.t + ph}`;
+        svg.appendChild(el("polygon", { points: areaPoints, class: "frontier-area" }));
+      }
+
+      // Step frontier curve
+      if (stepPoints.length > 1) {
+        svg.appendChild(el("polyline", {
+          points: stepPoints.join(" "),
+          class: "frontier-step"
+        }));
+      }
+
+      // Direct Upper Envelope (Connecting best points)
+      const pts = frontier.map((d) => `${X(d.x)},${Y(d.v)}`).join(" ");
+      svg.appendChild(el("polyline", {
+        points: pts,
+        class: "frontier-edge"
+      }));
+
+      // Label on the edge
+      const lastF = frontier[frontier.length - 1];
+      const edgeLabel = el("text", {
+        x: X(lastF.x) + 8,
+        y: Y(lastF.v) - 8,
+        class: "axis-title",
+        fill: "var(--accent-ink)",
+        "font-weight": "600",
+        "font-size": "11px"
+      });
+      edgeLabel.textContent = "▲ Frontier Edge (최적 가치선)";
+      svg.appendChild(edgeLabel);
+    }
+
+    // Draw dots
+    const ordered = [...vis].sort((a, b) => (a.front ? 1 : 0) - (b.front ? 1 : 0));
+    ordered.forEach((d) => {
+      const cx = X(d.x), cy = Y(d.v);
+      const c = d.front ? "var(--accent)" : "var(--demote)";
+      const is60 = d.allowance === 60;
+      const is30 = d.allowance === 30;
+      const is15 = d.allowance === 15;
+      const isTrain = !!d.trains_on_data;
+
+      if (is60) {
+        svg.appendChild(el("circle", { cx, cy, r: 8.5, fill: "none", stroke: "var(--tier60)", "stroke-width": 1.5 }));
+      } else if (is30) {
+        svg.appendChild(el("circle", { cx, cy, r: 8.5, fill: "none", stroke: "var(--tier30)", "stroke-width": 1.5 }));
+      } else if (is15) {
+        svg.appendChild(el("circle", { cx, cy, r: 8.5, fill: "none", stroke: "var(--tier15)", "stroke-width": 1.5 }));
+      } else {
+        svg.appendChild(el("circle", { cx, cy, r: 7.5, fill: "var(--surface)" }));
+      }
+
+      // Center circle (red border indicator if training on data)
+      if (isTrain) {
+        svg.appendChild(el("circle", { cx, cy, r: 6.5, fill: c, stroke: "#ef4444", "stroke-width": 2 }));
+      } else {
+        svg.appendChild(el("circle", { cx, cy, r: 5.5, fill: c }));
+      }
+
+      const hit = el("circle", {
+        cx, cy, r: 14, fill: "transparent", class: "hit", tabindex: "0", role: "img",
+        "aria-label": `${d.name}: ${METRIC} ${num(d.v, 1)}, ${cfg.fmt(d.x)}`
+      });
+      hit.style.cursor = "pointer";
+      const ring = el("circle", { cx, cy, r: 10, class: "focus-ring" });
+      bindHover(hit, d, () => {
+        const b = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+        return [b.left + cx / vb.width * b.width, b.top + cy / vb.height * b.height];
+      });
+      svg.append(hit, ring);
+    });
+
+    // Greedy label placement
+    const placed = [];
+    const labelLayer = el("g");
+    const dots = vis.map((o) => ({ bx: X(o.x) - 8, by: Y(o.v) - 8, w: 16, h: 16 }));
+    const byPriority = [...vis].sort((a, b) => (b.front ? 1 : 0) - (a.front ? 1 : 0) || b.v - a.v);
+
+    byPriority.forEach((d) => {
+      const cx = X(d.x), cy = Y(d.v);
+      const w = d.label.length * 6.3 + 6, hgt = 13;
+      const cands = [
+        { x: cx, y: cy - 12, anc: "middle", bx: cx - w / 2, by: cy - 12 - hgt },
+        { x: cx + 11, y: cy + 4, anc: "start", bx: cx + 11, by: cy + 4 - hgt },
+        { x: cx - 11, y: cy + 4, anc: "end", bx: cx - 11 - w, by: cy + 4 - hgt },
+        { x: cx, y: cy + 20, anc: "middle", bx: cx - w / 2, by: cy + 20 - hgt },
+      ];
+      const clash = (b) => placed.concat(dots).some((p) => b.bx < p.bx + p.w && b.bx + w > p.bx && b.by < p.by + p.h && b.by + hgt > p.by) || b.bx < 0 || b.bx + w > W;
+      const pick = cands.find((cnd) => !clash(cnd));
+      if (!pick && !d.front && !state.labelsAll) return;
+      const p = pick || cands[0];
+      placed.push({ bx: p.bx, by: p.by, w, h: hgt });
+      const lb = el("text", { x: p.x, y: p.y, "text-anchor": p.anc, class: "pt-label" + (d.front ? " on" : "") });
+      lb.textContent = d.label; labelLayer.appendChild(lb);
+    });
+    svg.appendChild(labelLayer);
+  }
+
+  /* ---------- bars ---------- */
+  function bars(mount, moreBtn, allRows, key, fmt, showAll, onToggle) {
+    const host = $(mount); host.replaceChildren();
+    const rows = showAll ? allRows : allRows.slice(0, 15);
+    const max = Math.max(...allRows.map((r) => r[key]), 0);
+    rows.forEach((d) => {
+      const row = h("div", "row" + (d.front ? " on" : ""));
+      const n = h("div", "row-name", d.name); n.title = d.name;
+      const track = h("div", "track"); track.tabIndex = 0;
+      const bar = h("div", "bar"); bar.style.width = Math.max(1.5, d[key] / max * 100) + "%";
+      track.appendChild(bar);
+      bindHover(track, d, () => { const b = track.getBoundingClientRect(); return [b.right, b.top + b.height / 2]; });
+      row.append(n, track, h("div", "row-val", fmt(d[key])));
+      host.appendChild(row);
+    });
+    const btn = $(moreBtn);
+    if (allRows.length > 15) { btn.hidden = false; btn.textContent = showAll ? "상위 15개만 보기" : `전체 ${allRows.length}개 보기`; btn.onclick = onToggle; }
+    else btn.hidden = true;
+  }
+
+  /* ---------- budget table ---------- */
+  function budgetTable(vis) {
+    const tb = document.querySelector("#budget tbody"); tb.replaceChildren();
+    const cfg = COST_CONFIG[state.cost];
+    const fr = [];
+    [...vis].sort((a, b) => a.x - b.x || b.v - a.v).forEach((d) => {
+      if (!fr.length || d.v > fr[fr.length - 1].v) fr.push(d);
+    });
+    if (!fr.length) {
+      const tr = h("tr"); tr.appendChild(h("td", "empty", "일치하는 모델이 없습니다.")); tb.appendChild(tr); return;
+    }
+
+    fr.slice().reverse().forEach((d) => {
+      const i = fr.indexOf(d), next = fr[i + 1];
+      const range = i === 0 && !next ? "모든 예산" : i === 0 ? `${cfg.fmt(next.x)} 미만` : next ? `${cfg.fmt(d.x)} ~ ${cfg.fmt(next.x)} 미만` : `${cfg.fmt(d.x)} 이상`;
+      const pool = vis.filter((o) => o.id !== d.id && (!next || o.x < next.x));
+      const ru = pool.sort((a, b) => b.v - a.v || a.x - b.x)[0];
+      const tr = h("tr");
+
+      tr.appendChild(h("td", null, range));
+      const pick = h("td", "pick"); pick.title = d.name;
+      pick.textContent = d.name;
+      tr.appendChild(pick);
+
+      tr.appendChild(h("td", null, num(d.v, 1) + "점"));
+      tr.appendChild(h("td", null, cfg.fmt(d.x)));
+
+      const tierTd = h("td");
+      const tInfo = TIER_DEFS[d.allowance] || TIER_DEFS["none"];
+      const tag = h("span", "tag-tier " + tInfo.class, tInfo.name);
+      tierTd.appendChild(tag);
+      tr.appendChild(tierTd);
+
+      const rtd = h("td", "ru");
+      if (ru) {
+        rtd.append(h("b", null, ru.name), document.createTextNode(` · ${num(ru.v, 1)}점 at ${cfg.fmt(ru.x)}`));
+        rtd.title = ru.name;
+      } else {
+        rtd.textContent = "—"; rtd.classList.add("na");
+      }
+      tr.appendChild(rtd);
+      tb.appendChild(tr);
+    });
+  }
+
+  /* ---------- full table ---------- */
+  function table(vis) {
+    const tb = document.querySelector("#tbl tbody"); tb.replaceChildren();
+    const k = state.sortK, dir = state.sortDir;
+    const sorted = [...vis].sort((a, b) => {
+      const av = a[k], bv = b[k];
+      if (av == null && bv == null) return 0; if (av == null) return 1; if (bv == null) return -1;
+      return typeof av === "string" ? av.localeCompare(bv) * dir : (av - bv) * dir;
+    });
+
+    sorted.forEach((d) => {
+      const tr = h("tr", d.front ? "on" : "");
+
+      // Checkbox cell for custom selection
+      const chkTd = h("td");
+      chkTd.style.textAlign = "center";
+      const chk = document.createElement("input");
+      chk.type = "checkbox";
+      chk.style.accentColor = "var(--accent)";
+      chk.style.cursor = "pointer";
+      chk.checked = state.selectedModelIds.has(d.id) || state.selectedModelIds.has(d.name);
+      chk.addEventListener("change", (e) => {
+        if (e.target.checked) {
+          state.selectedModelIds.add(d.id);
+          state.selectedModelIds.add(d.name);
+        } else {
+          state.selectedModelIds.delete(d.id);
+          state.selectedModelIds.delete(d.name);
+        }
+        updateSelectionUI();
+        if (state.selectionMode === "custom") {
+          render();
+        }
+      });
+      chkTd.appendChild(chk);
+      tr.appendChild(chkTd);
+
+      const nameTd = h("td");
+      nameTd.innerHTML = `<b>${d.name}</b>` + (d.go_id ? `<br><span style="font-size:11px;color:var(--ink-3);font-family:var(--mono);">opencode-go/${d.go_id}</span>` : "");
+      tr.appendChild(nameTd);
+
+      tr.appendChild(h("td", null, d.creator || "—"));
+      tr.appendChild(h("td", null, num(d.index, 1) + "점"));
+
+      // Privacy column
+      const privTd = h("td");
+      if (d.trains_on_data) {
+        privTd.appendChild(h("span", "tag-tier tag-train", "⚠️ 학습 활용"));
+      } else {
+        privTd.appendChild(h("span", "tag-tier tag-clean", `학습 안함 · ${d.retention || '0d'}`));
+      }
+      privTd.title = d.privacy_note || "";
+      tr.appendChild(privTd);
+
+      // Go Allowance tag
+      const tierTd = h("td");
+      const tInfo = TIER_DEFS[d.allowance] || TIER_DEFS["none"];
+      const tag = h("span", "tag-tier " + tInfo.class, tInfo.name);
+      tierTd.appendChild(tag);
+      tr.appendChild(tierTd);
+
+      tr.appendChild(h("td", null, d.multiplier ? `x${d.multiplier.toFixed(1)}` : "x1.0"));
+      tr.appendChild(h("td", null, d.requests_5h ? `${num(d.requests_5h)}/5h` : "—"));
+      tr.appendChild(h("td", null, d.effective_task != null ? money(d.effective_task) : "—"));
+      tr.appendChild(h("td", null, d.task != null ? money(d.task) : "—"));
+      tr.appendChild(h("td", null, money(d.effective_price)));
+      tr.appendChild(h("td", null, percent(d.quota_burn)));
+      tr.appendChild(h("td", null, money(d.blended)));
+
+      tb.appendChild(tr);
+    });
+
+    document.querySelectorAll("#tbl th").forEach((th) => th.setAttribute("aria-sort", th.dataset.k === k ? (dir > 0 ? "ascending" : "descending") : "none"));
+  }
+
+  document.querySelectorAll("#tbl th").forEach((th) => th.addEventListener("click", () => {
+    const k = th.dataset.k;
+    if (state.sortK === k) state.sortDir *= -1;
+    else {
+      state.sortK = k;
+      state.sortDir = (k === "name" || k === "creator") ? 1 : -1;
+    }
+    render();
+  }));
+
+  /* ---------- free models table ---------- */
+  function renderFreeTable() {
+    const tb = document.querySelector("#tblFree tbody");
+    if (!tb) return;
+    tb.replaceChildren();
+
+    const incTrain = $("freeFilterTrain") ? $("freeFilterTrain").checked : false;
+    const filtered = freeData.filter((d) => incTrain || !d.trains_on_data);
+
+    if ($("freeCountBadge")) {
+      $("freeCountBadge").textContent = `${filtered.length}개 모델 (전체 ${freeData.length}개)`;
+    }
+
+    if (!filtered.length) {
+      const tr = h("tr");
+      tr.appendChild(h("td", "empty", "조건에 맞는 무료 모델이 없습니다."));
+      tb.appendChild(tr);
+      return;
+    }
+
+    // Sort by intelligence index desc, then name
+    const sorted = [...filtered].sort((a, b) => {
+      const ai = a.index || -1, bi = b.index || -1;
+      if (bi !== ai) return bi - ai;
+      return a.name.localeCompare(b.name);
+    });
+
+    sorted.forEach((d) => {
+      const tr = h("tr");
+
+      // Name
+      const nameTd = h("td");
+      nameTd.style.fontWeight = "600";
+      nameTd.style.whiteSpace = "nowrap";
+      nameTd.textContent = d.name;
+      tr.appendChild(nameTd);
+
+      // Model ID
+      const idTd = h("td");
+      idTd.innerHTML = `<code style="font-family:var(--mono);font-size:12px;background:var(--page);padding:2px 6px;border-radius:4px;border:1px solid var(--line);">${d.model_id}</code>`;
+      tr.appendChild(idTd);
+
+      // Creator
+      tr.appendChild(h("td", null, d.creator || "—"));
+
+      // Platform catalog
+      const catTd = h("td");
+      if (d.available_in_go) {
+        catTd.appendChild(h("span", "tag-tier tag-zengo", "Zen & Go"));
+      } else {
+        catTd.appendChild(h("span", "tag-tier tag-zen", "Zen Only"));
+      }
+      tr.appendChild(catTd);
+
+      // Intelligence Index
+      const idxTd = h("td");
+      idxTd.style.fontWeight = d.index ? "600" : "400";
+      idxTd.textContent = d.index ? num(d.index, 1) + "점" : "— (Stealth/신규)";
+      tr.appendChild(idxTd);
+
+      // Coding Index
+      const codeTd = h("td");
+      codeTd.textContent = d.coding ? num(d.coding, 1) + "점" : "—";
+      tr.appendChild(codeTd);
+
+      // Privacy
+      const privTd = h("td");
+      if (d.trains_on_data) {
+        privTd.appendChild(h("span", "tag-tier tag-train", "⚠️ 학습 활용 (피드백 수집)"));
+      } else {
+        privTd.appendChild(h("span", "tag-tier tag-clean", "보호됨 (학습 안함 · ZDR)"));
+      }
+      privTd.title = d.privacy_note || "";
+      tr.appendChild(privTd);
+
+      // Pricing (Free)
+      const costTd = h("td");
+      costTd.innerHTML = `<span class="tag-tier tag-free">$0.00 (Free)</span>`;
+      tr.appendChild(costTd);
+
+      tb.appendChild(tr);
+    });
+  }
+
+  /* ---------- render ---------- */
+  function render() {
+    tipHide();
+    const { rows, vis, frontier } = compute();
+    $("count").textContent = `${vis.length}개 / 전체 ${rows.length}개 모델 · ${frontier.length}개 프론티어`;
+
+    const cfg = COST_CONFIG[state.cost];
+    $("scatterTitle").textContent = `지능 지수 vs ${cfg.title}: ${METRIC}`;
+    $("scatterCap").textContent = `${cfg.cap} 주황색 최상단 최적선(Frontier Edge) 위의 모델들이 동일 비용 대비 최고 성능을 내는 파레토 최적 모델입니다.`;
+    $("scatter").setAttribute("aria-label", `Scatter plot of ${METRIC} versus ${cfg.title}`);
+    $("budgetHead").textContent = "체감 예산 " + cfg.unit;
+    $("budgetPrice").textContent = cfg.col;
+    $("barIndexTitle").textContent = `순수 지능 랭킹: ${METRIC}`;
+
+    const ind = $("modeIndicator");
+    if (state.cost === "go_effective") {
+      ind.className = "mode-indicator";
+      ind.innerHTML = `<span>⚡ 기준: <b>OpenCode Go 체감 단가</b> ($10/월 구독 레버리지 반영)</span>`;
+    } else if (state.cost === "go_task") {
+      ind.className = "mode-indicator";
+      ind.innerHTML = `<span>🎯 기준: <b>태스크당 Go 체감 비용 (Cost per task)</b> (1회 완료당 추론 토큰량 및 Go 배율 반영)</span>`;
+    } else if (state.cost === "task") {
+      ind.className = "mode-indicator standard";
+      ind.innerHTML = `<span>🎯 기준: <b>태스크당 공식 정가 (Cost per task)</b> (1회 완료당 원본 API 비용)</span>`;
+    } else if (state.cost === "go_quota") {
+      ind.className = "mode-indicator";
+      ind.innerHTML = `<span>📊 기준: <b>월 쿼터 소모율 %</b> (100만 토큰당 한 달 한도 차감 비율)</span>`;
+    } else {
+      ind.className = "mode-indicator standard";
+      ind.innerHTML = `<span>💵 기준: <b>공식 API 정가</b> (할인 전 원본 가격)</span>`;
+    }
+
+    drawScatter(rows, vis, frontier);
+    budgetTable(vis);
+    bars("barIndex", "moreIndex", [...vis].sort((a, b) => b.v - a.v || a.x - b.x), "v", (v) => num(v, 1) + "점", state.showAllIndex, () => { state.showAllIndex = !state.showAllIndex; render(); });
+    table(vis);
+    renderFreeTable();
+    updateSelectionUI();
+  }
+
+  /* ---------- Provider / Group Model Sections Drawer ---------- */
+  function renderProviderSections() {
+    const container = $("providerSectionsContainer");
+    if (!container) return;
+    container.replaceChildren();
+
+    const searchQ = ($("drawerSearchInput") ? $("drawerSearchInput").value : "").trim().toLowerCase();
+    const baseList = state.scope === "go_only" ? goData : ALL_ENRICHED;
+
+    // Group models by creator / provider
+    const groups = new Map();
+    baseList.forEach((m) => {
+      const prov = m.creator || "기타 (Other)";
+      if (!groups.has(prov)) groups.set(prov, []);
+      groups.get(prov).push(m);
+    });
+
+    const sortedProviders = [...groups.keys()].sort((a, b) => a.localeCompare(b));
+
+    sortedProviders.forEach((prov) => {
+      const models = groups.get(prov).sort((a, b) => a.name.localeCompare(b.name));
+      const filteredModels = searchQ ? models.filter((m) => m.name.toLowerCase().includes(searchQ)) : models;
+      if (searchQ && !filteredModels.length) return;
+
+      const card = h("div", "section-card");
+
+      // Count checked in this group
+      const checkedCount = models.filter((m) => state.selectedModelIds.has(m.id) || state.selectedModelIds.has(m.name)).length;
+      const isAllChecked = checkedCount === models.length;
+      const isPartChecked = checkedCount > 0 && !isAllChecked;
+
+      // Header row
+      const hdr = h("div", "section-header");
+      const left = h("div", "section-header-left");
+
+      const grpChk = document.createElement("input");
+      grpChk.type = "checkbox";
+      grpChk.style.accentColor = "var(--accent)";
+      grpChk.style.width = "15px";
+      grpChk.style.height = "15px";
+      grpChk.style.cursor = "pointer";
+      grpChk.checked = isAllChecked;
+      grpChk.indeterminate = isPartChecked;
+
+      grpChk.addEventListener("click", (e) => e.stopPropagation());
+      grpChk.addEventListener("change", (e) => {
+        const check = e.target.checked;
+        models.forEach((m) => {
+          if (check) {
+            state.selectedModelIds.add(m.id);
+            state.selectedModelIds.add(m.name);
+          } else {
+            state.selectedModelIds.delete(m.id);
+            state.selectedModelIds.delete(m.name);
+          }
+        });
+        updateSelectionUI();
+        renderProviderSections();
+        if (state.selectionMode === "custom") render();
+        syncStateToUrl();
+      });
+
+      const title = h("span", null, `${prov}`);
+      const countBadge = h("span", "chip-badge", `${checkedCount}/${models.length}`);
+      countBadge.style.background = checkedCount > 0 ? "var(--accent)" : "var(--demote)";
+      left.append(grpChk, title, countBadge);
+
+      const right = h("div", "section-header-right");
+      right.textContent = "클릭하여 토글 ▼";
+      hdr.append(left, right);
+
+      // Chips container
+      const chipsWrap = h("div", "section-chips");
+      filteredModels.forEach((m) => {
+        const isChecked = state.selectedModelIds.has(m.id) || state.selectedModelIds.has(m.name);
+        const chip = h("label", "model-chip" + (isChecked ? " active" : ""));
+
+        const chk = document.createElement("input");
+        chk.type = "checkbox";
+        chk.checked = isChecked;
+        chk.addEventListener("change", (e) => {
+          if (e.target.checked) {
+            state.selectedModelIds.add(m.id);
+            state.selectedModelIds.add(m.name);
+          } else {
+            state.selectedModelIds.delete(m.id);
+            state.selectedModelIds.delete(m.name);
+          }
+          updateSelectionUI();
+          renderProviderSections();
+          if (state.selectionMode === "custom") render();
+          syncStateToUrl();
+        });
+
+        const nameSpan = h("span", null, m.name);
+        const scoreSpan = h("span", null, m.index ? `${num(m.index, 1)}점` : "—");
+        scoreSpan.style.color = "var(--ink-3)";
+        scoreSpan.style.fontSize = "11px";
+
+        chip.append(chk, nameSpan, scoreSpan);
+        chipsWrap.appendChild(chip);
+      });
+
+      card.append(hdr, chipsWrap);
+      container.appendChild(card);
+    });
+  }
+
+  function updateSelectionUI() {
+    // Unique model count
+    const baseList = state.scope === "go_only" ? goData : ALL_ENRICHED;
+    let count = 0;
+    baseList.forEach((m) => {
+      if (state.selectedModelIds.has(m.id) || state.selectedModelIds.has(m.name)) count++;
+    });
+
+    const badge = $("customSelectedBadge");
+    const lbl = $("drawerCountLabel");
+
+    if (badge) {
+      badge.textContent = count;
+      badge.style.display = count > 0 ? "inline-block" : "none";
+    }
+    if (lbl) {
+      lbl.textContent = state.selectionMode === "custom" ? `${count}개 모델 활성` : (count > 0 ? `${count}개 선택됨` : "전체 선택됨");
+    }
+
+    if ($("btnModeAll")) $("btnModeAll").setAttribute("aria-pressed", state.selectionMode === "all" ? "true" : "false");
+    if ($("btnModeCustom")) $("btnModeCustom").setAttribute("aria-pressed", state.selectionMode === "custom" ? "true" : "false");
+  }
+
+  // Drawer toggle
+  const drawer = $("providerSectionsDrawer");
+  const btnToggleDrawer = $("btnToggleSectionsDrawer");
+  if (btnToggleDrawer && drawer) {
+    btnToggleDrawer.addEventListener("click", () => {
+      const isHidden = drawer.style.display === "none";
+      drawer.style.display = isHidden ? "block" : "none";
+      $("drawerArrow").textContent = isHidden ? "▲" : "▼";
+      if (isHidden) renderProviderSections();
+    });
+  }
+
+  if ($("drawerSearchInput")) {
+    $("drawerSearchInput").addEventListener("input", () => renderProviderSections());
+  }
+
+  if ($("btnSelectAllDrawer")) {
+    $("btnSelectAllDrawer").addEventListener("click", () => {
+      const baseList = state.scope === "go_only" ? goData : ALL_ENRICHED;
+      baseList.forEach((m) => {
+        state.selectedModelIds.add(m.id);
+        state.selectedModelIds.add(m.name);
+      });
+      renderProviderSections();
+      updateSelectionUI();
+      if (state.selectionMode === "custom") render();
+      syncStateToUrl();
+    });
+  }
+
+  if ($("btnClearAllDrawer")) {
+    $("btnClearAllDrawer").addEventListener("click", () => {
+      state.selectedModelIds.clear();
+      renderProviderSections();
+      updateSelectionUI();
+      if (state.selectionMode === "custom") render();
+      syncStateToUrl();
+    });
+  }
+
+  if ($("btnModeAll")) {
+    $("btnModeAll").addEventListener("click", () => {
+      state.selectionMode = "all";
+      updateSelectionUI();
+      render();
+      syncStateToUrl();
+    });
+  }
+
+  if ($("btnModeCustom")) {
+    $("btnModeCustom").addEventListener("click", () => {
+      state.selectionMode = "custom";
+      if (state.selectedModelIds.size === 0) {
+        if (drawer) {
+          drawer.style.display = "block";
+          $("drawerArrow").textContent = "▲";
+          renderProviderSections();
+        }
+      }
+      updateSelectionUI();
+      render();
+      syncStateToUrl();
+    });
+  }
+
+  /* ---------- Presets & URL Query State Management ---------- */
+  const PRESET_STORAGE_KEY = "opencode_go_presets_v1";
+
+  const DEFAULT_PRESETS = [
+    {
+      id: "all_default",
+      name: "🌐 기본 (학습 미사용 전체)",
+      state: { selectionMode: "all", cost: "go_effective", minIdx: 20, includeTrain: false, includeNoTrain: true }
+    },
+    {
+      id: "safe_tier60",
+      name: "🛡️ 보안 안전 + 6배율($60) 중심",
+      state: {
+        selectionMode: "custom",
+        cost: "go_effective",
+        minIdx: 25,
+        includeTrain: false,
+        includeNoTrain: true,
+        models: ["GLM-5.3-Flash", "GLM-5.2", "MiMo-V2.6-Flash", "Kimi K2.7 Code", "Kimi K2.6"]
+      }
+    },
+    {
+      id: "reasoning_champs",
+      name: "🧠 고난도 추론/에이전트 챔피언",
+      state: {
+        selectionMode: "custom",
+        cost: "go_task",
+        minIdx: 35,
+        includeTrain: false,
+        includeNoTrain: true,
+        models: ["GLM-5.3", "MiMo-V2.6-Pro", "Grok 4.7 (≤ 200K tokens)", "Qwen3.8 Max", "Kimi K3"]
+      }
+    },
+    {
+      id: "budget_champions",
+      name: "⚡ 가성비 최상위 (Top Frontier)",
+      state: {
+        selectionMode: "custom",
+        cost: "go_effective",
+        minIdx: 30,
+        includeTrain: false,
+        includeNoTrain: true,
+        models: ["GLM-5.3-Flash", "MiMo-V2.6-Flash", "MiMo-V2.6-Pro", "Qwen3.8 Flash", "Hy4 preview"]
+      }
+    },
+    {
+      id: "include_contributors",
+      name: "🔬 학습 활용/기여자 포함 전체",
+      state: { selectionMode: "all", cost: "go_effective", minIdx: 20, includeTrain: true, includeNoTrain: true }
+    }
+  ];
+
+  function showToast(msg) {
+    const t = $("toast");
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2400);
+  }
+
+  function getStoredPresets() {
+    try {
+      const raw = localStorage.getItem(PRESET_STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch(e) { return []; }
+  }
+
+  function saveStoredPresets(arr) {
+    try {
+      localStorage.setItem(PRESET_STORAGE_KEY, JSON.stringify(arr));
+    } catch(e) {}
+  }
+
+  function renderPresetPills() {
+    const bar = $("presetPillBar");
+    if (!bar) return;
+    bar.replaceChildren();
+
+    const stored = getStoredPresets();
+    const allPresets = [...DEFAULT_PRESETS, ...stored];
+
+    allPresets.forEach((p) => {
+      const pill = h("div", "preset-pill");
+      pill.textContent = p.name;
+      pill.title = `설정 셋 적용: ${p.name}`;
+
+      pill.addEventListener("click", () => applyPreset(p));
+
+      // If user preset, allow delete
+      if (p.isUser) {
+        const del = h("span", "del-preset", "✕");
+        del.title = "이 셋 삭제";
+        del.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const updated = getStoredPresets().filter((x) => x.id !== p.id);
+          saveStoredPresets(updated);
+          renderPresetPills();
+          showToast(`'${p.name}' 셋이 삭제되었습니다.`);
+        });
+        pill.appendChild(del);
+      }
+
+      bar.appendChild(pill);
+    });
+  }
+
+  function applyPreset(p) {
+    const s = p.state || {};
+    if (s.cost) state.cost = s.cost;
+    if (s.selectionMode) state.selectionMode = s.selectionMode;
+    if (s.minIdx != null) {
+      state.minIdx = s.minIdx;
+      if ($("minIdx")) $("minIdx").value = s.minIdx;
+      if ($("minIdxVal")) $("minIdxVal").textContent = s.minIdx;
+    }
+    if (s.includeTrain != null) {
+      state.includeTrain = s.includeTrain;
+      if ($("filterTrain")) $("filterTrain").checked = s.includeTrain;
+    }
+    if (s.includeNoTrain != null) {
+      state.includeNoTrain = s.includeNoTrain;
+      if ($("filterNoTrain")) $("filterNoTrain").checked = s.includeNoTrain;
+    }
+
+    if (s.models && Array.isArray(s.models)) {
+      state.selectedModelIds.clear();
+      s.models.forEach((mName) => {
+        state.selectedModelIds.add(mName);
+      });
+    }
+
+    // Update buttons
+    document.querySelectorAll("#costSeg button").forEach((b) => {
+      b.setAttribute("aria-pressed", b.dataset.cost === state.cost ? "true" : "false");
+    });
+
+    updateSelectionUI();
+    renderProviderSections();
+    render();
+    syncStateToUrl();
+    showToast(`'${p.name}' 셋이 적용되었습니다!`);
+  }
+
+  function syncStateToUrl() {
+    const params = new URLSearchParams();
+    params.set("cost", state.cost);
+    params.set("mode", state.selectionMode);
+    params.set("scope", state.scope);
+    if (state.minIdx !== 20) params.set("minIdx", state.minIdx);
+    if (state.includeTrain) params.set("train", "1");
+    if (!state.includeNoTrain) params.set("notrain", "0");
+    if (state.maker) params.set("maker", state.maker);
+
+    if (state.selectionMode === "custom" && state.selectedModelIds.size > 0) {
+      // Pick names
+      const names = [...state.selectedModelIds].filter((id) => !id.startsWith("opencode-go/"));
+      params.set("models", names.join(","));
+    }
+
+    const newUrl = `${window.location.pathname}?${params.toString()}`;
+    window.history.replaceState(null, "", newUrl);
+  }
+
+  function loadStateFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has("cost") && !params.has("mode") && !params.has("models") && !params.has("train")) return false;
+
+    if (params.has("cost")) state.cost = params.get("cost");
+    if (params.has("mode")) state.selectionMode = params.get("mode");
+    if (params.has("scope")) state.scope = params.get("scope");
+    if (params.has("minIdx")) state.minIdx = +params.get("minIdx");
+    if (params.has("train")) state.includeTrain = params.get("train") === "1" || params.get("train") === "true";
+    if (params.has("notrain")) state.includeNoTrain = params.get("notrain") !== "0";
+    if (params.has("maker")) state.maker = params.get("maker");
+
+    if (params.has("models")) {
+      const list = params.get("models").split(",").map((s) => s.trim()).filter(Boolean);
+      state.selectedModelIds.clear();
+      list.forEach((m) => state.selectedModelIds.add(m));
+    }
+
+    // Reflect to DOM inputs
+    if ($("minIdx")) $("minIdx").value = state.minIdx;
+    if ($("minIdxVal")) $("minIdxVal").textContent = state.minIdx;
+    if ($("filterTrain")) $("filterTrain").checked = state.includeTrain;
+    if ($("filterNoTrain")) $("filterNoTrain").checked = state.includeNoTrain;
+    if ($("makerSel") && state.maker) $("makerSel").value = state.maker;
+
+    document.querySelectorAll("#costSeg button").forEach((b) => {
+      b.setAttribute("aria-pressed", b.dataset.cost === state.cost ? "true" : "false");
+    });
+    document.querySelectorAll("#scopeSeg button").forEach((b) => {
+      b.setAttribute("aria-pressed", b.dataset.scope === state.scope ? "true" : "false");
+    });
+
+    return true;
+  }
+
+  // Save current preset button
+  if ($("btnSavePreset")) {
+    $("btnSavePreset").addEventListener("click", () => {
+      const name = prompt("현재 선택 설정 셋의 이름을 입력하세요:", "내 설정 셋 " + (getStoredPresets().length + 1));
+      if (!name || !name.trim()) return;
+
+      const userPreset = {
+        id: "user_" + Date.now(),
+        name: name.trim(),
+        isUser: true,
+        state: {
+          cost: state.cost,
+          selectionMode: state.selectionMode,
+          minIdx: state.minIdx,
+          includeTrain: state.includeTrain,
+          includeNoTrain: state.includeNoTrain,
+          models: [...state.selectedModelIds].filter((id) => !id.startsWith("opencode-go/"))
+        }
+      };
+
+      const stored = getStoredPresets();
+      stored.push(userPreset);
+      saveStoredPresets(stored);
+      renderPresetPills();
+      showToast(`'${name}' 셋이 브라우저에 저장되었습니다!`);
+    });
+  }
+
+  // Share URL button
+  if ($("btnShareUrl")) {
+    $("btnShareUrl").addEventListener("click", () => {
+      syncStateToUrl();
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        showToast("현재 분석 상태가 담긴 URL 링크가 복사되었습니다!");
+      }).catch(() => {
+        showToast("URL 복사 실패 (주소창 URL을 직접 복사하세요)");
+      });
+    });
+  }
+
+  /* ---------- event listeners ---------- */
+  document.querySelectorAll("#costSeg button").forEach((b) => b.addEventListener("click", () => {
+    state.cost = b.dataset.cost;
+    document.querySelectorAll("#costSeg button").forEach((o) => o.setAttribute("aria-pressed", o === b ? "true" : "false"));
+    render();
+    syncStateToUrl();
+  }));
+
+  document.querySelectorAll("#scopeSeg button").forEach((b) => b.addEventListener("click", () => {
+    state.scope = b.dataset.scope;
+    document.querySelectorAll("#scopeSeg button").forEach((o) => o.setAttribute("aria-pressed", o === b ? "true" : "false"));
+    updateMakers();
+    renderProviderSections();
+    render();
+    syncStateToUrl();
+  }));
+
+  $("minIdx").addEventListener("input", (e) => { state.minIdx = +e.target.value; $("minIdxVal").textContent = e.target.value; render(); syncStateToUrl(); });
+  $("collapse").addEventListener("change", (e) => { state.collapse = e.target.checked; render(); syncStateToUrl(); });
+  $("filterNoTrain").addEventListener("change", (e) => { state.includeNoTrain = e.target.checked; render(); syncStateToUrl(); });
+  $("filterTrain").addEventListener("change", (e) => { state.includeTrain = e.target.checked; render(); syncStateToUrl(); });
+  if ($("freeFilterTrain")) {
+    $("freeFilterTrain").addEventListener("change", () => renderFreeTable());
+  }
+  $("makerSel").addEventListener("change", (e) => { state.maker = e.target.value; render(); syncStateToUrl(); });
+  $("search").addEventListener("input", (e) => { state.q = e.target.value; render(); });
+  $("frontierOnly").addEventListener("change", (e) => { state.frontierOnly = e.target.checked; render(); syncStateToUrl(); });
+  $("labelsAll").addEventListener("change", (e) => { state.labelsAll = e.target.checked; render(); });
+
+  // Update modal events
+  const updateModal = $("updateModal");
+  if ($("openUpdateHelpBtn") && updateModal) {
+    $("openUpdateHelpBtn").addEventListener("click", () => updateModal.classList.add("open"));
+    $("closeUpdateModalBtn").addEventListener("click", () => updateModal.classList.remove("open"));
+    $("confirmUpdateModalBtn").addEventListener("click", () => updateModal.classList.remove("open"));
+    updateModal.addEventListener("click", (e) => { if (e.target === updateModal) updateModal.classList.remove("open"); });
+  }
+
+  // Load from URL or initialize default
+  loadStateFromUrl();
+  renderPresetPills();
+  render();
+})();
+</script>
+</body>
+</html>

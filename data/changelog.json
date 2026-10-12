@@ -1,0 +1,737 @@
+[
+  {
+    "date": "2026-10-03",
+    "added": [
+      {
+        "name": "Ling 3.1 Flash",
+        "creator": "InclusionAI",
+        "index": 41.1,
+        "blended": 0.45
+      }
+    ],
+    "removed": [],
+    "changed": [
+      {
+        "name": "DeepSeek V4 Pro 0813 (Non-reasoning)",
+        "creator": "DeepSeek",
+        "fields": [
+          {
+            "field": "blended",
+            "from": 1.98,
+            "to": 1.427
+          },
+          {
+            "field": "input",
+            "from": 1.32,
+            "to": 0.91
+          },
+          {
+            "field": "output",
+            "from": 3.96,
+            "to": 2.98
+          },
+          {
+            "field": "cost/task",
+            "from": 0.4774,
+            "to": 0.3297
+          }
+        ]
+      },
+      {
+        "name": "GPT-6 Luna (Max)",
+        "creator": "OpenAI",
+        "fields": [
+          {
+            "field": "cost/task",
+            "from": 0.0677,
+            "to": 0.0678
+          }
+        ]
+      },
+      {
+        "name": "MiMo-V2.6-Flash",
+        "creator": "Xiaomi",
+        "fields": [
+          {
+            "field": "cost/task",
+            "from": 0.0622,
+            "to": 0.0623
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2026-10-02",
+    "added": [
+      {
+        "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Low Effort, Default Fallback)",
+        "creator": "Anthropic",
+        "index": 35.9,
+        "blended": 4
+      },
+      {
+        "name": "Grok 4.7 (Low)",
+        "creator": "SpaceXAI",
+        "index": 42.2,
+        "blended": 3
+      }
+    ],
+    "removed": [],
+    "changed": [
+      {
+        "name": "Claude Sonnet 5.5 (Adaptive Reasoning, High Effort, Default Fallback)",
+        "creator": "Anthropic",
+        "fields": [
+          {
+            "field": "index",
+            "from": 46.7,
+            "to": 46.8
+          },
+          {
+            "field": "cost/task",
+            "from": 1.0798,
+            "to": 1.1225
+          }
+        ]
+      },
+      {
+        "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Max Effort, Default Fallback)",
+        "creator": "Anthropic",
+        "fields": [
+          {
+            "field": "cost/task",
+            "from": 7.6206,
+            "to": 7.6668
+          }
+        ]
+      },
+      {
+        "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Medium Effort, Default Fallback)",
+        "creator": "Anthropic",
+        "fields": [
+          {
+            "field": "index",
+            "from": 40.7,
+            "to": 40.8
+          },
+          {
+            "field": "cost/task",
+            "from": 0.5862,
+            "to": 0.5894
+          }
+        ]
+      },
+      {
+        "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Xhigh Effort, Default Fallback)",
+        "creator": "Anthropic",
+        "fields": [
+          {
+            "field": "cost/task",
+            "from": 2.7426,
+            "to": 2.7462
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2026-10-01",
+    "added": [
+      {
+        "name": "Gemini 4 Argon (High)",
+        "creator": "Google",
+        "index": 52.6,
+        "blended": 4
+      },
+      {
+        "name": "Solar Mini 4",
+        "creator": "Upstage",
+        "index": 24.1,
+        "blended": 0.175
+      }
+    ],
+    "removed": [],
+    "changed": [
+      {
+        "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Max Effort, Default Fallback)",
+        "creator": "Anthropic",
+        "fields": [
+          {
+            "field": "cost/task",
+            "from": 7.6026,
+            "to": 7.6206
+          }
+        ]
+      },
+      {
+        "name": "GPT-6 Luna (High)",
+        "creator": "OpenAI",
+        "fields": [
+          {
+            "field": "index",
+            "from": 32.1,
+            "to": 32.9
+          },
+          {
+            "field": "cost/task",
+            "from": 0.0291,
+            "to": 0.029
+          }
+        ]
+      },
+      {
+        "name": "GPT-6 Luna (Low)",
+        "creator": "OpenAI",
+        "fields": [
+          {
+            "field": "index",
+            "from": 20.9,
+            "to": 21.5
+          }
+        ]
+      },
+      {
+        "name": "GPT-6 Luna (Max)",
+        "creator": "OpenAI",
+        "fields": [
+          {
+            "field": "index",
+            "from": 37.3,
+            "to": 38.1
+          },
+          {
+            "field": "cost/task",
+            "from": 0.0679,
+            "to": 0.0677
+          }
+        ]
+      },
+      {
+        "name": "GPT-6 Luna (Medium)",
+        "creator": "OpenAI",
+        "fields": [
+          {
+            "field": "index",
+            "from": 29.5,
+            "to": 29.9
+          },
+          {
+            "field": "cost/task",
+            "from": 0.0176,
+            "to": 0.0175
+          }
+        ]
+      },
+      {
+        "name": "GPT-6 Luna (Non-reasoning)",
+        "creator": "OpenAI",
+        "fields": [
+          {
+            "field": "index",
+            "from": 18.3,
+            "to": 18.5
+          },
+          {
+            "field": "cost/task",
+            "from": 0.0115,
+            "to": 0.0113
+          }
+        ]
+      },
+      {
+        "name": "GPT-6 Luna (Xhigh)",
+        "creator": "OpenAI",
+        "fields": [
+          {
+            "field": "index",
+            "from": 33.9,
+            "to": 34.6
+          },
+          {
+            "field": "cost/task",
+            "from": 0.0421,
+            "to": 0.0422
+          }
+        ]
+      },
+      {
+        "name": "GPT-6 Sol (High)",
+        "creator": "OpenAI",
+        "fields": [
+          {
+            "field": "index",
+            "from": 42.8,
+            "to": 42.4
+          },
+          {
+            "field": "cost/task",
+            "from": 0.3753,
+            "to": 0.3728
+          }
+        ]
+      },
+      {
+        "name": "GPT-6 Sol (Low)",
+        "creator": "OpenAI",
+        "fields": [
+          {
+            "field": "index",
+            "from": 33.9,
+            "to": 34.2
+          },
+          {
+            "field": "cost/task",
+            "from": 0.1326,
+            "to": 0.1328
+          }
+        ]
+      },
+      {
+        "name": "GPT-6 Sol (Max)",
+        "creator": "OpenAI",
+        "fields": [
+          {
+            "field": "index",
+            "from": 47.5,
+            "to": 47.6
+          },
+          {
+            "field": "cost/task",
+            "from": 1.0494,
+            "to": 1.0447
+          }
+        ]
+      },
+      {
+        "name": "GPT-6 Sol (Medium)",
+        "creator": "OpenAI",
+        "fields": [
+          {
+            "field": "cost/task",
+            "from": 0.2472,
+            "to": 0.2473
+          }
+        ]
+      },
+      {
+        "name": "GPT-6 Sol (Non-reasoning)",
+        "creator": "OpenAI",
+        "fields": [
+          {
+            "field": "index",
+            "from": 28.1,
+            "to": 28.5
+          },
+          {
+            "field": "cost/task",
+            "from": 0.3334,
+            "to": 0.3337
+          }
+        ]
+      },
+      {
+        "name": "GPT-6 Sol (Xhigh)",
+        "creator": "OpenAI",
+        "fields": [
+          {
+            "field": "index",
+            "from": 44.1,
+            "to": 44.2
+          },
+          {
+            "field": "cost/task",
+            "from": 0.5236,
+            "to": 0.5208
+          }
+        ]
+      },
+      {
+        "name": "Nemotron 3.5 Lightning",
+        "creator": "NVIDIA",
+        "fields": [
+          {
+            "field": "blended",
+            "from": 0.108,
+            "to": 0.095
+          },
+          {
+            "field": "input",
+            "from": 0.07,
+            "to": 0.06
+          },
+          {
+            "field": "output",
+            "from": 0.22,
+            "to": 0.2
+          },
+          {
+            "field": "cost/task",
+            "from": 0.1004,
+            "to": 0.0931
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2026-09-30",
+    "added": [
+      {
+        "name": "DeepSeek V4 Pro 0813 (Non-reasoning)",
+        "creator": "DeepSeek",
+        "index": 20.4,
+        "blended": 1.98
+      },
+      {
+        "name": "GPT-6.1 Sol (high)",
+        "creator": "OpenAI",
+        "index": 50.2,
+        "blended": 4
+      },
+      {
+        "name": "GPT-6.1 Sol (low)",
+        "creator": "OpenAI",
+        "index": 42.1,
+        "blended": 4
+      },
+      {
+        "name": "GPT-6.1 Sol (max)",
+        "creator": "OpenAI",
+        "index": 51.8,
+        "blended": 4
+      },
+      {
+        "name": "GPT-6.1 Sol (medium)",
+        "creator": "OpenAI",
+        "index": 47.8,
+        "blended": 4
+      },
+      {
+        "name": "GPT-6.1 Sol (xhigh)",
+        "creator": "OpenAI",
+        "index": 51,
+        "blended": 4
+      }
+    ],
+    "removed": [
+      {
+        "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Low Effort, Default Fallback)",
+        "creator": "Anthropic",
+        "index": 35.8,
+        "blended": 4
+      }
+    ],
+    "changed": [
+      {
+        "name": "DeepSeek V3 0324",
+        "creator": "DeepSeek",
+        "fields": [
+          {
+            "field": "blended",
+            "from": 0.927,
+            "to": 0.405
+          },
+          {
+            "field": "input",
+            "from": 0.845,
+            "to": 0.24
+          },
+          {
+            "field": "output",
+            "from": 1.175,
+            "to": 0.9
+          },
+          {
+            "field": "cost/task",
+            "from": 0.1053,
+            "to": 0.0202
+          }
+        ]
+      },
+      {
+        "name": "DeepSeek V3.1 (Non-reasoning)",
+        "creator": "DeepSeek",
+        "fields": [
+          {
+            "field": "blended",
+            "from": 0.848,
+            "to": 0.84
+          },
+          {
+            "field": "input",
+            "from": 0.57,
+            "to": 0.56
+          }
+        ]
+      },
+      {
+        "name": "DeepSeek V3.1 (Reasoning)",
+        "creator": "DeepSeek",
+        "fields": [
+          {
+            "field": "blended",
+            "from": 0.865,
+            "to": 0.855
+          },
+          {
+            "field": "input",
+            "from": 0.59,
+            "to": 0.58
+          },
+          {
+            "field": "output",
+            "from": 1.69,
+            "to": 1.68
+          }
+        ]
+      },
+      {
+        "name": "DeepSeek V4 Flash 0420 (Reasoning, High Effort)",
+        "creator": "DeepSeek",
+        "fields": [
+          {
+            "field": "index",
+            "from": 26,
+            "to": 24.4
+          }
+        ]
+      },
+      {
+        "name": "Inkling Small",
+        "creator": "Thinking Machines",
+        "fields": [
+          {
+            "field": "index",
+            "from": 27.8,
+            "to": 25.7
+          }
+        ]
+      },
+      {
+        "name": "Kimi K3 (low)",
+        "creator": "Kimi",
+        "fields": [
+          {
+            "field": "index",
+            "from": 34.5,
+            "to": 30.1
+          }
+        ]
+      },
+      {
+        "name": "Ling 3.0 Flash",
+        "creator": "InclusionAI",
+        "fields": [
+          {
+            "field": "index",
+            "from": 24.9,
+            "to": 20.1
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2026-09-29",
+    "added": [
+      {
+        "name": "Claude Sonnet 5.5 (Adaptive Reasoning, High Effort, Default Fallback)",
+        "creator": "Anthropic",
+        "index": 46.7,
+        "blended": 4
+      },
+      {
+        "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Low Effort, Default Fallback)",
+        "creator": "Anthropic",
+        "index": 35.8,
+        "blended": 4
+      },
+      {
+        "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Max Effort, Default Fallback)",
+        "creator": "Anthropic",
+        "index": 56,
+        "blended": 4
+      },
+      {
+        "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Medium Effort, Default Fallback)",
+        "creator": "Anthropic",
+        "index": 40.7,
+        "blended": 4
+      },
+      {
+        "name": "Claude Sonnet 5.5 (Adaptive Reasoning, Xhigh Effort, Default Fallback)",
+        "creator": "Anthropic",
+        "index": 51.9,
+        "blended": 4
+      }
+    ],
+    "removed": [
+      {
+        "name": "Granite 4.1 8B",
+        "creator": "IBM",
+        "index": 6.6,
+        "blended": 0.063
+      }
+    ],
+    "changed": [
+      {
+        "name": "DeepSeek V4 Flash 0420 (Non-reasoning)",
+        "creator": "DeepSeek",
+        "fields": [
+          {
+            "field": "blended",
+            "from": 0.119,
+            "to": 0.117
+          },
+          {
+            "field": "input",
+            "from": 0.094,
+            "to": 0.092
+          },
+          {
+            "field": "output",
+            "from": 0.195,
+            "to": 0.191
+          }
+        ]
+      },
+      {
+        "name": "DeepSeek V4 Flash 0420 (Reasoning, High Effort)",
+        "creator": "DeepSeek",
+        "fields": [
+          {
+            "field": "blended",
+            "from": 0.168,
+            "to": 0.143
+          },
+          {
+            "field": "input",
+            "from": 0.13,
+            "to": 0.112
+          },
+          {
+            "field": "output",
+            "from": 0.28,
+            "to": 0.238
+          }
+        ]
+      },
+      {
+        "name": "Hy3",
+        "creator": "Tencent",
+        "fields": [
+          {
+            "field": "blended",
+            "from": 0.25,
+            "to": 0.241
+          },
+          {
+            "field": "input",
+            "from": 0.14,
+            "to": 0.136
+          },
+          {
+            "field": "output",
+            "from": 0.58,
+            "to": 0.555
+          }
+        ]
+      },
+      {
+        "name": "Qwen3.5 9B (Reasoning)",
+        "creator": "Alibaba",
+        "fields": [
+          {
+            "field": "index",
+            "from": 13.7,
+            "to": 11.2
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "date": "2026-09-27",
+    "added": [
+      {
+        "name": "MiMo-V2.6-Flash",
+        "creator": "Xiaomi",
+        "index": 37.9,
+        "blended": 0.175
+      }
+    ],
+    "removed": [],
+    "changed": []
+  },
+  {
+    "date": "2026-09-25",
+    "added": [
+      {
+        "name": "DeepSeek V4.1 Flash (Non-Reasoning)",
+        "creator": "DeepSeek",
+        "index": 24.7,
+        "blended": 0.525
+      },
+      {
+        "name": "GLM-5.3 (low)",
+        "creator": "Z AI",
+        "index": 34.3,
+        "blended": 2.15
+      }
+    ],
+    "removed": [],
+    "changed": [
+      {
+        "name": "Apodex 1.1",
+        "creator": "Apodex",
+        "fields": [
+          {
+            "field": "index",
+            "from": 30.4,
+            "to": 26.4
+          }
+        ]
+      },
+      {
+        "name": "Gemma 4 26B A4B (Reasoning)",
+        "creator": "Google",
+        "fields": [
+          {
+            "field": "blended",
+            "from": 0.16,
+            "to": 0.168
+          },
+          {
+            "field": "output",
+            "from": 0.34,
+            "to": 0.37
+          }
+        ]
+      },
+      {
+        "name": "Muse Glimmer (high)",
+        "creator": "Meta",
+        "fields": [
+          {
+            "field": "blended",
+            "from": 0.637,
+            "to": 0.581
+          },
+          {
+            "field": "input",
+            "from": 0.35,
+            "to": 0.325
+          },
+          {
+            "field": "output",
+            "from": 1.5,
+            "to": 1.35
+          }
+        ]
+      }
+    ]
+  }
+]
+
+
