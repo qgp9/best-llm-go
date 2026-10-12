@@ -841,13 +841,7 @@
       <label><span data-i18n="lbl_min_idx">Min Intelligence</span> <input type="range" id="minIdx" min="0" max="50" step="5" value="20" aria-label="Minimum index"> <span id="minIdxVal" style="font-weight:600;min-width:18px;">20</span></label>
       <label title="Keep only the highest score variant"><input type="checkbox" id="collapse" checked> <span data-i18n="lbl_collapse">1 row per model</span></label>
       <label><span data-i18n="lbl_maker">Maker</span> <select id="makerSel"><option value="" data-i18n="opt_all_makers">All Makers</option></select></label>
-      <label><span data-i18n="lbl_multiplier">Multiplier / Tier</span> <select id="multiplierSel">
-        <option value="" data-i18n="opt_all_multipliers">All Multipliers</option>
-        <option value="6+" data-i18n="opt_mult_6plus">6x+ ($60+ Tier)</option>
-        <option value="6" data-i18n="opt_mult_6">6x ($60 Tier)</option>
-        <option value="3" data-i18n="opt_mult_3">3x ($30 Tier)</option>
-        <option value="1.5" data-i18n="opt_mult_1_5">1.5x ($15 Tier)</option>
-      </select></label>
+      <label><span data-i18n="lbl_multiplier">Multiplier</span> <select id="multiplierSel"><option value="" data-i18n="opt_all_multipliers">All Multipliers</option></select></label>
       <label><input type="search" id="search" placeholder="Search model…" data-i18n-ph="ph_search" aria-label="Search model"></label>
       <label><input type="checkbox" id="frontierOnly"> <span data-i18n="lbl_frontier_only">Frontier only</span></label>
       <label><input type="checkbox" id="labelsAll"> <span data-i18n="lbl_labels_all">Show all labels</span></label>
@@ -1266,6 +1260,32 @@
   };
   updateMakers();
 
+  // Populate multipliers dynamically from numeric values in currently loaded dataset
+  const updateMultipliers = () => {
+    if (!$("multiplierSel")) return;
+    const list = state.scope === "go_only" ? goData : ALL_ENRICHED;
+    const mults = [...new Set(list.map((m) => m.multiplier).filter((v) => typeof v === "number" && v > 1.0))].sort((a, b) => b - a);
+    const sel = $("multiplierSel");
+    const currentVal = state.multiplier ? String(parseFloat(state.multiplier)) : "";
+    sel.replaceChildren();
+
+    const isKo = (window.I18N && window.I18N.lang === "ko");
+    const allTxt = isKo ? "전체 배율" : "All Multipliers";
+    const defaultOpt = h("option", null, allTxt);
+    defaultOpt.value = "";
+    sel.appendChild(defaultOpt);
+
+    mults.forEach((mVal) => {
+      const label = isKo ? `${mVal}x 이상` : `${mVal}x+`;
+      const opt = h("option", null, label);
+      opt.value = String(mVal);
+      sel.appendChild(opt);
+    });
+
+    sel.value = currentVal;
+  };
+  updateMultipliers();
+
   /* ---------- compute ---------- */
   function compute() {
     const cfg = getCostConfig()[state.cost];
@@ -1278,13 +1298,13 @@
       if (isTrain && !state.includeTrain) return false;
       if (!isTrain && !state.includeNoTrain) return false;
 
-      // Multiplier / Tier filter
+      // Multiplier filter (Nx 이상)
       if (state.multiplier) {
-        const mult = m.multiplier || 1.0;
-        if (state.multiplier === "6+" && mult < 6.0) return false;
-        if (state.multiplier === "6" && mult !== 6.0) return false;
-        if (state.multiplier === "3" && mult !== 3.0) return false;
-        if (state.multiplier === "1.5" && mult !== 1.5) return false;
+        const minMult = parseFloat(state.multiplier);
+        if (!isNaN(minMult) && minMult > 1.0) {
+          const mult = m.multiplier || 1.0;
+          if (mult < minMult) return false;
+        }
       }
 
       // Custom user selection filter
@@ -2099,11 +2119,11 @@
     },
     {
       id: "safe_tier60",
-      name_en: "🛡️ Safe + 6x ($60) Focused",
-      name_ko: "🛡️ 보안 안전 + 6배율($60) 중심",
+      name_en: "🛡️ Safe + 6x+ Focused",
+      name_ko: "🛡️ 보안 안전 + 6x 이상 중심",
       state: {
         selectionMode: "all",
-        multiplier: "6+",
+        multiplier: "6",
         cost: "go_effective",
         minIdx: 25,
         includeTrain: false,
@@ -2146,7 +2166,7 @@
 
   const DEFAULT_PRESET_MAP = {
     all_default: { en: "🌐 Default (All Safe Models)", ko: "🌐 기본 (학습 미사용 전체)" },
-    safe_tier60: { en: "🛡️ Safe + 6x ($60) Focused", ko: "🛡️ 보안 안전 + 6배율($60) 중심" },
+    safe_tier60: { en: "🛡️ Safe + 6x+ Focused", ko: "🛡️ 보안 안전 + 6x 이상 중심" },
     reasoning_champs: { en: "🧠 Advanced Reasoning & Agentic", ko: "🧠 고난도 추론 및 에이전트" },
     budget_champions: { en: "⚡ Top Value Picks (Frontier)", ko: "⚡ 가성비 최우수 (Frontier)" },
     include_contributors: { en: "🔬 All Including Contributors", ko: "🔬 학습 활용/기여자 포함 전체" }
@@ -2370,7 +2390,8 @@
     // Reflect to DOM inputs
     if ($("minIdx")) $("minIdx").value = state.minIdx;
     if ($("minIdxVal")) $("minIdxVal").textContent = state.minIdx;
-    if ($("multiplierSel")) $("multiplierSel").value = state.multiplier || "";
+    updateMultipliers();
+    if ($("multiplierSel")) $("multiplierSel").value = state.multiplier ? String(parseFloat(state.multiplier)) : "";
     if ($("filterTrain")) $("filterTrain").checked = state.includeTrain;
     if ($("filterNoTrain")) $("filterNoTrain").checked = state.includeNoTrain;
     if ($("frontierOnly")) $("frontierOnly").checked = state.frontierOnly;
@@ -2449,6 +2470,7 @@
     state.scope = b.dataset.scope;
     document.querySelectorAll("#scopeSeg button").forEach((o) => o.setAttribute("aria-pressed", o === b ? "true" : "false"));
     updateMakers();
+    updateMultipliers();
     renderProviderSections();
     render();
     syncStateToUrl();
@@ -2515,6 +2537,7 @@
     window.I18N.onChange(() => {
       updateMetaText();
       updateMakers();
+      updateMultipliers();
       render();
       renderProviderSections();
       renderPresetPills();
