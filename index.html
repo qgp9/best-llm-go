@@ -387,7 +387,7 @@
   <div>
     <h1><span data-i18n="h1_title">OpenCode Go Value Frontier</span></h1>
     <p class="sub" id="hdrSub" data-i18n="hdr_sub">
-      Pareto frontier value analyzer for OpenCode Go ($10/mo plan). Combines official model allowances ($15/$30/$60), API rates, and Artificial Analysis benchmarks to highlight true value champions.
+      Pareto frontier value analyzer for OpenCode Go ($10/mo plan). Combines official model allowances ($15/$30/$60), API rates, and Artificial Analysis benchmarks to highlight optimal models.
     </p>
     <p class="meta" id="meta" data-i18n="meta_loading">Loading data…</p>
   </div>
@@ -1698,8 +1698,8 @@
     },
     {
       id: "reasoning_champs",
-      name_en: "🧠 Reasoning / Agent Champions",
-      name_ko: "🧠 고난도 추론/에이전트 챔피언",
+      name_en: "🧠 Advanced Reasoning & Agentic",
+      name_ko: "🧠 고난도 추론 및 에이전트",
       state: {
         selectionMode: "custom",
         cost: "go_task",
@@ -1711,8 +1711,8 @@
     },
     {
       id: "budget_champions",
-      name_en: "⚡ Value Champions (Top Frontier)",
-      name_ko: "⚡ 가성비 최상위 (Top Frontier)",
+      name_en: "⚡ Top Value Picks (Frontier)",
+      name_ko: "⚡ 가성비 최우수 (Frontier)",
       state: {
         selectionMode: "custom",
         cost: "go_effective",
@@ -1733,17 +1733,26 @@
   const DEFAULT_PRESET_MAP = {
     all_default: { en: "🌐 Default (All Safe Models)", ko: "🌐 기본 (학습 미사용 전체)" },
     safe_tier60: { en: "🛡️ Safe + 6x ($60) Focused", ko: "🛡️ 보안 안전 + 6배율($60) 중심" },
-    reasoning_champs: { en: "🧠 Reasoning / Agent Champions", ko: "🧠 고난도 추론/에이전트 챔피언" },
-    budget_champions: { en: "⚡ Value Champions (Top Frontier)", ko: "⚡ 가성비 최상위 (Top Frontier)" },
+    reasoning_champs: { en: "🧠 Advanced Reasoning & Agentic", ko: "🧠 고난도 추론 및 에이전트" },
+    budget_champions: { en: "⚡ Top Value Picks (Frontier)", ko: "⚡ 가성비 최우수 (Frontier)" },
     include_contributors: { en: "🔬 All Including Contributors", ko: "🔬 학습 활용/기여자 포함 전체" }
+  };
+
+  const LEGACY_PRESET_ALIASES = {
+    "🧠 고난도 추론/에이전트 챔피언": "reasoning_champs",
+    "🧠 Reasoning / Agent Champions": "reasoning_champs",
+    "⚡ 가성비 최상위 (Top Frontier)": "budget_champions",
+    "⚡ Value Champions (Top Frontier)": "budget_champions"
   };
 
   function getPresetDisplayName(p, isKo) {
     if (!p) return "";
-    if (p.id && DEFAULT_PRESET_MAP[p.id]) {
-      return isKo ? DEFAULT_PRESET_MAP[p.id].ko : DEFAULT_PRESET_MAP[p.id].en;
+    let id = p.id;
+    if (!id && LEGACY_PRESET_ALIASES[p.name]) id = LEGACY_PRESET_ALIASES[p.name];
+    if (id && DEFAULT_PRESET_MAP[id]) {
+      return isKo ? DEFAULT_PRESET_MAP[id].ko : DEFAULT_PRESET_MAP[id].en;
     }
-    for (const def of Object.values(DEFAULT_PRESET_MAP)) {
+    for (const [key, def] of Object.values(DEFAULT_PRESET_MAP)) {
       if (p.name === def.ko || p.name === def.en) {
         return isKo ? def.ko : def.en;
       }

@@ -51,7 +51,7 @@ $$\text{Monthly Quota Burn \%} = \frac{\text{API Blended Price}}{\text{Tier Allo
 
 ## 💡 Key Takeaways
 
-1. **Daily Coding Champion**:
+1. **Primary Coding Drivers**:
    * **GLM-5.3-Flash** (Score 41.8 / Effective \$0.040 / 6,320 requests per 5h): Solid performance with generous rate limits.
    * **MiMo-V2.6-Flash** (Score 37.9 / Effective \$0.029 / 30,100 requests per 5h): Ultra-low burn rate for high-volume tasks.
 2. **Heavy Reasoning & Complex Tasks**:

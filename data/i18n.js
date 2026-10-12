@@ -15,7 +15,7 @@
       // Header
       h1_title: "OpenCode Go Value Frontier",
       badge_go: "Official Go Catalog",
-      hdr_sub: "Pareto frontier value analyzer for OpenCode Go ($10/mo plan). Combines official model allowances ($15/$30/$60), API rates, and Artificial Analysis benchmarks to highlight true value champions.",
+      hdr_sub: "Pareto frontier value analyzer for OpenCode Go ($10/mo plan). Combines official model allowances ($15/$30/$60), API rates, and Artificial Analysis benchmarks to highlight optimal models.",
       meta_loading: "Loading data…",
       meta_loaded: "{goCount} Go models ({totalCount} total) · Sources: opencode.ai + models.dev + artificialanalysis.ai · 🕒 <b>{lastUpdated}</b> (Daily sync)",
       free_last_updated: "🕒 <b>{lastUpdated}</b> (Daily sync)",
