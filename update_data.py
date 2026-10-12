@@ -392,8 +392,8 @@ meta_update = {
     "last_updated_utc": now_utc.strftime("%Y-%m-%d %H:%M UTC"),
     "last_updated_iso": now_utc.isoformat(),
     "cycle": "24h",
-    "schedule_desc_en": "Updated every 24 hours (daily around 12:00 PM Finland time)",
-    "schedule_desc_ko": "매 24시간마다 자동 업데이트 (핀란드 낮 12시경)"
+    "schedule_desc_en": "Updated daily",
+    "schedule_desc_ko": "매일 자동 갱신"
 }
 
 with open(os.path.join(DATA_DIR, "last_updated.json"), "w") as f:

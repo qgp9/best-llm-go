@@ -78,5 +78,5 @@ open free_models.html
 
 ### 3. Automated Daily Deployment via GitHub Actions
 * Workflow file: `.github/workflows/deploy.yml`
-* **Schedule**: Daily around Finland lunchtime (~12:00 PM / 09:37 UTC). The `:37` minute marks a prime quiet window for GitHub runners while avoiding top-of-the-hour queue backlogs.
+* **Schedule**: Daily at 09:37 UTC.
 * **Manual Run**: GitHub Actions tab → Select `Update Data and Deploy to GitHub Pages` → Click `Run workflow`.

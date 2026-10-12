@@ -2,8 +2,7 @@ name: Update Data and Deploy to GitHub Pages
 
 on:
   schedule:
-    # Run daily around Finland lunchtime (~12:00 PM): 09:37 UTC (12:37 EEST / 11:37 EET)
-    # Prime quiet window for GitHub Actions (US midnight) with :37 avoiding peak queue backlogs
+    # Run daily at 09:37 UTC (:37 avoids peak queue backlogs)
     - cron: '37 9 * * *'
   push:
     branches:
@@ -73,7 +72,7 @@ jobs:
                 },
                 {
                   "name": "🕒 Schedule",
-                  "value": "Daily ~12:00 PM Finland time (09:37 UTC)",
+                  "value": "Daily (09:37 UTC)",
                   "inline": true
                 },
                 {
