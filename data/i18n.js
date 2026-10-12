@@ -9,11 +9,8 @@
   const DICT = {
     en: {
       // Banner
-      banner_notice_tag: "⚠️ Personal Reference",
-      banner_notice_text: "Unofficial research tool. Scraped from public APIs; actual rates may vary.",
-      banner_vibe_tag: "🤖 100% Vibe-Coded with AI",
-      banner_credit_text: "Adapted from",
-      banner_credit_author: "Terry Djony's project",
+      banner_notice_tag: "Note",
+      banner_notice_text: "Unofficial personal sandbox (public API data). UI inspired by <a href=\"https://bestmodelforyourbudget.terrydjony.com/\" target=\"_blank\" rel=\"noopener\">Terry Djony</a>.",
 
       // Header
       h1_title: "OpenCode Go Value Frontier",
@@ -262,12 +259,8 @@
 
     ko: {
       // Banner
-      // Banner
-      banner_notice_tag: "⚠️ 개인 참고용",
-      banner_notice_text: "개인 연구용 비공식 분석 도구입니다. 공개 데이터 기준이며 실제와 다를 수 있습니다.",
-      banner_vibe_tag: "🤖 100% AI 바이브 코딩",
-      banner_credit_text: "디자인 영감:",
-      banner_credit_author: "Terry Djony 프로젝트",
+      banner_notice_tag: "안내",
+      banner_notice_text: "개인 연구용 비공식 도구입니다 (공개 데이터 기반). UI는 <a href=\"https://bestmodelforyourbudget.terrydjony.com/\" target=\"_blank\" rel=\"noopener\">Terry Djony 프로젝트</a>를 참고했습니다.",
 
       // Header
       h1_title: "OpenCode Go Value Frontier",
@@ -614,6 +607,14 @@
     if (themeBtn) {
       themeBtn.addEventListener("click", toggleTheme);
     }
+
+    // Check banner dismissed state
+    try {
+      if (localStorage.getItem("banner_dismissed") === "1") {
+        const b = document.getElementById("topNoticeBanner");
+        if (b) b.style.display = "none";
+      }
+    } catch(e) {}
   });
 
   // Export API

@@ -744,12 +744,10 @@
   <!-- Top Notice Banner -->
   <div class="top-notice-banner" id="topNoticeBanner">
     <div class="notice-content">
-      <span class="notice-tag" data-i18n="banner_notice_tag">⚠️ Personal Reference</span>
-      <span id="bannerNoticeText" data-i18n="banner_notice_text">Unofficial research tool. Scraped from public APIs; actual rates may vary.</span>
-      <span class="vibe-tag" data-i18n="banner_vibe_tag">🤖 100% Vibe-Coded with AI</span>
-      <span class="credit-tag" data-i18n="banner_credit_text">Adapted from <a href="https://bestmodelforyourbudget.terrydjony.com/" target="_blank" rel="noopener">Terry Djony's project</a></span>
+      <span class="notice-tag" data-i18n="banner_notice_tag">Note</span>
+      <span id="bannerNoticeText" data-i18n="banner_notice_text">Unofficial personal sandbox (public API data). UI inspired by <a href="https://bestmodelforyourbudget.terrydjony.com/" target="_blank" rel="noopener">Terry Djony</a>.</span>
     </div>
-    <button class="notice-close" onclick="document.getElementById('topNoticeBanner').style.display='none'" aria-label="Dismiss">&times;</button>
+    <button class="notice-close" onclick="document.getElementById('topNoticeBanner').style.display='none'; try{localStorage.setItem('banner_dismissed','1')}catch(e){}" aria-label="Dismiss">&times;</button>
   </div>
 
   <!-- Hero Section -->
