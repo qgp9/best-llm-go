@@ -107,31 +107,37 @@
   .nav-inner {
     max-width: 1240px;
     margin: 0 auto;
-    padding: 12px 24px;
+    padding: 10px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 16px;
-    flex-wrap: wrap;
+  }
+  .nav-brand-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
   }
   .nav-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--ink);
   }
   .nav-brand-title {
     font-weight: 700;
-    font-size: 16px;
+    font-size: 15.5px;
     color: var(--ink);
     letter-spacing: -0.01em;
+    white-space: nowrap;
   }
-  .nav-links {
+  .nav-tabs-row {
     display: flex;
     align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
+    gap: 6px;
   }
-  .nav-link {
+  .nav-tab {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -143,22 +149,34 @@
     border: 1px solid transparent;
     text-decoration: none;
     transition: all .15s ease;
+    white-space: nowrap;
   }
-  .nav-link:hover {
+  .nav-tab:hover {
     background: var(--wash);
     color: var(--ink);
     text-decoration: none;
   }
-  .nav-link.active {
+  .nav-tab.active {
     background: var(--accent-soft);
     color: var(--accent-ink);
     border-color: rgba(217, 119, 87, 0.3);
+  }
+  .nav-tab-ext {
+    font-weight: 500;
+    font-size: 12.5px;
+    color: var(--ink-3);
+  }
+  .nav-tab-ext:hover { color: var(--ink); }
+  .nav-util-cluster {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .nav-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 12px;
+    padding: 5px 12px;
     border-radius: 999px;
     font-size: 12.5px;
     font-weight: 500;
@@ -169,6 +187,7 @@
     cursor: pointer;
     text-decoration: none;
     transition: all .15s ease;
+    white-space: nowrap;
   }
   .nav-btn:hover {
     background: var(--wash);
@@ -176,7 +195,7 @@
     border-color: var(--ink-3);
     text-decoration: none;
   }
-  .nav-links .seg {
+  .nav-util-cluster .seg {
     display: inline-flex;
     border: 1px solid var(--line);
     border-radius: 999px;
@@ -811,12 +830,155 @@
   }
 
   @media (max-width: 768px) {
-    .nav-inner { flex-direction: column; align-items: stretch; gap: 10px; padding: 10px 16px; }
-    .nav-links { justify-content: flex-start; }
-    .wrap { padding: 18px 16px 48px; }
-    .hero h1 { font-size: 24px; }
-    .model-grid { grid-template-columns: 1fr; }
-    .platform-grid { grid-template-columns: 1fr; }
+    /* Navbar Mobile Layout */
+    .nav-inner {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+      padding: 8px 14px;
+    }
+    .nav-brand-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+    .nav-brand-title {
+      font-size: 14.5px;
+    }
+    .nav-util-cluster {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .nav-tabs-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      white-space: nowrap;
+      padding-bottom: 2px;
+      width: 100%;
+    }
+    .nav-tabs-row::-webkit-scrollbar { display: none; }
+    .nav-tab {
+      font-size: 12px;
+      padding: 5px 12px;
+      flex-shrink: 0;
+    }
+    .nav-btn-compact {
+      padding: 4px 8px;
+      font-size: 11.5px;
+    }
+
+    /* Container & Hero Mobile */
+    .wrap { padding: 14px 12px 48px; }
+    .hero { margin-bottom: 16px; }
+    .hero h1 { font-size: 22px; line-height: 1.25; }
+    .hero .sub { font-size: 13.5px; line-height: 1.5; }
+    .hero-credits {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 6px;
+      font-size: 11.5px;
+      border-radius: 10px;
+      padding: 6px 10px;
+    }
+
+    /* Grid mobile */
+    .platform-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .plat-card {
+      padding: 16px;
+      border-radius: 14px;
+    }
+    .model-grid {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .model-card {
+      padding: 16px;
+      border-radius: 14px;
+    }
+    .benchmark-bar {
+      padding: 6px 8px;
+      gap: 4px;
+    }
+    .bench-lbl { font-size: 10px; }
+    .bench-val { font-size: 13px; }
+
+    /* Filter Toolbar Mobile */
+    .toolbar-card {
+      padding: 14px 12px;
+      border-radius: 14px;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .toolbar-row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+    }
+    #platformFilterBar, #categoryFilterBar {
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+      width: 100%;
+    }
+    #platformFilterBar::-webkit-scrollbar, #categoryFilterBar::-webkit-scrollbar { display: none; }
+    .pill-btn {
+      flex-shrink: 0;
+      white-space: nowrap;
+      font-size: 12px;
+      padding: 4px 10px;
+    }
+    .search-box {
+      width: 100%;
+      min-width: 0;
+      max-width: 100%;
+    }
+    .search-box input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Accordion mobile */
+    .accordion-card {
+      border-radius: 14px;
+      margin-bottom: 18px;
+    }
+    .accordion-header {
+      padding: 14px 16px;
+    }
+    .accordion-header h3 {
+      font-size: 14px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 3px;
+    }
+    .accordion-body {
+      padding: 14px 12px;
+    }
+    .tabs-nav {
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    .tab-btn {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+    .code-block-wrap {
+      padding: 10px 12px;
+      font-size: 11px;
+    }
   }
 </style>
 </head>
@@ -825,27 +987,31 @@
 <!-- Top Navigation -->
 <header class="nav-bar">
   <div class="nav-inner">
-    <div class="nav-brand">
-      <span class="nav-brand-title">⚡ OpenCode & Free LLM Intel</span>
+    <div class="nav-brand-row">
+      <a href="index.html" class="nav-brand">
+        <span class="nav-brand-title">⚡ OpenCode & Free LLM Intel</span>
+      </a>
+      <div class="nav-util-cluster">
+        <button class="nav-btn nav-btn-compact" id="openUpdateHelpBtn" type="button" title="Data Sources & Information">
+          <span data-i18n="btn_about_sources">ℹ️ Data & Sources</span>
+        </button>
+        <div class="seg" role="group" aria-label="Language" id="langSeg">
+          <button type="button" data-lang="en" aria-pressed="true">EN</button>
+          <button type="button" data-lang="ko" aria-pressed="false">KO</button>
+        </div>
+        <button class="nav-theme-btn" id="btnThemeToggle" type="button" title="Toggle Light/Dark Theme">🌙</button>
+      </div>
     </div>
-    <nav class="nav-links">
-      <a href="index.html" class="nav-link">
+    <nav class="nav-tabs-row">
+      <a href="index.html" class="nav-tab">
         <span data-i18n="nav_link_frontier">📊 OpenCode Go Value Frontier</span>
       </a>
-      <a href="free_models.html" class="nav-link active">
+      <a href="free_models.html" class="nav-tab active">
         <span data-i18n="nav_link_free">🎁 Free AI Models Guide</span>
       </a>
-      <button class="nav-btn" id="openUpdateHelpBtn" type="button">
-        <span data-i18n="btn_about_sources">ℹ️ Data & Sources</span>
-      </button>
-      <a class="nav-btn" href="https://opencode.ai/go" target="_blank" rel="noopener">
+      <a class="nav-tab nav-tab-ext" href="https://opencode.ai/go" target="_blank" rel="noopener">
         OpenCode Go ↗
       </a>
-      <div class="seg" role="group" aria-label="Language" id="langSeg">
-        <button type="button" data-lang="en" aria-pressed="true">EN</button>
-        <button type="button" data-lang="ko" aria-pressed="false">KO</button>
-      </div>
-      <button class="nav-theme-btn" id="btnThemeToggle" type="button" title="Toggle Light/Dark Theme">🌙</button>
     </nav>
   </div>
 </header>

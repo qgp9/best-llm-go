@@ -76,31 +76,37 @@
   .nav-inner {
     max-width: 1240px;
     margin: 0 auto;
-    padding: 12px 24px;
+    padding: 10px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 16px;
-    flex-wrap: wrap;
+  }
+  .nav-brand-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
   }
   .nav-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--ink);
   }
   .nav-brand-title {
     font-weight: 700;
-    font-size: 16px;
+    font-size: 15.5px;
     color: var(--ink);
     letter-spacing: -0.01em;
+    white-space: nowrap;
   }
-  .nav-links {
+  .nav-tabs-row {
     display: flex;
     align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
+    gap: 6px;
   }
-  .nav-link {
+  .nav-tab {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -112,22 +118,34 @@
     border: 1px solid transparent;
     text-decoration: none;
     transition: all .15s ease;
+    white-space: nowrap;
   }
-  .nav-link:hover {
+  .nav-tab:hover {
     background: var(--wash);
     color: var(--ink);
     text-decoration: none;
   }
-  .nav-link.active {
+  .nav-tab.active {
     background: var(--accent-soft);
     color: var(--accent-ink);
     border-color: rgba(217, 119, 87, 0.3);
+  }
+  .nav-tab-ext {
+    font-weight: 500;
+    font-size: 12.5px;
+    color: var(--ink-3);
+  }
+  .nav-tab-ext:hover { color: var(--ink); }
+  .nav-util-cluster {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .nav-btn {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 12px;
+    padding: 5px 12px;
     border-radius: 999px;
     font-size: 12.5px;
     font-weight: 500;
@@ -138,6 +156,7 @@
     cursor: pointer;
     text-decoration: none;
     transition: all .15s ease;
+    white-space: nowrap;
   }
   .nav-btn:hover {
     background: var(--wash);
@@ -145,7 +164,7 @@
     border-color: var(--ink-3);
     text-decoration: none;
   }
-  .nav-links .seg {
+  .nav-util-cluster .seg {
     display: inline-flex;
     border: 1px solid var(--line);
     border-radius: 999px;
@@ -153,11 +172,11 @@
     background: var(--page);
     gap: 2px;
   }
-  .nav-links .seg button {
+  .nav-util-cluster .seg button {
     font: inherit;
     font-size: 12px;
     font-weight: 600;
-    padding: 4px 10px;
+    padding: 3px 9px;
     border: 0;
     border-radius: 999px;
     background: transparent;
@@ -165,18 +184,18 @@
     cursor: pointer;
     transition: all .15s ease;
   }
-  .nav-links .seg button[aria-pressed="true"] {
+  .nav-util-cluster .seg button[aria-pressed="true"] {
     background: var(--ink);
     color: #fff;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
-  .nav-links .seg button:not([aria-pressed="true"]):hover {
+  .nav-util-cluster .seg button:not([aria-pressed="true"]):hover {
     background: var(--wash);
     color: var(--ink);
   }
   .nav-theme-btn {
-    padding: 6px 10px;
-    font-size: 14px;
+    padding: 5px 9px;
+    font-size: 13.5px;
     border: 1px solid var(--line);
     border-radius: 999px;
     background: var(--surface);
@@ -498,13 +517,155 @@
   .modal-footer { padding: 16px 24px; border-top: 1px solid var(--line); display: flex; justify-content: flex-end; gap: 10px; background: var(--page); }
 
   @media (max-width: 768px) {
-    .nav-inner { flex-direction: column; align-items: stretch; gap: 10px; padding: 10px 16px; }
-    .nav-links { justify-content: flex-start; }
-    .viz-root { padding: 18px 16px 48px; }
-    .hero h1 { font-size: 24px; }
-    .card { padding: 20px 18px 18px; border-radius: 16px; }
-    .row { grid-template-columns: minmax(0, 140px) 1fr 50px; }
+    /* Navbar Mobile */
+    .nav-inner {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+      padding: 8px 14px;
+    }
+    .nav-brand-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+    }
+    .nav-brand-title {
+      font-size: 14.5px;
+    }
+    .nav-util-cluster {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .nav-tabs-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      white-space: nowrap;
+      padding-bottom: 2px;
+      width: 100%;
+    }
+    .nav-tabs-row::-webkit-scrollbar { display: none; }
+    .nav-tab {
+      font-size: 12px;
+      padding: 5px 12px;
+      flex-shrink: 0;
+    }
+    .nav-btn-compact {
+      padding: 4px 8px;
+      font-size: 11.5px;
+    }
+
+    /* Container & Hero Mobile */
+    .viz-root { padding: 14px 12px 48px; }
+    .hero { margin-bottom: 16px; }
+    .hero h1 { font-size: 22px; line-height: 1.25; }
+    .hero .sub { font-size: 13.5px; line-height: 1.5; }
+    .hero .meta { font-size: 12px; }
+
+    /* Filters Mobile */
+    .filters {
+      padding: 12px 12px;
+      gap: 10px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+    }
+    .filters-row {
+      gap: 8px;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    #costSeg, #scopeSeg, #selectionModeSeg {
+      display: flex;
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      white-space: nowrap;
+      border-radius: 12px;
+      padding: 3px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    #costSeg::-webkit-scrollbar, #scopeSeg::-webkit-scrollbar, #selectionModeSeg::-webkit-scrollbar { display: none; }
+    #costSeg button, #scopeSeg button, #selectionModeSeg button {
+      flex-shrink: 0;
+      padding: 5px 10px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .mode-indicator {
+      width: 100%;
+      font-size: 12px;
+      padding: 6px 10px;
+      box-sizing: border-box;
+    }
+    .filters input[type=search] {
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .filters select {
+      flex: 1;
+      min-width: 100px;
+    }
+    .filters label {
+      font-size: 12.5px;
+    }
+
+    /* Presets Mobile */
+    #presetPillBar {
+      display: flex;
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      white-space: nowrap;
+      flex-wrap: nowrap;
+      padding-bottom: 3px;
+      width: 100%;
+    }
+    #presetPillBar::-webkit-scrollbar { display: none; }
+    .preset-pill {
+      flex-shrink: 0;
+      white-space: nowrap;
+      font-size: 11.5px;
+    }
+
+    /* Cards & Legend Mobile */
+    .card {
+      padding: 16px 14px 14px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+    }
+    .card h2 { font-size: 18px; }
+    .cap { font-size: 13px; margin-bottom: 12px; }
+    .legend {
+      gap: 6px 10px;
+      font-size: 11.5px;
+      margin-top: 10px;
+    }
+    .legend span { margin-left: 0 !important; }
+
+    /* Ranking Row Mobile */
+    .row {
+      grid-template-columns: minmax(0, 110px) 1fr 42px;
+      gap: 8px;
+    }
+    .row-name { font-size: 12px; }
+    .row-val { font-size: 12px; }
     .count { margin-left: 0; width: 100%; }
+
+    /* Custom select drawer mobile */
+    .custom-select-panel {
+      width: calc(100vw - 28px);
+      max-width: 360px;
+      left: 0;
+    }
   }
 </style>
 </head>
@@ -513,27 +674,31 @@
 <!-- Top Navigation Bar -->
 <header class="nav-bar">
   <div class="nav-inner">
-    <div class="nav-brand">
-      <span class="nav-brand-title">⚡ OpenCode & Free LLM Intel</span>
+    <div class="nav-brand-row">
+      <a href="index.html" class="nav-brand">
+        <span class="nav-brand-title">⚡ OpenCode & Free LLM Intel</span>
+      </a>
+      <div class="nav-util-cluster">
+        <button class="nav-btn nav-btn-compact" id="openUpdateHelpBtn" type="button" title="Data Sources & Information">
+          <span data-i18n="btn_about_sources">ℹ️ Data & Sources</span>
+        </button>
+        <div class="seg" role="group" aria-label="Language" id="langSeg">
+          <button type="button" data-lang="en" aria-pressed="true">EN</button>
+          <button type="button" data-lang="ko" aria-pressed="false">KO</button>
+        </div>
+        <button class="nav-theme-btn" id="btnThemeToggle" type="button" title="Toggle Light/Dark Theme">🌙</button>
+      </div>
     </div>
-    <nav class="nav-links">
-      <a href="index.html" class="nav-link active">
+    <nav class="nav-tabs-row">
+      <a href="index.html" class="nav-tab active">
         <span data-i18n="nav_link_frontier">📊 OpenCode Go Value Frontier</span>
       </a>
-      <a href="free_models.html" class="nav-link">
+      <a href="free_models.html" class="nav-tab">
         <span data-i18n="nav_link_free">🎁 Free AI Models Guide</span>
       </a>
-      <button class="nav-btn" id="openUpdateHelpBtn" type="button">
-        <span data-i18n="btn_about_sources">ℹ️ Data & Sources</span>
-      </button>
-      <a class="nav-btn" href="https://opencode.ai/go" target="_blank" rel="noopener">
+      <a class="nav-tab nav-tab-ext" href="https://opencode.ai/go" target="_blank" rel="noopener">
         OpenCode Go ↗
       </a>
-      <div class="seg" role="group" aria-label="Language" id="langSeg">
-        <button type="button" data-lang="en" aria-pressed="true">EN</button>
-        <button type="button" data-lang="ko" aria-pressed="false">KO</button>
-      </div>
-      <button class="nav-theme-btn" id="btnThemeToggle" type="button" title="Toggle Light/Dark Theme">🌙</button>
     </nav>
   </div>
 </header>
