@@ -1334,6 +1334,12 @@
   };
   updateMultipliers();
 
+  /* ---------- weighted frontier tuning (hidden) ----------
+     URL: ?fk=0.05   Console: setFrontierK(0.05)  (0 = plain Pareto) */
+  const _fk = parseFloat(new URLSearchParams(location.search).get("fk"));
+  window.FRONTIER_K = Number.isFinite(_fk) ? _fk : 0.1;
+  window.setFrontierK = (k) => { window.FRONTIER_K = Number(k); render(); return window.FRONTIER_K; };
+
   /* ---------- compute ---------- */
   function compute() {
     const cfg = getCostConfig()[state.cost];
@@ -1392,7 +1398,7 @@
     // a model joins only if its index gain over the last frontier point exceeds
     // FRONTIER_K * (cost increase in $), so tiny gains at much higher cost are ignored.
     // Only meaningful when x is in dollars; quota burn (%) uses plain Pareto.
-    const FRONTIER_K = state.cost === "go_quota" ? 0 : 0.1;
+    const FRONTIER_K = state.cost === "go_quota" ? 0 : window.FRONTIER_K;
     const frontier = [];
     [...vis].sort((a, b) => a.x - b.x || b.v - a.v).forEach((d) => {
       const last = frontier[frontier.length - 1];
