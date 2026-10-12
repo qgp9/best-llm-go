@@ -532,6 +532,8 @@
     document.querySelectorAll("[data-i18n]").forEach((el) => {
       const k = el.getAttribute("data-i18n");
       const text = t(k);
+      // Skip template strings with un-interpolated variables
+      if (text.includes("{") && text.includes("}")) return;
       if (text.includes("<") && text.includes(">")) {
         el.innerHTML = text;
       } else {

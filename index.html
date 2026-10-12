@@ -891,8 +891,8 @@
 </div>
 
 <div class="card">
-  <h2 id="scatterTitle" data-i18n="scatter_title">Intelligence Index vs Effective Price</h2>
-  <p class="cap" id="scatterCap" data-i18n="scatter_cap">Cost-efficiency analysis. The orange line on top is the <b>Frontier Edge</b>, representing Pareto-optimal models with highest capability per cost.</p>
+  <h2 id="scatterTitle">Intelligence Index vs Effective Price</h2>
+  <p class="cap" id="scatterCap">Cost-efficiency analysis. The orange line on top is the <b>Frontier Edge</b>, representing Pareto-optimal models with highest capability per cost.</p>
   <svg id="scatter" viewBox="0 0 960 540" role="img" aria-label="Scatter plot of capability index versus price"></svg>
   <div class="legend">
     <span><i class="key" style="background:var(--accent)"></i><span data-i18n="leg_frontier">Value Frontier (Pareto Optimal)</span></span>
@@ -947,10 +947,10 @@
   <div class="tbl-wrap">
     <table id="budget" class="budget">
       <thead><tr>
-        <th id="budgetHead" data-i18n="th_budget">Effective Budget (/1M)</th>
+        <th id="budgetHead">Effective Budget (/1M)</th>
         <th data-i18n="th_pick">Top Pick</th>
         <th data-i18n="th_score">Intelligence</th>
-        <th id="budgetPrice" data-i18n="th_price">Effective Price</th>
+        <th id="budgetPrice">Effective Price</th>
         <th data-i18n="th_tier">Go Tier (Allowance)</th>
         <th data-i18n="th_runner">Runner-up</th>
       </tr></thead>
@@ -960,7 +960,7 @@
 </div>
 
 <div class="card">
-  <h2 id="barIndexTitle" data-i18n="bar_index_title">Pure Intelligence Ranking</h2>
+  <h2 id="barIndexTitle">Pure Intelligence Ranking</h2>
   <p class="cap" data-i18n="bar_index_cap">Artificial Analysis Intelligence Index ranking (cost-independent).</p>
   <div class="rows" id="barIndex"></div>
   <button class="btn more" id="moreIndex" type="button" hidden></button>
@@ -2496,6 +2496,12 @@
   syncStateToUrl();
   renderPresetPills();
   render();
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+      render();
+    });
+  }
 })();
 </script>
 </body>
