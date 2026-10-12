@@ -527,10 +527,29 @@
     -webkit-overflow-scrolling: touch;
     display: block;
     min-width: 0;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
+    padding-bottom: 4px;
+  }
+  .tbl-wrap::-webkit-scrollbar {
+    height: 7px;
+  }
+  .tbl-wrap::-webkit-scrollbar-track {
+    background: var(--wash);
+    border-radius: 4px;
+  }
+  .tbl-wrap::-webkit-scrollbar-thumb {
+    background: var(--ink-3);
+    border-radius: 4px;
+    opacity: 0.5;
+  }
+  .tbl-wrap::-webkit-scrollbar-thumb:hover {
+    background: var(--ink-2);
   }
   table { border-collapse: collapse; width: 100%; min-width: 860px; font-size: 13.5px; }
   th, td { text-align: right; padding: 10px 12px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; white-space: nowrap; }
   th:first-child, td:first-child { text-align: left; font-variant-numeric: normal; white-space: normal; min-width: 180px; }
+  th:last-child, td:last-child { padding-right: 18px; }
   th { color: var(--ink-3); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; cursor: pointer; user-select: none; }
   th:hover { color: var(--ink); }
   th[aria-sort="ascending"]::after { content: " \2191"; }
@@ -542,6 +561,35 @@
   .na { color: var(--ink-3); }
   td a { color: var(--ink); text-decoration: none; }
   td a:hover { color: var(--accent-ink); text-decoration: underline; }
+
+  /* #tbl specific column sizing & alignment */
+  #tbl { min-width: 1120px; }
+  #tbl th:first-child, #tbl td:first-child {
+    width: 44px;
+    min-width: 44px;
+    max-width: 44px;
+    text-align: center;
+    padding: 10px 4px;
+  }
+  #tbl tr.on td:first-child::before { display: none; }
+  #tbl th:nth-child(2), #tbl td:nth-child(2) {
+    text-align: left;
+    min-width: 190px;
+    white-space: normal;
+  }
+  #tbl tr.on td:nth-child(2) { font-weight: 600; }
+  #tbl tr.on td:nth-child(2)::before {
+    content: ""; display: inline-block; width: 8px; height: 8px;
+    border-radius: 50%; background: var(--accent); margin-right: 8px; vertical-align: 1px;
+  }
+  #tbl th:nth-child(3), #tbl td:nth-child(3) {
+    text-align: left;
+    min-width: 110px;
+  }
+  #tbl th:nth-child(5), #tbl td:nth-child(5),
+  #tbl th:nth-child(6), #tbl td:nth-child(6) {
+    text-align: center;
+  }
 
   table.budget { min-width: 720px; }
   table.budget th { cursor: default; }
@@ -1722,6 +1770,10 @@
       nameTd.innerHTML = `<b>${d.name}</b>` + (d.go_id ? `<br><span style="font-size:11px;color:var(--ink-3);font-family:var(--mono);">opencode-go/${d.go_id}</span>` : "");
       tr.appendChild(nameTd);
 
+      // Creator column
+      const creatorTd = h("td", null, d.creator || "—");
+      tr.appendChild(creatorTd);
+
       const isKo = (window.I18N && window.I18N.lang === "ko");
       tr.appendChild(h("td", null, num(d.index, 1) + (isKo ? "점" : " pts")));
 
@@ -1758,6 +1810,7 @@
 
   document.querySelectorAll("#tbl th").forEach((th) => th.addEventListener("click", () => {
     const k = th.dataset.k;
+    if (!k) return;
     if (state.sortK === k) state.sortDir *= -1;
     else {
       state.sortK = k;
