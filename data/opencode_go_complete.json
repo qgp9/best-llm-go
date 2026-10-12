@@ -21,7 +21,7 @@
     "privacy_note": "No training \u00b7 0 days",
     "index": 41.8,
     "coding": 71.5,
-    "tps": 57,
+    "tps": 60,
     "aa_name": "GLM-5.3-Flash"
   },
   {
@@ -46,7 +46,7 @@
     "privacy_note": "No training \u00b7 0 days",
     "index": 44.8,
     "coding": 74.8,
-    "tps": 60,
+    "tps": 65,
     "aa_name": "GLM-5.3 (Max)"
   },
   {
@@ -96,7 +96,7 @@
     "privacy_note": "No training \u00b7 0 days",
     "index": 43.6,
     "coding": 76.2,
-    "tps": 39,
+    "tps": 41,
     "aa_name": "Kimi K3 (Max)"
   },
   {
@@ -171,7 +171,7 @@
     "privacy_note": "No training \u00b7 0 days",
     "index": 19.1,
     "coding": 45.3,
-    "tps": 65,
+    "tps": 64,
     "aa_name": "LongCat 2.0"
   },
   {
@@ -196,7 +196,7 @@
     "privacy_note": "No training \u00b7 0 days",
     "index": 19.1,
     "coding": 45.3,
-    "tps": 65,
+    "tps": 64,
     "aa_name": "LongCat 2.0"
   },
   {
@@ -221,7 +221,7 @@
     "privacy_note": "No training \u00b7 0 days",
     "index": 43.7,
     "coding": null,
-    "tps": 89,
+    "tps": 91,
     "aa_name": "Step 5 Preview"
   },
   {
@@ -271,7 +271,7 @@
     "privacy_note": "No training \u00b7 0 days",
     "index": 46.3,
     "coding": null,
-    "tps": 41,
+    "tps": 37,
     "aa_name": "MiMo-V2.6-Pro"
   },
   {
@@ -346,7 +346,7 @@
     "privacy_note": "No training \u00b7 0 days",
     "index": 29.2,
     "coding": 58.6,
-    "tps": 113,
+    "tps": 128,
     "aa_name": "MiniMax-M3"
   },
   {
@@ -396,7 +396,7 @@
     "privacy_note": "Model training (Yes)",
     "index": 48.1,
     "coding": 75.8,
-    "tps": 117,
+    "tps": 110,
     "aa_name": "Muse Spark 1.3 (Max)"
   },
   {
@@ -471,7 +471,7 @@
     "privacy_note": "No training \u00b7 0 days",
     "index": 39.8,
     "coding": 73.1,
-    "tps": 52,
+    "tps": 53,
     "aa_name": "Qwen3.8-Flash-Next"
   },
   {
@@ -496,7 +496,7 @@
     "privacy_note": "No training \u00b7 0 days",
     "index": 25.2,
     "coding": 55.9,
-    "tps": 54,
+    "tps": 55,
     "aa_name": "Qwen3.7 Plus"
   },
   {
@@ -521,7 +521,7 @@
     "privacy_note": "No training \u00b7 0 days",
     "index": 25.2,
     "coding": 55.9,
-    "tps": 54,
+    "tps": 55,
     "aa_name": "Qwen3.7 Plus"
   },
   {
@@ -546,7 +546,7 @@
     "privacy_note": "No training \u00b7 0 days*",
     "index": 39.5,
     "coding": null,
-    "tps": 217,
+    "tps": 210,
     "aa_name": "DeepSeek V4.1 Flash (Max)"
   },
   {
@@ -571,7 +571,7 @@
     "privacy_note": "No training \u00b7 0 days*",
     "index": 39.5,
     "coding": null,
-    "tps": 217,
+    "tps": 210,
     "aa_name": "DeepSeek V4.1 Flash (Max)"
   },
   {
@@ -596,7 +596,7 @@
     "privacy_note": "No training \u00b7 0 days*",
     "index": 36,
     "coding": 68.8,
-    "tps": 92,
+    "tps": 89,
     "aa_name": "DeepSeek V4 Pro 0813 (Max)"
   },
   {
@@ -621,7 +621,7 @@
     "privacy_note": "No training \u00b7 0 days*",
     "index": 36,
     "coding": 68.8,
-    "tps": 92,
+    "tps": 89,
     "aa_name": "DeepSeek V4 Pro 0813 (Max)"
   },
   {
@@ -646,7 +646,7 @@
     "privacy_note": "No training \u00b7 0 days*",
     "index": 34.8,
     "coding": 65,
-    "tps": 215,
+    "tps": 209,
     "aa_name": "DeepSeek V4 Flash Vision (Max)"
   },
   {
@@ -671,7 +671,7 @@
     "privacy_note": "No training \u00b7 0 days*",
     "index": 34.8,
     "coding": 65,
-    "tps": 215,
+    "tps": 209,
     "aa_name": "DeepSeek V4 Flash Vision (Max)"
   },
   {
@@ -746,7 +746,7 @@
     "privacy_note": "No training \u00b7 0 days",
     "index": 43.7,
     "coding": null,
-    "tps": 89,
+    "tps": 91,
     "aa_name": "Step 5 Preview"
   },
   {
@@ -771,7 +771,7 @@
     "privacy_note": "No training \u00b7 0 days",
     "index": 25.3,
     "coding": 58.8,
-    "tps": 92,
+    "tps": 91,
     "aa_name": "Hy3"
   },
   {
@@ -821,7 +821,7 @@
     "privacy_note": "No training \u00b7 30 days",
     "index": 46.4,
     "coding": null,
-    "tps": 82,
+    "tps": 73,
     "aa_name": "Grok 4.7 (Xhigh)"
   },
   {
@@ -846,7 +846,7 @@
     "privacy_note": "No training \u00b7 30 days",
     "index": 46.4,
     "coding": null,
-    "tps": 82,
+    "tps": 73,
     "aa_name": "Grok 4.7 (Xhigh)"
   },
   {
@@ -921,7 +921,7 @@
     "privacy_note": "No training \u00b7 30 days",
     "index": 38.1,
     "coding": null,
-    "tps": 138,
+    "tps": 140,
     "aa_name": "GPT-6 Luna (Max)"
   },
   {
@@ -946,7 +946,7 @@
     "privacy_note": "No training \u00b7 30 days",
     "index": 38.1,
     "coding": null,
-    "tps": 138,
+    "tps": 140,
     "aa_name": "GPT-6 Luna (Max)"
   },
   {
@@ -1021,7 +1021,7 @@
     "privacy_note": "No training \u00b7 30 days",
     "index": 43.4,
     "coding": null,
-    "tps": 237,
+    "tps": 238,
     "aa_name": "Claude Haiku 5.5 (Max)"
   },
   {
@@ -1046,7 +1046,7 @@
     "privacy_note": "No training \u00b7 30 days",
     "index": 43.4,
     "coding": null,
-    "tps": 237,
+    "tps": 238,
     "aa_name": "Claude Haiku 5.5 (Max)"
   }
 ]
