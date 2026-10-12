@@ -10,7 +10,8 @@
     en: {
       // Banner
       banner_notice_tag: "Note",
-      banner_notice_text: "Unofficial personal sandbox (public API data). UI inspired by <a href=\"https://bestmodelforyourbudget.terrydjony.com/\" target=\"_blank\" rel=\"noopener\">Terry Djony</a>.",
+      banner_vibe_tag: "🤖 100% Vibe-Coded with AI",
+      banner_notice_text: "Unofficial personal sandbox (public API data) · UI inspired by <a href=\"https://bestmodelforyourbudget.terrydjony.com/\" target=\"_blank\" rel=\"noopener\">Terry Djony</a>.",
 
       // Header
       h1_title: "OpenCode Go Value Frontier",
@@ -150,7 +151,7 @@
       modal_sync_h: "🕒 Update Schedule",
       modal_sync_p: "Data is automatically synchronized daily at 09:37 UTC via GitHub Actions.",
       modal_credit_h: "🎨 Attribution",
-      modal_credit_p: "UI visualization adapted from Terry Djony's <a href=\"https://bestmodelforyourbudget.terrydjony.com/\" target=\"_blank\" rel=\"noopener\">Best Model For Your Budget</a>. Unofficial personal research project.",
+      modal_credit_p: "100% vibe-coded with AI. UI visualization adapted from Terry Djony's <a href=\"https://bestmodelforyourbudget.terrydjony.com/\" target=\"_blank\" rel=\"noopener\">Best Model For Your Budget</a>. Unofficial personal research project.",
       btn_confirm: "Got It",
 
       // Tooltips & Toasts
@@ -257,7 +258,8 @@
     ko: {
       // Banner
       banner_notice_tag: "안내",
-      banner_notice_text: "개인 연구용 비공식 도구입니다 (공개 데이터 기반). UI는 <a href=\"https://bestmodelforyourbudget.terrydjony.com/\" target=\"_blank\" rel=\"noopener\">Terry Djony 프로젝트</a>를 참고했습니다.",
+      banner_vibe_tag: "🤖 100% AI 바이브코딩",
+      banner_notice_text: "AI로 바이브코딩된 개인 연구용 비공식 프로젝트입니다 (공개 API 데이터 기반) · UI는 <a href=\"https://bestmodelforyourbudget.terrydjony.com/\" target=\"_blank\" rel=\"noopener\">Terry Djony</a> 참고.",
 
       // Header
       h1_title: "OpenCode Go Value Frontier",
@@ -397,7 +399,7 @@
       modal_sync_h: "🕒 갱신 주기",
       modal_sync_p: "매일 09:37 UTC에 GitHub Actions를 통해 최신 데이터가 자동으로 동기화됩니다.",
       modal_credit_h: "🎨 시각화 및 안내",
-      modal_credit_p: "Terry Djony의 <a href=\"https://bestmodelforyourbudget.terrydjony.com/\" target=\"_blank\" rel=\"noopener\">Best Model For Your Budget</a> 프로젝트 시각화 디자인을 참고한 비공식 개인 연구용 도구입니다.",
+      modal_credit_p: "AI로 100% 바이브 코딩된 개인 연구 프로젝트입니다. UI 시각화는 Terry Djony의 <a href=\"https://bestmodelforyourbudget.terrydjony.com/\" target=\"_blank\" rel=\"noopener\">Best Model For Your Budget</a>을 참고했습니다.",
       btn_confirm: "확인",
 
       // Tooltips & Toasts
