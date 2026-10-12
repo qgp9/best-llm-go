@@ -7,7 +7,7 @@
 <meta name="description" content="Comprehensive $0 Free AI Models Guide: OpenCode Zen/Go, OpenRouter, CommandCode.ai, Groq, and Google Gemini with benchmark intelligence indices, context limits, and API base URLs.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --page: #f8f6f2;
@@ -32,6 +32,7 @@
     --orange-soft: #fff3e0;
     --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
     --font: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --serif: "Lora", Georgia, "Times New Roman", serif;
   }
 
   [data-theme="dark"] {
@@ -104,7 +105,7 @@
     z-index: 100;
   }
   .nav-inner {
-    max-width: 1280px;
+    max-width: 1240px;
     margin: 0 auto;
     padding: 12px 24px;
     display: flex;
@@ -117,21 +118,18 @@
     display: flex;
     align-items: center;
     gap: 10px;
+  }
+  .nav-brand-title {
     font-weight: 700;
     font-size: 16px;
     color: var(--ink);
-  }
-  .nav-brand .badge {
-    background: var(--accent);
-    color: #fff;
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 999px;
+    letter-spacing: -0.01em;
   }
   .nav-links {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
   }
   .nav-link {
     display: inline-flex;
@@ -143,6 +141,7 @@
     font-weight: 600;
     color: var(--ink-2);
     border: 1px solid transparent;
+    text-decoration: none;
     transition: all .15s ease;
   }
   .nav-link:hover {
@@ -155,12 +154,80 @@
     color: var(--accent-ink);
     border-color: rgba(217, 119, 87, 0.3);
   }
+  .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 500;
+    font-family: inherit;
+    background: var(--surface);
+    color: var(--ink-2);
+    border: 1px solid var(--line);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all .15s ease;
+  }
+  .nav-btn:hover {
+    background: var(--wash);
+    color: var(--ink);
+    border-color: var(--ink-3);
+    text-decoration: none;
+  }
+  .nav-links .seg {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 2px;
+    background: var(--page);
+    gap: 2px;
+  }
+  .nav-links .seg button {
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .nav-links .seg button[aria-pressed="true"] {
+    background: var(--ink);
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .nav-links .seg button:not([aria-pressed="true"]):hover {
+    background: var(--wash);
+    color: var(--ink);
+  }
+  .nav-theme-btn {
+    padding: 6px 10px;
+    font-size: 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    cursor: pointer;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+    transition: all .15s ease;
+  }
+  .nav-theme-btn:hover {
+    background: var(--wash);
+  }
 
   /* Main Container */
   .wrap {
-    max-width: 1280px;
+    max-width: 1240px;
     margin: 0 auto;
-    padding: 32px 24px 64px;
+    padding: 28px 24px 64px;
   }
 
   /* Hero Section */
@@ -168,18 +235,23 @@
     margin-bottom: 24px;
   }
   .hero h1 {
-    font-size: 28px;
-    font-weight: 700;
+    font-family: var(--serif);
+    font-size: 30px;
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
     margin: 0 0 10px;
-    letter-spacing: -0.02em;
+    color: var(--ink);
   }
-  .hero p {
-    font-size: 15px;
+  .hero .sub, .hero p {
     color: var(--ink-2);
-    margin: 0 0 12px;
-    max-width: 900px;
+    font-size: 15px;
     line-height: 1.6;
+    margin: 0 0 10px;
+    max-width: 820px;
   }
+  .hero .sub b, .hero p b { color: var(--ink); font-weight: 600; }
+  .hero .meta { font-size: 13.5px; color: var(--ink-3); margin-top: 10px; }
   .hero-credits {
     display: inline-flex;
     align-items: center;
@@ -190,8 +262,34 @@
     border-radius: 999px;
     font-size: 12px;
     color: var(--ink-2);
+    margin-top: 2px;
   }
   .hero-credits a { font-weight: 600; }
+
+  /* Modal: Data & Sources */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: none; align-items: center; justify-content: center; z-index: 200; backdrop-filter: blur(2px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border-radius: 20px; max-width: 680px; width: 90%; max-height: 85vh;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2); display: flex; flex-direction: column; overflow: hidden;
+  }
+  .modal-header {
+    padding: 20px 24px; border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center;
+  }
+  .modal-header h2 { margin: 0; font-size: 20px; font-family: var(--serif); color: var(--ink); }
+  .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; font-size: 14px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--line); display: flex; justify-content: flex-end; gap: 10px; background: var(--page); }
+  .btn {
+    font: inherit; font-size: 14px; font-weight: 500; padding: 8px 16px; cursor: pointer;
+    background: var(--surface); color: var(--ink); text-decoration: none;
+    border: 1px solid var(--line); border-radius: 999px; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:hover { background: var(--wash); }
+  .btn-primary { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .btn-primary:hover { background: #333; color: #fff; }
 
   /* Platform Overview Cards Grid */
   .platform-grid {
@@ -713,7 +811,10 @@
   }
 
   @media (max-width: 768px) {
-    .nav-inner { flex-direction: column; align-items: stretch; }
+    .nav-inner { flex-direction: column; align-items: stretch; gap: 10px; padding: 10px 16px; }
+    .nav-links { justify-content: flex-start; }
+    .wrap { padding: 18px 16px 48px; }
+    .hero h1 { font-size: 24px; }
     .model-grid { grid-template-columns: 1fr; }
     .platform-grid { grid-template-columns: 1fr; }
   }
@@ -725,17 +826,26 @@
 <header class="nav-bar">
   <div class="nav-inner">
     <div class="nav-brand">
-      <span>⚡ OpenCode & Free LLM Intel</span>
-      <span class="badge" data-i18n="nav_free_hub_badge">Free Models Hub</span>
+      <span class="nav-brand-title">⚡ OpenCode & Free LLM Intel</span>
     </div>
     <nav class="nav-links">
-      <a href="index.html" id="indexLink" class="nav-link"><span data-i18n="nav_link_frontier">📊 OpenCode Go Value Frontier</span></a>
-      <a href="free_models.html" class="nav-link active"><span data-i18n="nav_link_free">🎁 Free AI Models Guide</span></a>
-      <div class="seg" role="group" aria-label="Language" id="langSeg" style="display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--page);margin-left:4px;">
-        <button type="button" data-lang="en" aria-pressed="true" style="padding:4px 10px;font-weight:600;font-size:12px;border:none;background:transparent;cursor:pointer;border-radius:999px;">EN</button>
-        <button type="button" data-lang="ko" aria-pressed="false" style="padding:4px 10px;font-weight:600;font-size:12px;border:none;background:transparent;cursor:pointer;border-radius:999px;">KO</button>
+      <a href="index.html" class="nav-link">
+        <span data-i18n="nav_link_frontier">📊 OpenCode Go Value Frontier</span>
+      </a>
+      <a href="free_models.html" class="nav-link active">
+        <span data-i18n="nav_link_free">🎁 Free AI Models Guide</span>
+      </a>
+      <button class="nav-btn" id="openUpdateHelpBtn" type="button">
+        <span data-i18n="btn_about_sources">ℹ️ Data & Sources</span>
+      </button>
+      <a class="nav-btn" href="https://opencode.ai/go" target="_blank" rel="noopener">
+        OpenCode Go ↗
+      </a>
+      <div class="seg" role="group" aria-label="Language" id="langSeg">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="ko" aria-pressed="false">KO</button>
       </div>
-      <button id="btnThemeToggle" type="button" title="Toggle Light/Dark Theme" style="padding:5px 10px;font-size:14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);cursor:pointer;">🌙</button>
+      <button class="nav-theme-btn" id="btnThemeToggle" type="button" title="Toggle Light/Dark Theme">🌙</button>
     </nav>
   </div>
 </header>
@@ -753,7 +863,7 @@
   <!-- Hero Section -->
   <section class="hero">
     <h1 data-i18n="hero_free_h1">🎁 Free AI Models Guide & Benchmarks</h1>
-    <p data-i18n="hero_free_desc">
+    <p class="sub" data-i18n="hero_free_desc">
       Directory of $0 models across OpenCode, OpenRouter, CommandCode, Groq, and Gemini. Compare underlying model identities, benchmarks, and data privacy policies.
     </p>
     <div class="hero-credits">
@@ -763,7 +873,7 @@
       <a href="https://freellm.net" target="_blank" rel="noopener">freellm.net</a>
       <span>· Artificial Analysis</span>
     </div>
-    <div id="freeLastUpdatedMsg" style="margin-top:10px;font-size:12.5px;color:var(--accent-ink);font-weight:600;"></div>
+    <div id="freeLastUpdatedMsg" class="meta"></div>
   </section>
 
   <!-- Platform Overview Cards Grid -->
@@ -1061,6 +1171,33 @@ print(res.choices[0].message.content)</code></pre>
     </table>
   </div>
 </main>
+
+<!-- Modal: About & Data Sources -->
+<div class="modal-overlay" id="updateModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 data-i18n="modal_sources_h2">ℹ️ About & Data Sources</h2>
+      <button class="btn" id="closeUpdateModalBtn" type="button" style="padding:4px 10px;">✕</button>
+    </div>
+    <div class="modal-body">
+      <h3 style="font-size:15px;margin:0 0 8px;" data-i18n="modal_sources_h">📊 Data Sources</h3>
+      <ul style="padding-left:20px;color:var(--ink-2);font-size:13.5px;line-height:1.8;margin:0 0 16px;">
+        <li data-i18n="modal_src1"><b>OpenCode Go</b>: <code>opencode.ai/go</code> (Official catalog, monthly caps & limits)</li>
+        <li data-i18n="modal_src2"><b>Market Rates</b>: <code>models.dev</code> (Standard unadjusted API rates)</li>
+        <li data-i18n="modal_src3"><b>Intelligence Benchmarks</b>: <code>artificialanalysis.ai</code> (Intelligence Index & Coding Index)</li>
+      </ul>
+
+      <h3 style="font-size:15px;margin:16px 0 8px;" data-i18n="modal_sync_h">🕒 Update Schedule</h3>
+      <p style="color:var(--ink-2);font-size:13.5px;line-height:1.6;margin:0 0 16px;" data-i18n="modal_sync_p">Data is automatically synchronized daily at 09:37 UTC via GitHub Actions.</p>
+
+      <h3 style="font-size:15px;margin:16px 0 8px;" data-i18n="modal_credit_h">🎨 Attribution</h3>
+      <p style="color:var(--ink-2);font-size:13.5px;line-height:1.6;margin:0;" data-i18n="modal_credit_p">UI visualization adapted from Terry Djony's <a href="https://bestmodelforyourbudget.terrydjony.com/" target="_blank" rel="noopener">Best Model For Your Budget</a>. Unofficial personal research project.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" id="confirmUpdateModalBtn" type="button" data-i18n="btn_confirm">Got It</button>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1547,6 +1684,15 @@ print(res.choices[0].message.content)</code></pre>
         render();
       });
     });
+
+    // Update modal events
+    const updateModal = $("updateModal");
+    if ($("openUpdateHelpBtn") && updateModal) {
+      $("openUpdateHelpBtn").addEventListener("click", () => updateModal.classList.add("open"));
+      $("closeUpdateModalBtn").addEventListener("click", () => updateModal.classList.remove("open"));
+      $("confirmUpdateModalBtn").addEventListener("click", () => updateModal.classList.remove("open"));
+      updateModal.addEventListener("click", (e) => { if (e.target === updateModal) updateModal.classList.remove("open"); });
+    }
 
     if (window.I18N) {
       window.I18N.onChange(() => {

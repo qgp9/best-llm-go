@@ -57,13 +57,140 @@
   * { box-sizing: border-box; }
   html { background: var(--page); }
   body {
-    margin: 0; padding: 36px 20px 80px;
+    margin: 0; padding: 0;
     background: var(--page); color: var(--ink);
     font-family: var(--sans); font-size: 15px; line-height: 1.6;
     -webkit-font-smoothing: antialiased; overflow-x: clip;
     transition: background-color .2s ease, color .2s ease;
   }
-  .viz-root { max-width: 1140px; margin: 0 auto; }
+  .viz-root { max-width: 1240px; margin: 0 auto; padding: 28px 24px 64px; }
+
+  /* Top Navigation Bar */
+  .nav-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-inner {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .nav-brand-title {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-2);
+    border: 1px solid transparent;
+    text-decoration: none;
+    transition: all .15s ease;
+  }
+  .nav-link:hover {
+    background: var(--wash);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .nav-link.active {
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    border-color: rgba(217, 119, 87, 0.3);
+  }
+  .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 500;
+    font-family: inherit;
+    background: var(--surface);
+    color: var(--ink-2);
+    border: 1px solid var(--line);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all .15s ease;
+  }
+  .nav-btn:hover {
+    background: var(--wash);
+    color: var(--ink);
+    border-color: var(--ink-3);
+    text-decoration: none;
+  }
+  .nav-links .seg {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 2px;
+    background: var(--page);
+    gap: 2px;
+  }
+  .nav-links .seg button {
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .nav-links .seg button[aria-pressed="true"] {
+    background: var(--ink);
+    color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  .nav-links .seg button:not([aria-pressed="true"]):hover {
+    background: var(--wash);
+    color: var(--ink);
+  }
+  .nav-theme-btn {
+    padding: 6px 10px;
+    font-size: 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--surface);
+    cursor: pointer;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink);
+    transition: all .15s ease;
+  }
+  .nav-theme-btn:hover {
+    background: var(--wash);
+  }
 
   /* Top Notice Banner */
   .top-notice-banner {
@@ -94,16 +221,26 @@
   a { color: var(--accent-ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
   a:hover { color: var(--ink); }
 
-  header { margin-bottom: 28px; display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
-  h1 { font-family: var(--serif); font-size: 36px; font-weight: 500; line-height: 1.2; letter-spacing: -0.01em; margin: 0 0 14px; }
+  /* Hero Section */
+  .hero { margin-bottom: 24px; }
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: 30px;
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    margin: 0 0 10px;
+    color: var(--ink);
+  }
+  .hero .sub { color: var(--ink-2); font-size: 15px; line-height: 1.6; margin: 0 0 10px; max-width: 820px; }
+  .hero .sub b { color: var(--ink); font-weight: 600; }
+  .hero .meta { font-size: 13.5px; color: var(--ink-3); margin-top: 10px; }
+
   .badge-go {
     display: inline-block; font-family: var(--sans); font-size: 13px; font-weight: 600; vertical-align: middle;
     padding: 3px 10px; border-radius: 999px; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;
     margin-left: 8px; letter-spacing: 0;
   }
-  .sub { color: var(--ink-2); font-size: 16px; line-height: 1.6; margin: 0; max-width: 76ch; }
-  .sub b { color: var(--ink); font-weight: 600; }
-  .meta { font-size: 13.5px; color: var(--ink-3); margin-top: 12px; }
   .btn {
     flex: none; font: inherit; font-size: 14px; font-weight: 500; padding: 9px 16px; cursor: pointer;
     background: var(--surface); color: var(--ink); text-decoration: none;
@@ -112,7 +249,6 @@
   .btn:hover { background: var(--wash); color: var(--ink); }
   .btn-primary { background: var(--ink); color: #fff; border-color: var(--ink); }
   .btn-primary:hover { background: #333; color: #fff; }
-  .hdr-actions { display: flex; gap: 8px; flex: none; margin-top: 6px; }
 
   /* filters */
   .filters {
@@ -361,10 +497,11 @@
   .modal-body { padding: 20px 24px; overflow-y: auto; flex: 1; font-size: 14px; }
   .modal-footer { padding: 16px 24px; border-top: 1px solid var(--line); display: flex; justify-content: flex-end; gap: 10px; background: var(--page); }
 
-  @media (max-width: 640px) {
-    body { padding: 28px 16px 56px; }
-    h1 { font-size: 28px; }
-    header { flex-direction: column; gap: 12px; }
+  @media (max-width: 768px) {
+    .nav-inner { flex-direction: column; align-items: stretch; gap: 10px; padding: 10px 16px; }
+    .nav-links { justify-content: flex-start; }
+    .viz-root { padding: 18px 16px 48px; }
+    .hero h1 { font-size: 24px; }
     .card { padding: 20px 18px 18px; border-radius: 16px; }
     .row { grid-template-columns: minmax(0, 140px) 1fr 50px; }
     .count { margin-left: 0; width: 100%; }
@@ -372,6 +509,35 @@
 </style>
 </head>
 <body>
+
+<!-- Top Navigation Bar -->
+<header class="nav-bar">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      <span class="nav-brand-title">⚡ OpenCode & Free LLM Intel</span>
+    </div>
+    <nav class="nav-links">
+      <a href="index.html" class="nav-link active">
+        <span data-i18n="nav_link_frontier">📊 OpenCode Go Value Frontier</span>
+      </a>
+      <a href="free_models.html" class="nav-link">
+        <span data-i18n="nav_link_free">🎁 Free AI Models Guide</span>
+      </a>
+      <button class="nav-btn" id="openUpdateHelpBtn" type="button">
+        <span data-i18n="btn_about_sources">ℹ️ Data & Sources</span>
+      </button>
+      <a class="nav-btn" href="https://opencode.ai/go" target="_blank" rel="noopener">
+        OpenCode Go ↗
+      </a>
+      <div class="seg" role="group" aria-label="Language" id="langSeg">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="ko" aria-pressed="false">KO</button>
+      </div>
+      <button class="nav-theme-btn" id="btnThemeToggle" type="button" title="Toggle Light/Dark Theme">🌙</button>
+    </nav>
+  </div>
+</header>
+
 <div class="viz-root">
 
 <!-- Top Notice Banner -->
@@ -383,29 +549,14 @@
   <button class="notice-close" onclick="document.getElementById('topNoticeBanner').style.display='none'; try{localStorage.setItem('banner_dismissed','1')}catch(e){}" aria-label="Dismiss">&times;</button>
 </div>
 
-<header>
-  <div>
-    <h1><span data-i18n="h1_title">OpenCode Go Value Frontier</span></h1>
-    <p class="sub" id="hdrSub" data-i18n="hdr_sub">
-      Pareto frontier value analyzer for OpenCode Go ($10/mo plan). Combines official model allowances ($15/$30/$60), API rates, and Artificial Analysis benchmarks to highlight optimal models.
-    </p>
-    <p class="meta" id="meta" data-i18n="meta_loading">Loading data…</p>
-  </div>
-  <div class="hdr-actions">
-    <div class="seg" role="group" aria-label="Language" id="langSeg" style="padding:2px;">
-      <button type="button" data-lang="en" aria-pressed="true" style="padding:5px 12px;font-weight:600;">EN</button>
-      <button type="button" data-lang="ko" aria-pressed="false" style="padding:5px 12px;font-weight:600;">KO</button>
-    </div>
-    <button class="btn btn-sm" id="btnThemeToggle" type="button" title="Toggle Light/Dark Theme" style="padding:8px 12px;font-size:15px;">🌙</button>
-    <a class="btn" id="freeModelsLink" href="free_models.html" style="background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;">
-      <span data-i18n="btn_free_models">🎁 Free AI Models Guide</span>
-    </a>
-    <button class="btn" id="openUpdateHelpBtn" type="button">
-      <span data-i18n="btn_about_sources">ℹ️ Data & Sources</span>
-    </button>
-    <a class="btn" href="https://opencode.ai/go" target="_blank" rel="noopener">OpenCode Go</a>
-  </div>
-</header>
+<!-- Hero Section -->
+<section class="hero">
+  <h1><span data-i18n="h1_title">OpenCode Go Value Frontier</span></h1>
+  <p class="sub" id="hdrSub" data-i18n="hdr_sub">
+    Pareto frontier value analyzer for OpenCode Go ($10/mo plan). Combines official model allowances ($15/$30/$60), API rates, and Artificial Analysis benchmarks to highlight optimal models.
+  </p>
+  <div class="meta" id="meta" data-i18n="meta_loading">Loading data…</div>
+</section>
 
 <div class="filters" id="filters">
   <div class="filters-row">
@@ -583,7 +734,7 @@
       </p>
     </div>
     <div style="display:flex; gap:8px; align-items:center;">
-      <a href="free_models.html" id="freeModelsLink" class="btn btn-sm" style="background:#2563eb;color:#fff;border-color:#2563eb;font-weight:600;font-size:12px;padding:4px 10px;" data-i18n="btn_free_integrated">🎁 Unified Catalog with OpenRouter & CommandCode ↗</a>
+      <a href="free_models.html" id="freeModelsTableLink" class="btn btn-sm" style="background:#2563eb;color:#fff;border-color:#2563eb;font-weight:600;font-size:12px;padding:4px 10px;" data-i18n="btn_free_integrated">🎁 Unified Catalog with OpenRouter & CommandCode ↗</a>
       <label style="font-size:13px; color:var(--ink-2); display:flex; align-items:center; gap:6px;">
         <input type="checkbox" id="freeFilterTrain" style="accent-color:var(--accent);"> <span data-i18n="lbl_free_include_train">Include Contributor / Training Models</span>
       </label>
