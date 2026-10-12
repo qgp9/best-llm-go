@@ -321,6 +321,23 @@
   .mode-indicator.standard {
     background: #f8fafc; border-color: #e2e8f0; color: #475569;
   }
+  #advancedFiltersSection {
+    display: none;
+    width: 100%;
+    margin-top: 8px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+    flex-direction: column;
+    gap: 8px;
+  }
+  #advancedFiltersSection.open {
+    display: flex;
+  }
+  #btnToggleAdvancedFilters.active {
+    background: var(--accent-soft);
+    color: var(--accent-ink);
+    border-color: rgba(217,119,87,0.3);
+  }
 
   .card {
     background: var(--surface); border: 1px solid var(--line);
@@ -746,6 +763,7 @@
 </section>
 
 <div class="filters" id="filters">
+  <!-- 1. Top primary bar: Cost basis + Catalog Scope + Mode Indicator + Count -->
   <div class="filters-row">
     <!-- View Mode: Effective vs Task vs Quota vs Raw -->
     <div class="seg" role="group" aria-label="Cost basis" id="costSeg">
@@ -765,19 +783,11 @@
     <div class="mode-indicator" id="modeIndicator">
       <span data-i18n="mode_indicator_default">⚡ Basis: <b>OpenCode Go Effective Cost</b> ($10/mo subscription leverage)</span>
     </div>
-  </div>
 
-  <div class="filters-row" style="margin-top: 4px;">
-    <label><span data-i18n="lbl_min_idx">Min Intelligence</span> <input type="range" id="minIdx" min="0" max="50" step="5" value="20" aria-label="Minimum index"> <span id="minIdxVal" style="font-weight:600;min-width:18px;">20</span></label>
-    <label title="Keep only the highest score variant"><input type="checkbox" id="collapse" checked> <span data-i18n="lbl_collapse">1 row per model</span></label>
-    <label><span data-i18n="lbl_maker">Maker</span> <select id="makerSel"><option value="" data-i18n="opt_all_makers">All Makers</option></select></label>
-    <label><input type="search" id="search" placeholder="Search model…" data-i18n-ph="ph_search" aria-label="Search model"></label>
-    <label><input type="checkbox" id="frontierOnly"> <span data-i18n="lbl_frontier_only">Frontier only</span></label>
-    <label><input type="checkbox" id="labelsAll"> <span data-i18n="lbl_labels_all">Show all labels</span></label>
     <span class="count" id="count"></span>
   </div>
 
-  <!-- Presets & URL Share Toolbar Row -->
+  <!-- 2. Presets Row: Pill bar + Save + Copy + Collapsible Toggle -->
   <div class="filters-row" style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 13.5px; align-items: center;">
     <span style="font-weight:600;color:var(--ink);"><span data-i18n="lbl_presets">💾 Presets:</span></span>
     <div class="preset-bar" id="presetPillBar">
@@ -786,48 +796,64 @@
     <div style="display:flex; gap:6px; margin-left:auto; align-items:center;">
       <button type="button" class="btn btn-sm" id="btnSavePreset" title="Save current filter & model selection preset to browser">➕ <span data-i18n="btn_save_preset">Save Preset</span></button>
       <button type="button" class="btn btn-sm" id="btnShareUrl" title="Copy URL link containing current state to clipboard">🔗 <span data-i18n="btn_copy_link">Copy Link</span></button>
+      <button type="button" class="btn btn-sm" id="btnToggleAdvancedFilters" aria-expanded="false" title="Toggle detailed filters & options" style="font-weight:600;display:inline-flex;align-items:center;gap:5px;">
+        <span id="advFiltersIcon">⚙️</span> <span id="advFiltersText" data-i18n="btn_more_filters">More Filters</span> <span id="advFiltersArrow">▼</span>
+      </button>
     </div>
   </div>
 
-  <!-- Custom Model Selection Mode & Provider Group Sections -->
-  <div class="filters-row" style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 13.5px; align-items: center;">
-    <span style="font-weight:600;color:var(--ink);"><span data-i18n="lbl_selection_mode">🎯 Model Selection Mode:</span></span>
-    <div class="seg" role="group" id="selectionModeSeg">
-      <button type="button" id="btnModeAll" class="btn-sm" aria-pressed="true" data-i18n="btn_mode_all">Show All Models</button>
-      <button type="button" id="btnModeCustom" class="btn-sm" aria-pressed="false"><span data-i18n="btn_mode_custom">Compare My Selection Only</span> <span id="customSelectedBadge" class="chip-badge" style="display:none;margin-left:4px;">0</span></button>
+  <!-- 3. Collapsible Advanced Filters Section (나머지 상세 필터 및 설정) -->
+  <div id="advancedFiltersSection">
+    <div class="filters-row" style="padding-top: 4px;">
+      <label><span data-i18n="lbl_min_idx">Min Intelligence</span> <input type="range" id="minIdx" min="0" max="50" step="5" value="20" aria-label="Minimum index"> <span id="minIdxVal" style="font-weight:600;min-width:18px;">20</span></label>
+      <label title="Keep only the highest score variant"><input type="checkbox" id="collapse" checked> <span data-i18n="lbl_collapse">1 row per model</span></label>
+      <label><span data-i18n="lbl_maker">Maker</span> <select id="makerSel"><option value="" data-i18n="opt_all_makers">All Makers</option></select></label>
+      <label><input type="search" id="search" placeholder="Search model…" data-i18n-ph="ph_search" aria-label="Search model"></label>
+      <label><input type="checkbox" id="frontierOnly"> <span data-i18n="lbl_frontier_only">Frontier only</span></label>
+      <label><input type="checkbox" id="labelsAll"> <span data-i18n="lbl_labels_all">Show all labels</span></label>
     </div>
 
-    <button type="button" class="btn btn-sm" id="btnToggleSectionsDrawer" style="font-weight:600;display:inline-flex;align-items:center;gap:6px;">
-      <span>📂 <span data-i18n="btn_open_sections">Open Provider Sections</span> (<span id="drawerCountLabel">0 selected</span>)</span>
-      <span id="drawerArrow">▼</span>
-    </button>
+    <!-- Custom Model Selection Mode & Provider Group Sections -->
+    <div class="filters-row" style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 13.5px; align-items: center;">
+      <span style="font-weight:600;color:var(--ink);"><span data-i18n="lbl_selection_mode">🎯 Model Selection Mode:</span></span>
+      <div class="seg" role="group" id="selectionModeSeg">
+        <button type="button" id="btnModeAll" class="btn-sm" aria-pressed="true" data-i18n="btn_mode_all">Show All Models</button>
+        <button type="button" id="btnModeCustom" class="btn-sm" aria-pressed="false"><span data-i18n="btn_mode_custom">Compare My Selection Only</span> <span id="customSelectedBadge" class="chip-badge" style="display:none;margin-left:4px;">0</span></button>
+      </div>
 
-    <div style="display:flex; gap:6px; margin-left:auto;">
-      <button type="button" class="btn btn-sm" id="btnSelectAllDrawer" style="font-size:12px;" data-i18n="btn_select_all">Select All</button>
-      <button type="button" class="btn btn-sm" id="btnClearAllDrawer" style="font-size:12px;" data-i18n="btn_clear_all">Deselect All</button>
-    </div>
-  </div>
+      <button type="button" class="btn btn-sm" id="btnToggleSectionsDrawer" style="font-weight:600;display:inline-flex;align-items:center;gap:6px;">
+        <span>📂 <span data-i18n="btn_open_sections">Open Provider Sections</span> (<span id="drawerCountLabel">0 selected</span>)</span>
+        <span id="drawerArrow">▼</span>
+      </button>
 
-  <!-- Collapsible Provider/Group Sections Drawer Container -->
-  <div id="providerSectionsDrawer" style="display:none; width:100%; margin-top:8px; padding-top:10px; border-top:1px solid var(--line);">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:12.5px; color:var(--ink-2);">
-      <span data-i18n="drawer_help_text">Click any Provider header to <b>toggle the entire group</b> on/off, or click individual chips to customize.</span>
-      <input type="search" id="drawerSearchInput" placeholder="Filter models in section…" data-i18n-ph="ph_drawer_search" style="font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:var(--page); width:180px;">
+      <div style="display:flex; gap:6px; margin-left:auto;">
+        <button type="button" class="btn btn-sm" id="btnSelectAllDrawer" style="font-size:12px;" data-i18n="btn_select_all">Select All</button>
+        <button type="button" class="btn btn-sm" id="btnClearAllDrawer" style="font-size:12px;" data-i18n="btn_clear_all">Deselect All</button>
+      </div>
     </div>
-    <div id="providerSectionsContainer">
-      <!-- Generated dynamically by JS -->
-    </div>
-  </div>
 
-  <div class="filters-row" style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 13.5px;">
-    <span style="font-weight:600;color:var(--ink);"><span data-i18n="lbl_privacy_policy">🛡️ Data Privacy & Training Policy:</span></span>
-    <label title="Models that do not use user prompt data for training (Zero Data Retention / Safe)">
-      <input type="checkbox" id="filterNoTrain" checked> <span data-i18n="lbl_no_train">Safe / No Training</span>
-    </label>
-    <label title="Contributor / discounted models where prompt data may be used for model training">
-      <input type="checkbox" id="filterTrain"> <span data-i18n="lbl_train">Model Training: Yes (Contributor)</span>
-    </label>
-    <span style="font-size:12px;color:var(--ink-3);margin-left:auto;" data-i18n="lbl_privacy_hint">※ Contributor models are disabled by default. Checking recalculates the <b>Frontier Edge</b> in real time.</span>
+    <!-- Collapsible Provider/Group Sections Drawer Container -->
+    <div id="providerSectionsDrawer" style="display:none; width:100%; margin-top:8px; padding-top:10px; border-top:1px solid var(--line);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:12.5px; color:var(--ink-2);">
+        <span data-i18n="drawer_help_text">Click any Provider header to <b>toggle the entire group</b> on/off, or click individual chips to customize.</span>
+        <input type="search" id="drawerSearchInput" placeholder="Filter models in section…" data-i18n-ph="ph_drawer_search" style="font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:var(--page); width:180px;">
+      </div>
+      <div id="providerSectionsContainer">
+        <!-- Generated dynamically by JS -->
+      </div>
+    </div>
+
+    <!-- Data Privacy Row -->
+    <div class="filters-row" style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 13.5px;">
+      <span style="font-weight:600;color:var(--ink);"><span data-i18n="lbl_privacy_policy">🛡️ Data Privacy & Training Policy:</span></span>
+      <label title="Models that do not use user prompt data for training (Zero Data Retention / Safe)">
+        <input type="checkbox" id="filterNoTrain" checked> <span data-i18n="lbl_no_train">Safe / No Training</span>
+      </label>
+      <label title="Contributor / discounted models where prompt data may be used for model training">
+        <input type="checkbox" id="filterTrain"> <span data-i18n="lbl_train">Model Training: Yes (Contributor)</span>
+      </label>
+      <span style="font-size:12px;color:var(--ink-3);margin-left:auto;" data-i18n="lbl_privacy_hint">※ Contributor models are disabled by default. Checking recalculates the <b>Frontier Edge</b> in real time.</span>
+    </div>
   </div>
 </div>
 
@@ -2323,6 +2349,38 @@
   $("frontierOnly").addEventListener("change", (e) => { state.frontierOnly = e.target.checked; render(); syncStateToUrl(); });
   $("labelsAll").addEventListener("change", (e) => { state.labelsAll = e.target.checked; render(); });
 
+  // Advanced filters toggle
+  const advSection = $("advancedFiltersSection");
+  const btnToggleAdv = $("btnToggleAdvancedFilters");
+  const advArrow = $("advFiltersArrow");
+  const advText = $("advFiltersText");
+
+  function updateAdvFiltersBtn(isOpen) {
+    if (advArrow) advArrow.textContent = isOpen ? "▲" : "▼";
+    if (btnToggleAdv) {
+      btnToggleAdv.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      btnToggleAdv.classList.toggle("active", isOpen);
+    }
+    if (advText && window.I18N) {
+      advText.textContent = isOpen ? window.I18N.t("btn_hide_filters") : window.I18N.t("btn_more_filters");
+    }
+  }
+
+  if (btnToggleAdv && advSection) {
+    btnToggleAdv.addEventListener("click", () => {
+      const isOpen = advSection.classList.toggle("open");
+      updateAdvFiltersBtn(isOpen);
+      try { localStorage.setItem("filters_expanded", isOpen ? "1" : "0"); } catch (e) {}
+    });
+
+    try {
+      if (localStorage.getItem("filters_expanded") === "1") {
+        advSection.classList.add("open");
+        updateAdvFiltersBtn(true);
+      }
+    } catch (e) {}
+  }
+
   // Update modal events
   const updateModal = $("updateModal");
   if ($("openUpdateHelpBtn") && updateModal) {
@@ -2340,6 +2398,7 @@
       render();
       renderProviderSections();
       renderPresetPills();
+      if (advSection) updateAdvFiltersBtn(advSection.classList.contains("open"));
     });
   }
 
