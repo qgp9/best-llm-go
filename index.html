@@ -2113,27 +2113,14 @@
   const DEFAULT_PRESETS = [
     {
       id: "all_default",
-      name_en: "🌐 Default (All Safe Models)",
-      name_ko: "🌐 기본 (학습 미사용 전체)",
+      name_en: "Default",
+      name_ko: "기본",
       state: { selectionMode: "all", cost: "go_effective", minIdx: 20, includeTrain: false, includeNoTrain: true }
     },
     {
-      id: "safe_tier60",
-      name_en: "🛡️ Safe + 6x+ Focused",
-      name_ko: "🛡️ 보안 안전 + 6x 이상 중심",
-      state: {
-        selectionMode: "all",
-        multiplier: "6",
-        cost: "go_effective",
-        minIdx: 25,
-        includeTrain: false,
-        includeNoTrain: true
-      }
-    },
-    {
       id: "reasoning_champs",
-      name_en: "🧠 Advanced Reasoning & Agentic",
-      name_ko: "🧠 고난도 추론 및 에이전트",
+      name_en: "Reasoning",
+      name_ko: "추론",
       state: {
         selectionMode: "custom",
         cost: "go_task",
@@ -2142,41 +2129,21 @@
         includeNoTrain: true,
         models: ["GLM-5.3", "MiMo-V2.6-Pro", "Grok 4.7 (≤ 200K tokens)", "Qwen3.8 Max", "Kimi K3"]
       }
-    },
-    {
-      id: "budget_champions",
-      name_en: "⚡ Top Value Picks (Frontier)",
-      name_ko: "⚡ 가성비 최우수 (Frontier)",
-      state: {
-        selectionMode: "custom",
-        cost: "go_effective",
-        minIdx: 30,
-        includeTrain: false,
-        includeNoTrain: true,
-        models: ["GLM-5.3-Flash", "MiMo-V2.6-Flash", "MiMo-V2.6-Pro", "Qwen3.8 Flash", "Hy4 preview"]
-      }
-    },
-    {
-      id: "include_contributors",
-      name_en: "🔬 All Including Contributors",
-      name_ko: "🔬 학습 활용/기여자 포함 전체",
-      state: { selectionMode: "all", cost: "go_effective", minIdx: 20, includeTrain: true, includeNoTrain: true }
     }
   ];
 
   const DEFAULT_PRESET_MAP = {
-    all_default: { en: "🌐 Default (All Safe Models)", ko: "🌐 기본 (학습 미사용 전체)" },
-    safe_tier60: { en: "🛡️ Safe + 6x+ Focused", ko: "🛡️ 보안 안전 + 6x 이상 중심" },
-    reasoning_champs: { en: "🧠 Advanced Reasoning & Agentic", ko: "🧠 고난도 추론 및 에이전트" },
-    budget_champions: { en: "⚡ Top Value Picks (Frontier)", ko: "⚡ 가성비 최우수 (Frontier)" },
-    include_contributors: { en: "🔬 All Including Contributors", ko: "🔬 학습 활용/기여자 포함 전체" }
+    all_default: { en: "Default", ko: "기본" },
+    reasoning_champs: { en: "Reasoning", ko: "추론" }
   };
 
   const LEGACY_PRESET_ALIASES = {
+    "🌐 Default (All Safe Models)": "all_default",
+    "🌐 기본 (학습 미사용 전체)": "all_default",
     "🧠 고난도 추론/에이전트 챔피언": "reasoning_champs",
     "🧠 Reasoning / Agent Champions": "reasoning_champs",
-    "⚡ 가성비 최상위 (Top Frontier)": "budget_champions",
-    "⚡ Value Champions (Top Frontier)": "budget_champions"
+    "🧠 Advanced Reasoning & Agentic": "reasoning_champs",
+    "🧠 고난도 추론 및 에이전트": "reasoning_champs"
   };
 
   function getPresetDisplayName(p, isKo) {
@@ -2192,6 +2159,46 @@
       }
     }
     return (isKo ? p.name_ko : p.name_en) || p.name || "";
+  }
+
+  function getPresetTooltip(p, isKo) {
+    const s = p.state || {};
+    const lines = [];
+    const pName = getPresetDisplayName(p, isKo);
+    lines.push(isKo ? `[${pName}] 프리셋 필터 조건:` : `[${pName}] Preset Filter Query:`);
+
+    if (s.cost) {
+      const costMap = {
+        go_effective: isKo ? "Go 체감 $/1M" : "Go Effective $/1M",
+        go_task: isKo ? "Go 체감 /task" : "Go /task",
+        task: isKo ? "정가 /task" : "Raw /task",
+        go_quota: isKo ? "월 쿼터 소모율 %" : "Quota Burn %",
+        blended: isKo ? "API 정가 $/1M" : "Raw API $/1M"
+      };
+      lines.push(`• ${isKo ? "비용 기준" : "Cost"}: ${costMap[s.cost] || s.cost}`);
+    }
+    if (s.multiplier) {
+      lines.push(`• ${isKo ? "배율" : "Multiplier"}: ${s.multiplier}x ${isKo ? "이상" : "+"}`);
+    }
+    if (s.minIdx != null) {
+      lines.push(`• ${isKo ? "최소 지능" : "Min Intelligence"}: ${s.minIdx}+`);
+    }
+    if (s.includeNoTrain && !s.includeTrain) {
+      lines.push(`• ${isKo ? "데이터 프라이버시" : "Privacy"}: ${isKo ? "학습 미사용 (Safe) 모델만" : "Safe models only"}`);
+    } else if (s.includeTrain && s.includeNoTrain) {
+      lines.push(`• ${isKo ? "데이터 프라이버시" : "Privacy"}: ${isKo ? "학습 활용/기여자 포함" : "Include contributors"}`);
+    }
+    if (s.frontierOnly) {
+      lines.push(`• ${isKo ? "프론티어" : "Frontier"}: ${isKo ? "파레토 최적선 모델만" : "Frontier only"}`);
+    }
+    if (s.models && s.models.length > 0) {
+      const modelStr = s.models.slice(0, 3).join(", ") + (s.models.length > 3 ? (isKo ? ` 외 ${s.models.length - 3}개` : ` +${s.models.length - 3} more`) : "");
+      lines.push(`• ${isKo ? "선택 모델" : "Models"}: ${modelStr}`);
+    } else if (s.selectionMode === "all") {
+      lines.push(`• ${isKo ? "선택 모델" : "Models"}: ${isKo ? "조건 충족 전체 모델" : "All matching models"}`);
+    }
+
+    return lines.join("\n");
   }
 
   function showToast(msg) {
@@ -2233,7 +2240,7 @@
         pill.classList.add("active");
       }
       pill.textContent = pName;
-      pill.title = isKo ? `설정 셋 적용: ${pName}` : `Apply preset: ${pName}`;
+      pill.title = getPresetTooltip(p, isKo);
 
       pill.addEventListener("click", () => {
         activePresetId = p.id;
