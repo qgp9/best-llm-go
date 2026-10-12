@@ -1388,10 +1388,15 @@
       (!q || (d.name && d.name.toLowerCase().includes(q)) || (d.creator && d.creator.toLowerCase().includes(q)))
     );
 
-    // Pareto frontier calculated strictly on currently active/visible models
+    // Weighted Pareto frontier on currently active/visible models:
+    // a model joins only if its index gain over the last frontier point exceeds
+    // FRONTIER_K * (cost increase in $), so tiny gains at much higher cost are ignored.
+    // Only meaningful when x is in dollars; quota burn (%) uses plain Pareto.
+    const FRONTIER_K = state.cost === "go_quota" ? 0 : 0.1;
     const frontier = [];
     [...vis].sort((a, b) => a.x - b.x || b.v - a.v).forEach((d) => {
-      if (!frontier.length || d.v > frontier[frontier.length - 1].v) frontier.push(d);
+      const last = frontier[frontier.length - 1];
+      if (!last || d.v > last.v + FRONTIER_K * (d.x - last.x)) frontier.push(d);
     });
     const onF = new Set(frontier.map((d) => d.id));
     vis.forEach((d) => (d.front = onF.has(d.id)));
