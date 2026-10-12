@@ -1484,6 +1484,9 @@
     if (!container) return;
     container.replaceChildren();
 
+    const isKo = (window.I18N && window.I18N.lang === "ko");
+    const scoreSuffix = isKo ? "점" : " pts";
+
     const searchQ = ($("drawerSearchInput") ? $("drawerSearchInput").value : "").trim().toLowerCase();
     const baseList = state.scope === "go_only" ? goData : ALL_ENRICHED;
 
@@ -1734,6 +1737,27 @@
     }
   ];
 
+  const DEFAULT_PRESET_MAP = {
+    all_default: { en: "🌐 Default (All Safe Models)", ko: "🌐 기본 (학습 미사용 전체)" },
+    safe_tier60: { en: "🛡️ Safe + 6x ($60) Focused", ko: "🛡️ 보안 안전 + 6배율($60) 중심" },
+    reasoning_champs: { en: "🧠 Reasoning / Agent Champions", ko: "🧠 고난도 추론/에이전트 챔피언" },
+    budget_champions: { en: "⚡ Value Champions (Top Frontier)", ko: "⚡ 가성비 최상위 (Top Frontier)" },
+    include_contributors: { en: "🔬 All Including Contributors", ko: "🔬 학습 활용/기여자 포함 전체" }
+  };
+
+  function getPresetDisplayName(p, isKo) {
+    if (!p) return "";
+    if (p.id && DEFAULT_PRESET_MAP[p.id]) {
+      return isKo ? DEFAULT_PRESET_MAP[p.id].ko : DEFAULT_PRESET_MAP[p.id].en;
+    }
+    for (const def of Object.values(DEFAULT_PRESET_MAP)) {
+      if (p.name === def.ko || p.name === def.en) {
+        return isKo ? def.ko : def.en;
+      }
+    }
+    return (isKo ? p.name_ko : p.name_en) || p.name || "";
+  }
+
   function showToast(msg) {
     const t = $("toast");
     if (!t) return;
@@ -1765,7 +1789,7 @@
     const allPresets = [...DEFAULT_PRESETS, ...stored];
 
     allPresets.forEach((p) => {
-      const pName = (isKo ? p.name_ko : p.name_en) || p.name;
+      const pName = getPresetDisplayName(p, isKo);
       const pill = h("div", "preset-pill");
       pill.textContent = pName;
       pill.title = isKo ? `설정 셋 적용: ${pName}` : `Apply preset: ${pName}`;
@@ -1813,6 +1837,8 @@
       s.models.forEach((mName) => {
         state.selectedModelIds.add(mName);
       });
+    } else if (s.selectionMode === "all") {
+      state.selectedModelIds.clear();
     }
 
     // Update buttons
@@ -1825,12 +1851,13 @@
     render();
     syncStateToUrl();
     const isKo = (window.I18N && window.I18N.lang === "ko");
-    const pName = (isKo ? p.name_ko : p.name_en) || p.name;
+    const pName = getPresetDisplayName(p, isKo);
     showToast(isKo ? `'${pName}' 셋이 적용되었습니다!` : `'${pName}' preset applied!`);
   }
 
   function syncStateToUrl() {
     const params = new URLSearchParams();
+    if (window.I18N && window.I18N.lang) params.set("lang", window.I18N.lang);
     params.set("cost", state.cost);
     params.set("mode", state.selectionMode);
     params.set("scope", state.scope);
