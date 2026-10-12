@@ -2,8 +2,9 @@ name: Update Data and Deploy to GitHub Pages
 
 on:
   schedule:
-    # Run daily at 00:00 UTC (09:00 KST)
-    - cron: '0 0 * * *'
+    # Run daily around Finland lunchtime (~12:00 PM): 09:37 UTC (12:37 EEST / 11:37 EET)
+    # Prime quiet window for GitHub Actions (US midnight) with :37 avoiding peak queue backlogs
+    - cron: '37 9 * * *'
   push:
     branches:
       - main
@@ -61,3 +62,46 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Send Discord notification
+        if: success() && env.DISCORD_WEBHOOK != ''
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          REPO_NAME="${{ github.repository }}"
+          OWNER_NAME="${{ github.repository_owner }}"
+          DASHBOARD_URL="https://${OWNER_NAME}.github.io/${REPO_NAME#*/}/"
+
+          PAYLOAD=$(cat <<EOF
+          {
+            "embeds": [{
+              "title": "🚀 OpenCode Go & Free AI Models Updated!",
+              "description": "Daily 24h benchmark & model catalog sync complete.",
+              "url": "${DASHBOARD_URL}",
+              "color": 14251863,
+              "fields": [
+                {
+                  "name": "📊 Live Dashboard",
+                  "value": "[Open Value Frontier & Free Catalog](${DASHBOARD_URL})",
+                  "inline": false
+                },
+                {
+                  "name": "🕒 Schedule",
+                  "value": "Daily ~12:00 PM Finland time (09:37 UTC)",
+                  "inline": true
+                },
+                {
+                  "name": "📂 Repository",
+                  "value": "${REPO_NAME}",
+                  "inline": true
+                }
+              ],
+              "footer": {
+                "text": "100% Vibe-coded with AI • Antigravity & Gemini"
+              }
+            }]
+          }
+          EOF
+          )
+
+          curl -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$DISCORD_WEBHOOK" || echo "Discord notification failed (non-critical)"

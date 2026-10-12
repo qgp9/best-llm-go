@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>무료 AI 모델 종합 가이드 · OpenCode Zen/Go · OpenRouter · CommandCode · Groq · Gemini</title>
-<meta name="description" content="OpenCode Zen/Go, OpenRouter, CommandCode.ai, Groq, Google Gemini의 $0 무료 모델 총정리. 벤치마크 지능 지수, 컨텍스트 용량, Base URL 및 실전 연동 가이드">
+<title>Free AI Models Catalog · OpenCode Zen/Go · OpenRouter · CommandCode · Groq · Gemini</title>
+<meta name="description" content="Comprehensive $0 Free AI Models Guide: OpenCode Zen/Go, OpenRouter, CommandCode.ai, Groq, and Google Gemini with benchmark intelligence indices, context limits, and API base URLs.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -34,6 +34,29 @@
     --font: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
 
+  [data-theme="dark"] {
+    --page: #0d1117;
+    --surface: #161b22;
+    --line: #30363d;
+    --line-subtle: #21262d;
+    --wash: #1f242c;
+    --ink: #f0f6fc;
+    --ink-2: #8b949e;
+    --ink-3: #6e7681;
+    --accent: #f97316;
+    --accent-hover: #ea580c;
+    --accent-soft: rgba(249, 115, 22, 0.18);
+    --accent-ink: #fb923c;
+    --green: #3fb950;
+    --green-soft: rgba(63, 185, 80, 0.15);
+    --blue: #58a6ff;
+    --blue-soft: rgba(88, 166, 255, 0.15);
+    --purple: #bc8cff;
+    --purple-soft: rgba(188, 140, 255, 0.15);
+    --orange: #f0883e;
+    --orange-soft: rgba(240, 136, 62, 0.15);
+  }
+
   * { box-sizing: border-box; }
   body {
     margin: 0;
@@ -44,7 +67,30 @@
     font-size: 14px;
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
+    transition: background-color .2s ease, color .2s ease;
   }
+
+  /* Top Notice Banner */
+  .top-notice-banner {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: 10px 16px; margin-bottom: 22px; font-size: 13px; line-height: 1.5;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  }
+  .notice-content { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1; }
+  .notice-tag {
+    display: inline-flex; align-items: center; font-weight: 700; font-size: 11.5px;
+    padding: 2px 8px; border-radius: 999px; background: #fef3c7; color: #92400e; border: 1px solid #fde68a;
+  }
+  [data-theme="dark"] .notice-tag { background: #3b2a0c; color: #fbbf24; border-color: #5c4314; }
+  .vibe-tag {
+    display: inline-flex; align-items: center; font-weight: 600; font-size: 11.5px;
+    padding: 2px 8px; border-radius: 999px; background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe;
+  }
+  [data-theme="dark"] .vibe-tag { background: #26274e; color: #a5b4fc; border-color: #3e3f78; }
+  .credit-tag { display: inline-flex; align-items: center; font-size: 11.5px; color: var(--ink-2); }
+  .notice-close { background: none; border: none; font-size: 16px; color: var(--ink-3); cursor: pointer; padding: 2px 6px; }
+  .notice-close:hover { color: var(--ink); background: var(--wash); }
 
   a { color: var(--accent-ink); text-decoration: none; }
   a:hover { text-decoration: underline; }
@@ -680,31 +726,46 @@
   <div class="nav-inner">
     <div class="nav-brand">
       <span>⚡ OpenCode & Free LLM Intel</span>
-      <span class="badge">무료 모델 통합 허브</span>
+      <span class="badge" data-i18n="nav_free_hub_badge">Free Models Hub</span>
     </div>
     <nav class="nav-links">
-      <a href="index.html" class="nav-link">📊 OpenCode Go 가치 프론티어 분석기</a>
-      <a href="free_models.html" class="nav-link active">🎁 무료 AI 모델 종합 가이드</a>
+      <a href="index.html" id="indexLink" class="nav-link"><span data-i18n="nav_link_frontier">📊 OpenCode Go Value Frontier</span></a>
+      <a href="free_models.html" class="nav-link active"><span data-i18n="nav_link_free">🎁 Free AI Models Guide</span></a>
+      <div class="seg" role="group" aria-label="Language" id="langSeg" style="display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--page);margin-left:4px;">
+        <button type="button" data-lang="en" aria-pressed="true" style="padding:4px 10px;font-weight:600;font-size:12px;border:none;background:transparent;cursor:pointer;border-radius:999px;">EN</button>
+        <button type="button" data-lang="ko" aria-pressed="false" style="padding:4px 10px;font-weight:600;font-size:12px;border:none;background:transparent;cursor:pointer;border-radius:999px;">KO</button>
+      </div>
+      <button id="btnThemeToggle" type="button" title="Toggle Light/Dark Theme" style="padding:5px 10px;font-size:14px;border:1px solid var(--line);border-radius:999px;background:var(--surface);cursor:pointer;">🌙</button>
     </nav>
   </div>
 </header>
 
 <main class="wrap">
+  <!-- Top Notice Banner -->
+  <div class="top-notice-banner" id="topNoticeBanner">
+    <div class="notice-content">
+      <span class="notice-tag" data-i18n="banner_notice_tag">⚠️ Personal Reference Only</span>
+      <span id="bannerNoticeText" data-i18n="banner_notice_text">Unofficial tool for personal research. Data is scraped from public APIs; prices/allowances may differ from production.</span>
+      <span class="vibe-tag" data-i18n="banner_vibe_tag">🤖 100% Vibe-Coded with AI</span>
+      <span class="credit-tag" data-i18n="banner_credit_text">Look & Feel adapted from <a href="https://bestmodelforyourbudget.terrydjony.com/" target="_blank" rel="noopener">Terry Djony's project</a></span>
+    </div>
+    <button class="notice-close" onclick="document.getElementById('topNoticeBanner').style.display='none'" aria-label="Dismiss">&times;</button>
+  </div>
+
   <!-- Hero Section -->
   <section class="hero">
-    <h1>🎁 무료(Free) AI 모델 종합 가이드 & 벤치마크</h1>
-    <p>
-      <b>OpenCode (Zen & Go)</b>, <b>OpenRouter</b>, <b>CommandCode</b>, <b>Groq</b>, <b>Google Gemini</b>에서 
-      토큰 비용 $0으로 제공되는 대표 무료 모델들을 한데 모았습니다. 각 모델의 <b>실제 정체(Identity)</b>, 
-      <b>공식 벤치마크 지능 지수</b>, <b>컨텍스트 용량</b> 및 <b>프라이버시(학습 수집 여부)</b>를 투명하게 비교합니다.
+    <h1 data-i18n="hero_free_h1">🎁 Free AI Models Comprehensive Guide & Benchmarks</h1>
+    <p data-i18n="hero_free_desc">
+      A centralized directory of $0 token cost models across OpenCode (Zen & Go), OpenRouter, CommandCode, Groq, and Google Gemini with benchmark intelligence indices, context limits, and privacy policies.
     </p>
     <div class="hero-credits">
-      <span>⭐ 데이터 참조:</span>
+      <span data-i18n="hero_free_credits_label">⭐ Data References:</span>
       <a href="https://github.com/open-free-llm-api/awesome-freellm-apis" target="_blank" rel="noopener">awesome-freellm-apis (505+ Free APIs)</a>
       <span>·</span>
       <a href="https://freellm.net" target="_blank" rel="noopener">freellm.net</a>
       <span>· Artificial Analysis</span>
     </div>
+    <div id="freeLastUpdatedMsg" style="margin-top:10px;font-size:12.5px;color:var(--accent-ink);font-weight:600;"></div>
   </section>
 
   <!-- Platform Overview Cards Grid -->
@@ -1007,6 +1068,8 @@ print(res.choices[0].message.content)</code></pre>
 <div class="toast" id="toast"></div>
 
 <!-- Data Scripts -->
+<script src="data/i18n.js"></script>
+<script src="data/last_updated.js"></script>
 <script src="data/awesome_freellm_providers.js"></script>
 <script src="data/free_models_catalog.js"></script>
 <script>
@@ -1031,6 +1094,16 @@ print(res.choices[0].message.content)</code></pre>
     t.textContent = msg;
     t.classList.add("show");
     setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+  // Last Updated display
+  function updateLastUpdated() {
+    const el = $("freeLastUpdatedMsg");
+    if (!el) return;
+    const lastUpdated = (window.__LAST_UPDATED_META__ && window.__LAST_UPDATED_META__.last_updated_utc) || "Recently";
+    if (window.I18N) {
+      el.innerHTML = window.I18N.t("free_last_updated", { lastUpdated });
+    }
   }
 
   // Update counts on filter pills
@@ -1354,8 +1427,11 @@ print(res.choices[0].message.content)</code></pre>
 
   // Main Render
   function render() {
+    const isKo = (window.I18N && window.I18N.lang === "ko");
     const list = filterAndSort();
-    $("catalogCountMsg").innerHTML = `조건에 맞는 무료 모델 <b>${list.length}개</b> 표시 중 (전체 ${data.length}개)`;
+    $("catalogCountMsg").innerHTML = isKo
+      ? `조건에 맞는 무료 모델 <b>${list.length}개</b> 표시 중 (전체 ${data.length}개)`
+      : `Showing <b>${list.length}</b> free models (${data.length} total)`;
 
     if (state.viewMode === "grid") {
       $("gridContainer").style.display = "grid";
@@ -1454,10 +1530,19 @@ print(res.choices[0].message.content)</code></pre>
         render();
       });
     });
+
+    if (window.I18N) {
+      window.I18N.onChange(() => {
+        updateLastUpdated();
+        render();
+        renderProvidersAccordion();
+      });
+    }
   }
 
   // Initial Run
   updateCounts();
+  updateLastUpdated();
   renderProvidersAccordion();
   initEvents();
   render();

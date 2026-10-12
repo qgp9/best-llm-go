@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>OpenCode Go Model Value Frontier (가치 최적선 분석)</title>
-<meta name="description" content="OpenCode Go 공식 모델, 정액제 한도($15/$30/$60), API 비용 및 Artificial Analysis 벤치마크 지수를 반영한 파레토 가치 프론티어 분석">
+<title>OpenCode Go Model Value Frontier (Pareto Analysis)</title>
+<meta name="description" content="Pareto frontier value analysis of OpenCode Go official models, monthly allowances ($15/$30/$60), API costs, and Artificial Analysis benchmark indices.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -33,15 +33,64 @@
     --mono: "JetBrains Mono", monospace;
   }
 
+  [data-theme="dark"] {
+    --page:        #0d1117;
+    --surface:     #161b22;
+    --ink:         #f0f6fc;
+    --ink-2:       #8b949e;
+    --ink-3:       #6e7681;
+    --line:        #30363d;
+    --grid:        #21262d;
+    --accent:      #f97316;
+    --accent-ink:  #fb923c;
+    --accent-soft: rgba(249,115,22,0.18);
+    --demote:      #484f58;
+    --demote-bar:  #21262d;
+    --good:        #3fb950;
+    --bad:         #f85149;
+    --wash:        rgba(255,255,255,0.06);
+    --tier60:      #2ea043;
+    --tier30:      #d29922;
+    --tier15:      #8957e5;
+  }
+
   * { box-sizing: border-box; }
   html { background: var(--page); }
   body {
-    margin: 0; padding: 48px 20px 80px;
+    margin: 0; padding: 36px 20px 80px;
     background: var(--page); color: var(--ink);
     font-family: var(--sans); font-size: 15px; line-height: 1.6;
     -webkit-font-smoothing: antialiased; overflow-x: clip;
+    transition: background-color .2s ease, color .2s ease;
   }
   .viz-root { max-width: 1140px; margin: 0 auto; }
+
+  /* Top Notice Banner */
+  .top-notice-banner {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: 10px 16px; margin-bottom: 22px; font-size: 13px; line-height: 1.5;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+  }
+  .notice-content { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1; }
+  .notice-tag {
+    display: inline-flex; align-items: center; font-weight: 700; font-size: 11.5px;
+    padding: 2px 8px; border-radius: 999px; background: #fef3c7; color: #92400e; border: 1px solid #fde68a;
+  }
+  [data-theme="dark"] .notice-tag { background: #3b2a0c; color: #fbbf24; border-color: #5c4314; }
+  .vibe-tag {
+    display: inline-flex; align-items: center; font-weight: 600; font-size: 11.5px;
+    padding: 2px 8px; border-radius: 999px; background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe;
+  }
+  [data-theme="dark"] .vibe-tag { background: #26274e; color: #a5b4fc; border-color: #3e3f78; }
+  .credit-tag {
+    display: inline-flex; align-items: center; font-size: 11.5px; color: var(--ink-2);
+  }
+  .notice-close {
+    background: none; border: none; font-size: 16px; color: var(--ink-3);
+    cursor: pointer; padding: 2px 6px; border-radius: 4px; line-height: 1;
+  }
+  .notice-close:hover { color: var(--ink); background: var(--wash); }
   a { color: var(--accent-ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
   a:hover { color: var(--ink); }
 
@@ -325,20 +374,39 @@
 <body>
 <div class="viz-root">
 
+<!-- Top Notice Banner -->
+<div class="top-notice-banner" id="topNoticeBanner">
+  <div class="notice-content">
+    <span class="notice-tag" data-i18n="banner_notice_tag">⚠️ Personal Reference Only</span>
+    <span id="bannerNoticeText" data-i18n="banner_notice_text">Unofficial tool for personal research. Data is scraped from public APIs; prices/allowances may differ from production.</span>
+    <span class="vibe-tag" data-i18n="banner_vibe_tag">🤖 100% Vibe-Coded with AI</span>
+    <span class="credit-tag" data-i18n="banner_credit_text">Look & Feel adapted from <a href="https://bestmodelforyourbudget.terrydjony.com/" target="_blank" rel="noopener">Terry Djony's project</a></span>
+  </div>
+  <button class="notice-close" onclick="document.getElementById('topNoticeBanner').style.display='none'" aria-label="Dismiss">&times;</button>
+</div>
+
 <header>
   <div>
-    <h1>OpenCode Go Value Frontier <span class="badge-go">Official Go Catalog</span></h1>
-    <p class="sub">
-      <b>opencode.ai/go</b> 공식 모델 목록과 한도(\$15/\$30/\$60), <b>models.dev</b>의 API 비용, <b>Artificial Analysis</b> Intelligence Index를 결합한 가치 최적선 분석입니다.
-      월 \$10 구독 시 체감 가치 배율(<b>x6.0</b> vs <b>x3.0</b> vs <b>x1.5</b>)을 적용하여, Go 플랜 사용 시 어떤 모델이 진짜 가성비 챔피언인지 한눈에 확인하세요.
+    <h1><span data-i18n="h1_title">OpenCode Go Value Frontier</span> <span class="badge-go" data-i18n="badge_go">Official Go Catalog</span></h1>
+    <p class="sub" id="hdrSub" data-i18n="hdr_sub">
+      Pareto frontier value analyzer combining <b>opencode.ai/go</b> official models ($15/$30/$60 monthly allowances), <b>models.dev</b> API costs, and <b>Artificial Analysis</b> Intelligence Index.
+      Applying effective value multipliers (<b>x6.0</b> vs <b>x3.0</b> vs <b>x1.5</b>) under the $10/mo plan to highlight true value champions.
     </p>
-    <p class="meta" id="meta">데이터 로딩 중…</p>
+    <p class="meta" id="meta" data-i18n="meta_loading">Loading data…</p>
   </div>
   <div class="hdr-actions">
-    <a class="btn" href="free_models.html" style="background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;">🎁 무료 모델 통합 가이드</a>
-    <button class="btn" id="openUpdateHelpBtn" type="button">🔄 데이터 업데이트 방법</button>
-    <a class="btn" href="https://opencode.ai/go" target="_blank" rel="noopener">OpenCode Go 공식 웹</a>
-    <a class="btn" href="https://models.dev" target="_blank" rel="noopener">models.dev API</a>
+    <div class="seg" role="group" aria-label="Language" id="langSeg" style="padding:2px;">
+      <button type="button" data-lang="en" aria-pressed="true" style="padding:5px 12px;font-weight:600;">EN</button>
+      <button type="button" data-lang="ko" aria-pressed="false" style="padding:5px 12px;font-weight:600;">KO</button>
+    </div>
+    <button class="btn btn-sm" id="btnThemeToggle" type="button" title="Toggle Light/Dark Theme" style="padding:8px 12px;font-size:15px;">🌙</button>
+    <a class="btn" id="freeModelsLink" href="free_models.html" style="background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600;">
+      <span data-i18n="btn_free_models">🎁 Free AI Models Guide</span>
+    </a>
+    <button class="btn" id="openUpdateHelpBtn" type="button">
+      <span data-i18n="btn_update_help">🔄 Update Data</span>
+    </button>
+    <a class="btn" href="https://opencode.ai/go" target="_blank" rel="noopener">OpenCode Go</a>
   </div>
 </header>
 
@@ -346,70 +414,70 @@
   <div class="filters-row">
     <!-- View Mode: Effective vs Task vs Quota vs Raw -->
     <div class="seg" role="group" aria-label="Cost basis" id="costSeg">
-      <button type="button" data-cost="go_effective" aria-pressed="true" title="OpenCode Go: $10 요금제 기준 체감 단가 (API 단가 ÷ 배율)">🚀 Go 체감 $/1M</button>
-      <button type="button" data-cost="go_task" aria-pressed="false" title="Artificial Analysis 태스크 1회 완수당 Go 체감 비용 (추론 토큰량 및 Go 배율 반영)">🎯 Go 체감 /task</button>
-      <button type="button" data-cost="task" aria-pressed="false" title="Artificial Analysis 태스크 1회 완수당 원본 API 비용 (추론 토큰량 반영)">🎯 원본 /task</button>
-      <button type="button" data-cost="go_quota" aria-pressed="false" title="OpenCode Go: 100만 토큰당 한 달 쿼터 소모율 (%)">📊 월 쿼터 소모율 %</button>
-      <button type="button" data-cost="blended" aria-pressed="false" title="공식 API 정가 (3:1 input:output blend)">💵 원본 API $/1M</button>
+      <button type="button" data-cost="go_effective" aria-pressed="true" data-i18n="cost_go_effective" title="OpenCode Go: Effective cost per 1M tokens ($10/mo plan, API price ÷ multiplier)">🚀 Go Effective $/1M</button>
+      <button type="button" data-cost="go_task" aria-pressed="false" data-i18n="cost_go_task" title="Artificial Analysis: Effective Go cost per 1 completed task (reasoning tokens & Go leverage applied)">🎯 Go /task</button>
+      <button type="button" data-cost="task" aria-pressed="false" data-i18n="cost_task" title="Artificial Analysis: Raw API cost per 1 completed task">🎯 Raw /task</button>
+      <button type="button" data-cost="go_quota" aria-pressed="false" data-i18n="cost_go_quota" title="OpenCode Go: Monthly quota burn rate (%) per 1M tokens">📊 Quota Burn %</button>
+      <button type="button" data-cost="blended" aria-pressed="false" data-i18n="cost_blended" title="Official raw API price (3:1 input:output blend)">💵 Raw API $/1M</button>
     </div>
 
     <!-- Catalog Scope -->
     <div class="seg" role="group" aria-label="Scope" id="scopeSeg">
-      <button type="button" data-scope="go_only" aria-pressed="true" title="OpenCode Go에서 지원하는 모델들만 표시">OpenCode Go 모델만</button>
-      <button type="button" data-scope="all" aria-pressed="false" title="Claude 등 외부 정가 모델을 포함한 전체 비교">전체 모델 포함</button>
+      <button type="button" data-scope="go_only" aria-pressed="true" data-i18n="scope_go_only" title="Display models supported on OpenCode Go">OpenCode Go Models</button>
+      <button type="button" data-scope="all" aria-pressed="false" data-i18n="scope_all" title="Include all market models including Claude, GPT-4o, etc.">All Market Models</button>
     </div>
 
     <div class="mode-indicator" id="modeIndicator">
-      <span>⚡ 기준: <b>OpenCode Go 체감 단가</b> ($10/월 구독 레버리지 반영)</span>
+      <span data-i18n="mode_indicator_default">⚡ Basis: <b>OpenCode Go Effective Cost</b> ($10/mo subscription leverage)</span>
     </div>
   </div>
 
   <div class="filters-row" style="margin-top: 4px;">
-    <label>최소 지능 지수 <input type="range" id="minIdx" min="0" max="50" step="5" value="20" aria-label="Minimum index"> <span id="minIdxVal" style="font-weight:600;min-width:18px;">20</span></label>
-    <label title="최고 점수 variant만 남기기"><input type="checkbox" id="collapse" checked> 1 모델당 1행</label>
-    <label>제조사 <select id="makerSel"><option value="">전체 제조사</option></select></label>
-    <label><input type="search" id="search" placeholder="모델 검색…" aria-label="Search model"></label>
-    <label><input type="checkbox" id="frontierOnly"> 프론티어만 보기</label>
-    <label><input type="checkbox" id="labelsAll"> 모든 점 라벨 표시</label>
+    <label><span data-i18n="lbl_min_idx">Min Intelligence</span> <input type="range" id="minIdx" min="0" max="50" step="5" value="20" aria-label="Minimum index"> <span id="minIdxVal" style="font-weight:600;min-width:18px;">20</span></label>
+    <label title="Keep only the highest score variant"><input type="checkbox" id="collapse" checked> <span data-i18n="lbl_collapse">1 row per model</span></label>
+    <label><span data-i18n="lbl_maker">Maker</span> <select id="makerSel"><option value="" data-i18n="opt_all_makers">All Makers</option></select></label>
+    <label><input type="search" id="search" placeholder="Search model…" data-i18n-ph="ph_search" aria-label="Search model"></label>
+    <label><input type="checkbox" id="frontierOnly"> <span data-i18n="lbl_frontier_only">Frontier only</span></label>
+    <label><input type="checkbox" id="labelsAll"> <span data-i18n="lbl_labels_all">Show all labels</span></label>
     <span class="count" id="count"></span>
   </div>
 
   <!-- Presets & URL Share Toolbar Row -->
   <div class="filters-row" style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 13.5px; align-items: center;">
-    <span style="font-weight:600;color:var(--ink);">💾 설정 셋 (Presets):</span>
+    <span style="font-weight:600;color:var(--ink);"><span data-i18n="lbl_presets">💾 Presets:</span></span>
     <div class="preset-bar" id="presetPillBar">
       <!-- Built-in & Custom Presets will be rendered here -->
     </div>
     <div style="display:flex; gap:6px; margin-left:auto; align-items:center;">
-      <button type="button" class="btn btn-sm" id="btnSavePreset" title="현재 필터 및 선택된 모델 상태를 브라우저에 이름 붙여 저장">➕ 현재 셋 저장</button>
-      <button type="button" class="btn btn-sm" id="btnShareUrl" title="현재 상태가 담긴 URL 링크를 클립보드에 복사">🔗 링크 복사</button>
+      <button type="button" class="btn btn-sm" id="btnSavePreset" title="Save current filter & model selection preset to browser">➕ <span data-i18n="btn_save_preset">Save Preset</span></button>
+      <button type="button" class="btn btn-sm" id="btnShareUrl" title="Copy URL link containing current state to clipboard">🔗 <span data-i18n="btn_copy_link">Copy Link</span></button>
     </div>
   </div>
 
   <!-- Custom Model Selection Mode & Provider Group Sections -->
   <div class="filters-row" style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 13.5px; align-items: center;">
-    <span style="font-weight:600;color:var(--ink);">🎯 모델 선택 모드:</span>
+    <span style="font-weight:600;color:var(--ink);"><span data-i18n="lbl_selection_mode">🎯 Model Selection Mode:</span></span>
     <div class="seg" role="group" id="selectionModeSeg">
-      <button type="button" id="btnModeAll" class="btn-sm" aria-pressed="true">전체 모델 표시</button>
-      <button type="button" id="btnModeCustom" class="btn-sm" aria-pressed="false">내가 선택한 모델만 비교 <span id="customSelectedBadge" class="chip-badge" style="display:none;margin-left:4px;">0</span></button>
+      <button type="button" id="btnModeAll" class="btn-sm" aria-pressed="true" data-i18n="btn_mode_all">Show All Models</button>
+      <button type="button" id="btnModeCustom" class="btn-sm" aria-pressed="false"><span data-i18n="btn_mode_custom">Compare My Selection Only</span> <span id="customSelectedBadge" class="chip-badge" style="display:none;margin-left:4px;">0</span></button>
     </div>
 
     <button type="button" class="btn btn-sm" id="btnToggleSectionsDrawer" style="font-weight:600;display:inline-flex;align-items:center;gap:6px;">
-      <span>📂 제조사/그룹별 모델 섹션 열기 (<span id="drawerCountLabel">0개 선택됨</span>)</span>
+      <span>📂 <span data-i18n="btn_open_sections">Open Provider Sections</span> (<span id="drawerCountLabel">0 selected</span>)</span>
       <span id="drawerArrow">▼</span>
     </button>
 
     <div style="display:flex; gap:6px; margin-left:auto;">
-      <button type="button" class="btn btn-sm" id="btnSelectAllDrawer" style="font-size:12px;">전체 선택</button>
-      <button type="button" class="btn btn-sm" id="btnClearAllDrawer" style="font-size:12px;">선택 해제</button>
+      <button type="button" class="btn btn-sm" id="btnSelectAllDrawer" style="font-size:12px;" data-i18n="btn_select_all">Select All</button>
+      <button type="button" class="btn btn-sm" id="btnClearAllDrawer" style="font-size:12px;" data-i18n="btn_clear_all">Deselect All</button>
     </div>
   </div>
 
   <!-- Collapsible Provider/Group Sections Drawer Container -->
   <div id="providerSectionsDrawer" style="display:none; width:100%; margin-top:8px; padding-top:10px; border-top:1px solid var(--line);">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:12.5px; color:var(--ink-2);">
-      <span>각 제조사(Provider) 헤더를 클릭하면 <b>그룹 전체를 한 번에 On/Off</b> 할 수 있고, 개별 칩을 눌러 세부 선택할 수 있습니다.</span>
-      <input type="search" id="drawerSearchInput" placeholder="섹션 내 모델 검색…" style="font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:var(--page); width:180px;">
+      <span data-i18n="drawer_help_text">Click any Provider header to <b>toggle the entire group</b> on/off, or click individual chips to customize.</span>
+      <input type="search" id="drawerSearchInput" placeholder="Filter models in section…" data-i18n-ph="ph_drawer_search" style="font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:var(--page); width:180px;">
     </div>
     <div id="providerSectionsContainer">
       <!-- Generated dynamically by JS -->
@@ -417,14 +485,14 @@
   </div>
 
   <div class="filters-row" style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 13.5px;">
-    <span style="font-weight:600;color:var(--ink);">🛡️ 데이터 프라이버시 / 학습 정책:</span>
-    <label title="사용자 프롬프트 및 완성 데이터를 모델 학습에 활용하지 않는(Zero Data Retention 등) 모델">
-      <input type="checkbox" id="filterNoTrain" checked> 학습 미사용 (Safe / No Training)
+    <span style="font-weight:600;color:var(--ink);"><span data-i18n="lbl_privacy_policy">🛡️ Data Privacy & Training Policy:</span></span>
+    <label title="Models that do not use user prompt data for training (Zero Data Retention / Safe)">
+      <input type="checkbox" id="filterNoTrain" checked> <span data-i18n="lbl_no_train">Safe / No Training</span>
     </label>
-    <label title="초저가 요율/무료 제공 대가로 사용자 데이터를 학습에 활용하는 기여자(Contributor) 모델 (예: Muse Spark Contributor)">
-      <input type="checkbox" id="filterTrain"> 학습 활용 / 기여자 모델 (Model Training: Yes)
+    <label title="Contributor / discounted models where prompt data may be used for model training">
+      <input type="checkbox" id="filterTrain"> <span data-i18n="lbl_train">Model Training: Yes (Contributor)</span>
     </label>
-    <span style="font-size:12px;color:var(--ink-3);margin-left:auto;">※ 학습 활용/기여자 모델은 기본 비활성화되어 있으며, 체크 시 포함하여 <b>가치 최적선(Frontier Edge)</b>이 실시간으로 재계산됩니다.</span>
+    <span style="font-size:12px;color:var(--ink-3);margin-left:auto;" data-i18n="lbl_privacy_hint">※ Contributor models are disabled by default. Checking recalculates the <b>Frontier Edge</b> in real time.</span>
   </div>
 </div>
 
@@ -601,6 +669,8 @@
 </div>
 
 <!-- Data scripts -->
+<script src="data/i18n.js"></script>
+<script src="data/last_updated.js"></script>
 <script src="data/opencode_go_complete.js"></script>
 <script src="data/opencode_free_models.js"></script>
 <script src="data/models.js"></script>
@@ -615,12 +685,15 @@
   const num = (v, dp = 0) => v == null ? "—" : (+v).toFixed(dp);
   const METRIC = "Intelligence Index";
 
-  const TIER_DEFS = {
-    60: { name: "$60/월", mult: 6.0, class: "tag-60" },
-    30: { name: "$30/월", mult: 3.0, class: "tag-30" },
-    15: { name: "$15/월", mult: 1.5, class: "tag-15" },
-    0:  { name: "Free", mult: 1.0, class: "tag-60" },
-    none: { name: "Non-Go", mult: 1.0, class: "tag-none" }
+  const getTierDefs = () => {
+    const isKo = (window.I18N && window.I18N.lang === "ko");
+    return {
+      60: { name: isKo ? "$60/월" : "$60/mo", mult: 6.0, class: "tag-60" },
+      30: { name: isKo ? "$30/월" : "$30/mo", mult: 3.0, class: "tag-30" },
+      15: { name: isKo ? "$15/월" : "$15/mo", mult: 1.5, class: "tag-15" },
+      0:  { name: "Free", mult: 1.0, class: "tag-60" },
+      none: { name: "Non-Go", mult: 1.0, class: "tag-none" }
+    };
   };
 
   /* ---------- load data ---------- */
@@ -681,20 +754,29 @@
         quota_burn: (m.blended / 10.0) * 100.0,
         trains_on_data: false,
         retention: "Unknown",
-        privacy_note: "외부 API 표준 약관",
+        privacy_note: "Standard External API Terms",
         blended: m.blended
       };
     }
   });
 
-  $("meta").textContent = `OpenCode Go 모델 ${goData.filter(m => m.index > 0).length}개 로드 완료 (전체 ${ALL_ENRICHED.length}개 모델) · 출처: opencode.ai + models.dev + artificialanalysis.ai`;
+  const updateMetaText = () => {
+    if (!$("meta")) return;
+    const goCount = goData.filter(m => m.index > 0).length;
+    const totalCount = ALL_ENRICHED.length;
+    const lastUpdated = (window.__LAST_UPDATED_META__ && window.__LAST_UPDATED_META__.last_updated_utc) || "Recently";
+    if (window.I18N) {
+      $("meta").innerHTML = window.I18N.t("meta_loaded", { goCount, totalCount, lastUpdated });
+    }
+  };
+  updateMetaText();
 
   /* ---------- state ---------- */
   const state = {
-    cost: "go_effective", // 'go_effective', 'go_quota', 'blended'
-    scope: "go_only",      // 'go_only', 'all'
-    selectionMode: "all",  // 'all' or 'custom'
-    selectedModelIds: new Set(), // Set of model.id or model.name
+    cost: "go_effective",
+    scope: "go_only",
+    selectionMode: "all",
+    selectedModelIds: new Set(),
     minIdx: 20,
     collapse: true,
     includeNoTrain: true,
@@ -708,52 +790,55 @@
     sortDir: 1
   };
 
-  const COST_CONFIG = {
-    go_effective: {
-      key: "effective_price",
-      title: "OpenCode Go 체감 단가",
-      unit: "/1M 토큰",
-      axis: "체감 단가 $/1M 토큰 ($10 OpenCode Go 구독 레버리지 반영, log scale)",
-      cap: "OpenCode Go $10 월간 플랜 기준 체감 비용 (API 정가 ÷ 가치 배율).",
-      col: "체감 $/1M",
-      fmt: (v) => money(v)
-    },
-    go_task: {
-      key: "effective_task",
-      title: "태스크당 Go 체감 비용 (Cost per task)",
-      unit: "/task",
-      axis: "지능 지수 1회 태스크 완료당 Go 체감 비용 $ (추론 토큰 소모량 및 Go 구독 레버리지 반영, log scale)",
-      cap: "Artificial Analysis 기준 Intelligence Index 1회 태스크를 실제로 완수할 때 소모된 전체 토큰(생각/추론 토큰 포함)의 Go 체감 비용입니다.",
-      col: "Go 체감/task",
-      fmt: (v) => v == null ? "—" : "$" + v.toFixed(v < 0.01 ? 4 : v < 0.1 ? 3 : 2)
-    },
-    task: {
-      key: "task",
-      title: "공식 1회 태스크 완료 비용 (Cost per task)",
-      unit: "/task",
-      axis: "Artificial Analysis 지능 지수 1회 태스크 완료당 원본 API 비용 $ (log scale)",
-      cap: "Artificial Analysis 기준 1회 태스크 완수 시 실제로 발생한 원본 API 비용입니다. (추론 토큰 소모량 반영)",
-      col: "정가/task",
-      fmt: (v) => v == null ? "—" : "$" + v.toFixed(v < 0.01 ? 4 : v < 0.1 ? 3 : 2)
-    },
-    go_quota: {
-      key: "quota_burn",
-      title: "월 쿼터 소모율",
-      unit: "% (100만 토큰당 소모 비율)",
-      axis: "100만 토큰당 월간 쿼터 소모율 % (log scale)",
-      cap: "100만 토큰 사용 시 월간 한도에서 차감되는 비율 (API 정가 ÷ 티어 한도).",
-      col: "쿼터 소모 %",
-      fmt: (v) => percent(v)
-    },
-    blended: {
-      key: "blended",
-      title: "공식 API 정가",
-      unit: "/1M 토큰",
-      axis: "API 정가 $/1M 토큰 (3:1 input:output blend, log scale)",
-      cap: "OpenCode Go 할인 전 원본 API 정가.",
-      col: "API 정가",
-      fmt: (v) => money(v)
-    }
+  const getCostConfig = () => {
+    const isKo = (window.I18N && window.I18N.lang === "ko");
+    return {
+      go_effective: {
+        key: "effective_price",
+        title: isKo ? "OpenCode Go 체감 단가" : "OpenCode Go Effective Price",
+        unit: isKo ? "/1M 토큰" : "/1M tokens",
+        axis: isKo ? "체감 단가 $/1M 토큰 ($10 Go 구독 레버리지 반영, log scale)" : "Effective Price $/1M tokens ($10 Go subscription leverage, log scale)",
+        cap: isKo ? "OpenCode Go $10 월간 플랜 기준 체감 비용 (API 정가 ÷ 가치 배율)." : "Effective cost under OpenCode Go $10/mo plan (API price ÷ multiplier).",
+        col: isKo ? "체감 $/1M" : "Effective $/1M",
+        fmt: (v) => money(v)
+      },
+      go_task: {
+        key: "effective_task",
+        title: isKo ? "태스크당 Go 체감 비용 (Cost per task)" : "Go Cost per Task",
+        unit: "/task",
+        axis: isKo ? "태스크 1회 완수당 Go 체감 비용 $ (추론 토큰 소모량 및 Go 배율 반영, log scale)" : "Go Effective Cost per Task $ (reasoning tokens & Go leverage applied, log scale)",
+        cap: isKo ? "Artificial Analysis 기준 Intelligence Index 1회 태스크를 실제로 완수할 때 소모된 전체 토큰의 Go 체감 비용입니다." : "Artificial Analysis Intelligence Index cost per 1 completed task under Go subscription leverage.",
+        col: isKo ? "Go 체감/task" : "Go /task",
+        fmt: (v) => v == null ? "—" : "$" + v.toFixed(v < 0.01 ? 4 : v < 0.1 ? 3 : 2)
+      },
+      task: {
+        key: "task",
+        title: isKo ? "공식 1회 태스크 완료 비용 (Cost per task)" : "Raw Cost per Task",
+        unit: "/task",
+        axis: isKo ? "Artificial Analysis 지능 지수 1회 태스크 완료당 원본 API 비용 $ (log scale)" : "Raw API Cost per Completed Task $ (log scale)",
+        cap: isKo ? "Artificial Analysis 기준 1회 태스크 완수 시 실제로 발생한 원본 API 비용입니다." : "Official raw API cost incurred to complete 1 task on Artificial Analysis benchmark.",
+        col: isKo ? "정가/task" : "Raw /task",
+        fmt: (v) => v == null ? "—" : "$" + v.toFixed(v < 0.01 ? 4 : v < 0.1 ? 3 : 2)
+      },
+      go_quota: {
+        key: "quota_burn",
+        title: isKo ? "월 쿼터 소모율" : "Monthly Quota Burn %",
+        unit: isKo ? "% (100만 토큰당 소모 비율)" : "% (burn per 1M tokens)",
+        axis: isKo ? "100만 토큰당 월간 쿼터 소모율 % (log scale)" : "Monthly Quota Burn % per 1M tokens (log scale)",
+        cap: isKo ? "100만 토큰 사용 시 월간 한도에서 차감되는 비율 (API 정가 ÷ 티어 한도)." : "Quota burn percentage of monthly cap per 1M tokens (API price ÷ tier allowance).",
+        col: isKo ? "쿼터 소모 %" : "Quota Burn %",
+        fmt: (v) => percent(v)
+      },
+      blended: {
+        key: "blended",
+        title: isKo ? "공식 API 정가" : "Official Raw API Price",
+        unit: isKo ? "/1M 토큰" : "/1M tokens",
+        axis: isKo ? "API 정가 $/1M 토큰 (3:1 blend, log scale)" : "Raw API Price $/1M tokens (3:1 blend, log scale)",
+        cap: isKo ? "OpenCode Go 할인 전 원본 API 정가." : "Raw API market price before OpenCode Go subscription discount.",
+        col: isKo ? "API 정가" : "Raw API $/1M",
+        fmt: (v) => money(v)
+      }
+    };
   };
 
   // Populate makers
@@ -761,14 +846,15 @@
     const list = state.scope === "go_only" ? goData : ALL_ENRICHED;
     const makers = [...new Set(list.map((m) => m.creator).filter(Boolean))].sort((a, b) => a.localeCompare(b));
     $("makerSel").replaceChildren();
-    $("makerSel").appendChild(h("option", null, "전체 제조사"));
+    const allTxt = (window.I18N && window.I18N.lang === "ko") ? "전체 제조사" : "All Makers";
+    $("makerSel").appendChild(h("option", null, allTxt));
     makers.forEach((mk) => { const o = h("option", null, mk); o.value = mk; $("makerSel").appendChild(o); });
   };
   updateMakers();
 
   /* ---------- compute ---------- */
   function compute() {
-    const cfg = COST_CONFIG[state.cost];
+    const cfg = getCostConfig()[state.cost];
     const xKey = cfg.key;
 
     let baseList = state.scope === "go_only" ? goData : ALL_ENRICHED;
@@ -833,18 +919,19 @@
     head.append(k, document.createTextNode(d.name));
     tip.appendChild(head);
 
-    const tInfo = TIER_DEFS[d.allowance] || TIER_DEFS["none"];
+    const isKo = (window.I18N && window.I18N.lang === "ko");
+    const scoreSuffix = isKo ? "점" : " pts";
     const rows = [
-      [METRIC, num(d.v, 1) + "점"],
-      ["제조사", d.creator || "—"],
-      ["Go 월간 한도", d.allowance ? `$${d.allowance} (배율 x${d.multiplier})` : "—"],
-      ["5시간 롤링 제한", d.requests_5h ? `${num(d.requests_5h)} requests / 5h` : "—"],
-      ["데이터 프라이버시", d.trains_on_data ? "⚠️ 모델 학습 활용 (Yes)" : `보호됨 (학습 안함 · ${d.retention || '0 days'})`],
-      ["태스크당 Go 체감", d.effective_task != null ? (money(d.effective_task) + " /task") : "—"],
-      ["태스크당 정가", d.task != null ? (money(d.task) + " /task") : "—"],
-      ["Go 체감 단가", money(d.effective_price) + " /1M"],
-      ["월 쿼터 소모율", percent(d.quota_burn) + " /1M 토큰"],
-      ["API 정가", money(d.blended) + " /1M"]
+      [METRIC, num(d.v, 1) + scoreSuffix],
+      [isKo ? "제조사" : "Creator", d.creator || "—"],
+      [isKo ? "Go 월간 한도" : "Go Monthly Cap", d.allowance ? `$${d.allowance} (${isKo ? '배율' : 'multiplier'} x${d.multiplier})` : "—"],
+      [isKo ? "5시간 롤링 제한" : "5h Rolling Limit", d.requests_5h ? `${num(d.requests_5h)} requests / 5h` : "—"],
+      [isKo ? "데이터 프라이버시" : "Data Privacy", d.trains_on_data ? (isKo ? "⚠️ 모델 학습 활용 (Yes)" : "⚠️ Trains on user data") : (isKo ? `보호됨 (학습 안함 · ${d.retention || '0 days'})` : `Safe (No training · ${d.retention || '0 days'})`)],
+      [isKo ? "태스크당 Go 체감" : "Go Cost /task", d.effective_task != null ? (money(d.effective_task) + " /task") : "—"],
+      [isKo ? "태스크당 정가" : "Raw Cost /task", d.task != null ? (money(d.task) + " /task") : "—"],
+      [isKo ? "Go 체감 단가" : "Go Effective $/1M", money(d.effective_price) + " /1M"],
+      [isKo ? "월 쿼터 소모율" : "Monthly Quota Burn", percent(d.quota_burn) + (isKo ? " /1M 토큰" : " /1M tokens")],
+      [isKo ? "API 정가" : "Raw API $/1M", money(d.blended) + " /1M"]
     ];
 
     rows.forEach(([lab, val], i) => {
@@ -859,7 +946,10 @@
 
     const s = h("div", "tip-r");
     s.style.marginTop = "6px";
-    const st = h("span", null, d.front ? "★ 가치 프론티어 (파레토 최적)" : "열위 모델 (더 싼 모델이 더 우수)");
+    const stText = d.front
+      ? (isKo ? "★ 가치 프론티어 (파레토 최적)" : "★ Value Frontier (Pareto Optimal)")
+      : (isKo ? "열위 모델 (더 싼 모델이 더 우수)" : "Dominated (Cheaper model is smarter)");
+    const st = h("span", null, stText);
     st.style.color = d.front ? "var(--accent)" : "var(--demote)";
     st.style.fontWeight = "600";
     s.appendChild(st);
@@ -1307,38 +1397,48 @@
   /* ---------- render ---------- */
   function render() {
     tipHide();
+    const isKo = (window.I18N && window.I18N.lang === "ko");
     const { rows, vis, frontier } = compute();
-    $("count").textContent = `${vis.length}개 / 전체 ${rows.length}개 모델 · ${frontier.length}개 프론티어`;
+    $("count").textContent = isKo
+      ? `${vis.length}개 / 전체 ${rows.length}개 모델 · ${frontier.length}개 프론티어`
+      : `${vis.length} / ${rows.length} models · ${frontier.length} frontier picks`;
 
-    const cfg = COST_CONFIG[state.cost];
-    $("scatterTitle").textContent = `지능 지수 vs ${cfg.title}: ${METRIC}`;
-    $("scatterCap").textContent = `${cfg.cap} 주황색 최상단 최적선(Frontier Edge) 위의 모델들이 동일 비용 대비 최고 성능을 내는 파레토 최적 모델입니다.`;
+    const cfg = getCostConfig()[state.cost];
+    $("scatterTitle").textContent = isKo
+      ? `지능 지수 vs ${cfg.title}: ${METRIC}`
+      : `Intelligence Index vs ${cfg.title}: ${METRIC}`;
+    $("scatterCap").textContent = isKo
+      ? `${cfg.cap} 주황색 최상단 최적선(Frontier Edge) 위의 모델들이 동일 비용 대비 최고 성능을 내는 파레토 최적 모델입니다.`
+      : `${cfg.cap} Models on the orange Frontier Edge deliver the highest capability per dollar (Pareto optimal).`;
     $("scatter").setAttribute("aria-label", `Scatter plot of ${METRIC} versus ${cfg.title}`);
-    $("budgetHead").textContent = "체감 예산 " + cfg.unit;
+    $("budgetHead").textContent = (isKo ? "체감 예산 " : "Effective Budget ") + cfg.unit;
     $("budgetPrice").textContent = cfg.col;
-    $("barIndexTitle").textContent = `순수 지능 랭킹: ${METRIC}`;
+    $("barIndexTitle").textContent = isKo
+      ? `순수 지능 랭킹: ${METRIC}`
+      : `Pure Intelligence Ranking: ${METRIC}`;
 
     const ind = $("modeIndicator");
     if (state.cost === "go_effective") {
       ind.className = "mode-indicator";
-      ind.innerHTML = `<span>⚡ 기준: <b>OpenCode Go 체감 단가</b> ($10/월 구독 레버리지 반영)</span>`;
+      ind.innerHTML = `<span>${window.I18N ? window.I18N.t("mode_indicator_effective") : ""}</span>`;
     } else if (state.cost === "go_task") {
       ind.className = "mode-indicator";
-      ind.innerHTML = `<span>🎯 기준: <b>태스크당 Go 체감 비용 (Cost per task)</b> (1회 완료당 추론 토큰량 및 Go 배율 반영)</span>`;
+      ind.innerHTML = `<span>${window.I18N ? window.I18N.t("mode_indicator_go_task") : ""}</span>`;
     } else if (state.cost === "task") {
       ind.className = "mode-indicator standard";
-      ind.innerHTML = `<span>🎯 기준: <b>태스크당 공식 정가 (Cost per task)</b> (1회 완료당 원본 API 비용)</span>`;
+      ind.innerHTML = `<span>${window.I18N ? window.I18N.t("mode_indicator_task") : ""}</span>`;
     } else if (state.cost === "go_quota") {
       ind.className = "mode-indicator";
-      ind.innerHTML = `<span>📊 기준: <b>월 쿼터 소모율 %</b> (100만 토큰당 한 달 한도 차감 비율)</span>`;
+      ind.innerHTML = `<span>${window.I18N ? window.I18N.t("mode_indicator_quota") : ""}</span>`;
     } else {
       ind.className = "mode-indicator standard";
-      ind.innerHTML = `<span>💵 기준: <b>공식 API 정가</b> (할인 전 원본 가격)</span>`;
+      ind.innerHTML = `<span>${window.I18N ? window.I18N.t("mode_indicator_blended") : ""}</span>`;
     }
 
     drawScatter(rows, vis, frontier);
     budgetTable(vis);
-    bars("barIndex", "moreIndex", [...vis].sort((a, b) => b.v - a.v || a.x - b.x), "v", (v) => num(v, 1) + "점", state.showAllIndex, () => { state.showAllIndex = !state.showAllIndex; render(); });
+    const scoreSuffix = isKo ? "점" : " pts";
+    bars("barIndex", "moreIndex", [...vis].sort((a, b) => b.v - a.v || a.x - b.x), "v", (v) => num(v, 1) + scoreSuffix, state.showAllIndex, () => { state.showAllIndex = !state.showAllIndex; render(); });
     table(vis);
     renderFreeTable();
     updateSelectionUI();
@@ -1741,7 +1841,10 @@
   // Save current preset button
   if ($("btnSavePreset")) {
     $("btnSavePreset").addEventListener("click", () => {
-      const name = prompt("현재 선택 설정 셋의 이름을 입력하세요:", "내 설정 셋 " + (getStoredPresets().length + 1));
+      const isKo = (window.I18N && window.I18N.lang === "ko");
+      const promptMsg = isKo ? "현재 선택 설정 셋의 이름을 입력하세요:" : "Enter a name for this preset:";
+      const defaultName = isKo ? ("내 설정 셋 " + (getStoredPresets().length + 1)) : ("My Preset " + (getStoredPresets().length + 1));
+      const name = prompt(promptMsg, defaultName);
       if (!name || !name.trim()) return;
 
       const userPreset = {
@@ -1762,7 +1865,7 @@
       stored.push(userPreset);
       saveStoredPresets(stored);
       renderPresetPills();
-      showToast(`'${name}' 셋이 브라우저에 저장되었습니다!`);
+      showToast(window.I18N ? window.I18N.t("toast_preset_saved", { name }) : `'${name}' saved!`);
     });
   }
 
@@ -1771,9 +1874,9 @@
     $("btnShareUrl").addEventListener("click", () => {
       syncStateToUrl();
       navigator.clipboard.writeText(window.location.href).then(() => {
-        showToast("현재 분석 상태가 담긴 URL 링크가 복사되었습니다!");
+        showToast(window.I18N ? window.I18N.t("toast_url_copied") : "URL link copied!");
       }).catch(() => {
-        showToast("URL 복사 실패 (주소창 URL을 직접 복사하세요)");
+        showToast(window.I18N ? window.I18N.t("toast_url_failed") : "Failed to copy URL");
       });
     });
   }
@@ -1814,6 +1917,17 @@
     $("closeUpdateModalBtn").addEventListener("click", () => updateModal.classList.remove("open"));
     $("confirmUpdateModalBtn").addEventListener("click", () => updateModal.classList.remove("open"));
     updateModal.addEventListener("click", (e) => { if (e.target === updateModal) updateModal.classList.remove("open"); });
+  }
+
+  // Register I18N change listener
+  if (window.I18N) {
+    window.I18N.onChange(() => {
+      updateMetaText();
+      updateMakers();
+      render();
+      renderProviderSections();
+      renderPresetPills();
+    });
   }
 
   // Load from URL or initialize default

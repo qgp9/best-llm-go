@@ -13,6 +13,7 @@ import json
 import re
 import os
 import ssl
+from datetime import datetime, timezone
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -384,3 +385,21 @@ with open(os.path.join(DATA_DIR, "opencode_free_models.js"), "w") as f:
     f.write("window.__OPENCODE_FREE_MODELS__ = " + json.dumps(free_models) + ";")
 
 print(f"6. Complete! Exported {len(free_models)} Free Models to data/opencode_free_models.json and .js!")
+
+# Save last updated timestamp and cycle metadata
+now_utc = datetime.now(timezone.utc)
+meta_update = {
+    "last_updated_utc": now_utc.strftime("%Y-%m-%d %H:%M UTC"),
+    "last_updated_iso": now_utc.isoformat(),
+    "cycle": "24h",
+    "schedule_desc_en": "Updated every 24 hours (daily around 12:00 PM Finland time)",
+    "schedule_desc_ko": "매 24시간마다 자동 업데이트 (핀란드 낮 12시경)"
+}
+
+with open(os.path.join(DATA_DIR, "last_updated.json"), "w") as f:
+    json.dump(meta_update, f, indent=2)
+
+with open(os.path.join(DATA_DIR, "last_updated.js"), "w") as f:
+    f.write("window.__LAST_UPDATED_META__ = " + json.dumps(meta_update) + ";")
+
+print(f"7. Saved last updated timestamp: {meta_update['last_updated_utc']}")
