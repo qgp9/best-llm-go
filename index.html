@@ -2264,7 +2264,25 @@
     showToast(isKo ? `'${pName}' 셋이 적용되었습니다!` : `'${pName}' preset applied!`);
   }
 
+  const OPENCODE_STORAGE_KEY = "opencode_models_state";
+
   function syncStateToUrl() {
+    try {
+      const toSave = {
+        cost: state.cost,
+        selectionMode: state.selectionMode,
+        scope: state.scope,
+        minIdx: state.minIdx,
+        includeTrain: state.includeTrain,
+        includeNoTrain: state.includeNoTrain,
+        maker: state.maker,
+        frontierOnly: state.frontierOnly,
+        collapse: state.collapse,
+        models: [...state.selectedModelIds].filter((id) => !id.startsWith("opencode-go/"))
+      };
+      localStorage.setItem(OPENCODE_STORAGE_KEY, JSON.stringify(toSave));
+    } catch (e) {}
+
     const params = new URLSearchParams();
     if (window.I18N && window.I18N.lang) params.set("lang", window.I18N.lang);
     params.set("cost", state.cost);
@@ -2287,20 +2305,43 @@
 
   function loadStateFromUrl() {
     const params = new URLSearchParams(window.location.search);
-    if (!params.has("cost") && !params.has("mode") && !params.has("models") && !params.has("train")) return false;
+    const hasUrlParams = params.has("cost") || params.has("mode") || params.has("models") || params.has("train") || params.has("scope") || params.has("minIdx") || params.has("maker");
 
-    if (params.has("cost")) state.cost = params.get("cost");
-    if (params.has("mode")) state.selectionMode = params.get("mode");
-    if (params.has("scope")) state.scope = params.get("scope");
-    if (params.has("minIdx")) state.minIdx = +params.get("minIdx");
-    if (params.has("train")) state.includeTrain = params.get("train") === "1" || params.get("train") === "true";
-    if (params.has("notrain")) state.includeNoTrain = params.get("notrain") !== "0";
-    if (params.has("maker")) state.maker = params.get("maker");
+    if (hasUrlParams) {
+      if (params.has("cost")) state.cost = params.get("cost");
+      if (params.has("mode")) state.selectionMode = params.get("mode");
+      if (params.has("scope")) state.scope = params.get("scope");
+      if (params.has("minIdx")) state.minIdx = +params.get("minIdx");
+      if (params.has("train")) state.includeTrain = params.get("train") === "1" || params.get("train") === "true";
+      if (params.has("notrain")) state.includeNoTrain = params.get("notrain") !== "0";
+      if (params.has("maker")) state.maker = params.get("maker");
 
-    if (params.has("models")) {
-      const list = params.get("models").split(",").map((s) => s.trim()).filter(Boolean);
-      state.selectedModelIds.clear();
-      list.forEach((m) => state.selectedModelIds.add(m));
+      if (params.has("models")) {
+        const list = params.get("models").split(",").map((s) => s.trim()).filter(Boolean);
+        state.selectedModelIds.clear();
+        list.forEach((m) => state.selectedModelIds.add(m));
+      }
+    } else {
+      // Load from localStorage if available
+      try {
+        const saved = localStorage.getItem(OPENCODE_STORAGE_KEY);
+        if (saved) {
+          const s = JSON.parse(saved);
+          if (s.cost) state.cost = s.cost;
+          if (s.selectionMode) state.selectionMode = s.selectionMode;
+          if (s.scope) state.scope = s.scope;
+          if (typeof s.minIdx === "number") state.minIdx = s.minIdx;
+          if (typeof s.includeTrain === "boolean") state.includeTrain = s.includeTrain;
+          if (typeof s.includeNoTrain === "boolean") state.includeNoTrain = s.includeNoTrain;
+          if (s.maker) state.maker = s.maker;
+          if (typeof s.frontierOnly === "boolean") state.frontierOnly = s.frontierOnly;
+          if (typeof s.collapse === "boolean") state.collapse = s.collapse;
+          if (Array.isArray(s.models)) {
+            state.selectedModelIds.clear();
+            s.models.forEach((m) => state.selectedModelIds.add(m));
+          }
+        }
+      } catch (e) {}
     }
 
     // Reflect to DOM inputs
@@ -2308,6 +2349,8 @@
     if ($("minIdxVal")) $("minIdxVal").textContent = state.minIdx;
     if ($("filterTrain")) $("filterTrain").checked = state.includeTrain;
     if ($("filterNoTrain")) $("filterNoTrain").checked = state.includeNoTrain;
+    if ($("frontierOnly")) $("frontierOnly").checked = state.frontierOnly;
+    if ($("collapse")) $("collapse").checked = state.collapse;
     if ($("makerSel") && state.maker) $("makerSel").value = state.maker;
 
     document.querySelectorAll("#costSeg button").forEach((b) => {
@@ -2316,6 +2359,8 @@
     document.querySelectorAll("#scopeSeg button").forEach((b) => {
       b.setAttribute("aria-pressed", b.dataset.scope === state.scope ? "true" : "false");
     });
+    if ($("btnModeAll")) $("btnModeAll").setAttribute("aria-pressed", state.selectionMode === "all" ? "true" : "false");
+    if ($("btnModeCustom")) $("btnModeCustom").setAttribute("aria-pressed", state.selectionMode === "custom" ? "true" : "false");
 
     return true;
   }
@@ -2448,6 +2493,7 @@
 
   // Load from URL or initialize default
   loadStateFromUrl();
+  syncStateToUrl();
   renderPresetPills();
   render();
 })();
