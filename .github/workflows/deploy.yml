@@ -49,44 +49,15 @@ jobs:
         uses: actions/deploy-pages@v4
 
       - name: Send Discord notification
-        if: success() && env.DISCORD_WEBHOOK != ''
+        if: success()
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          EVENT_NAME: ${{ github.event_name }}
+          REPO_NAME: ${{ github.repository }}
+          SERVER_URL: ${{ github.server_url }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_NUMBER: ${{ github.run_number }}
+          DEPLOY_PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+          COMMIT_SHA: ${{ github.sha }}
         run: |
-          REPO_NAME="${{ github.repository }}"
-          OWNER_NAME="${{ github.repository_owner }}"
-          DASHBOARD_URL="https://${OWNER_NAME}.github.io/${REPO_NAME#*/}/"
-
-          PAYLOAD=$(cat <<EOF
-          {
-            "embeds": [{
-              "title": "🚀 OpenCode Go & Free AI Models Updated!",
-              "description": "Daily 24h benchmark & model catalog sync complete.",
-              "url": "${DASHBOARD_URL}",
-              "color": 14251863,
-              "fields": [
-                {
-                  "name": "📊 Live Dashboard",
-                  "value": "[Open Value Frontier & Free Catalog](${DASHBOARD_URL})",
-                  "inline": false
-                },
-                {
-                  "name": "🕒 Schedule",
-                  "value": "Daily (09:37 UTC)",
-                  "inline": true
-                },
-                {
-                  "name": "📂 Repository",
-                  "value": "${REPO_NAME}",
-                  "inline": true
-                }
-              ],
-              "footer": {
-                "text": "100% Vibe-coded with AI • Antigravity & Gemini"
-              }
-            }]
-          }
-          EOF
-          )
-
-          curl -H "Content-Type: application/json" -X POST -d "$PAYLOAD" "$DISCORD_WEBHOOK" || echo "Discord notification failed (non-critical)"
+          python3 .github/scripts/send_discord.py
