@@ -154,7 +154,7 @@
       modal_update_src2: "<b>5-Hour Rolling Request Limits</b>: <code>opencode.ai/go</code>",
       modal_update_src3: "<b>Benchmark Intelligence Indices</b>: <code>artificialanalysis.ai</code>",
       modal_update_cron_h: "💡 Automated Daily Updates via GitHub Actions:",
-      modal_update_cron_p: "The repository includes <code>.github/workflows/deploy.yml</code> which runs daily around Finland lunchtime (~12:00 PM / 09:37 UTC) during the quietest GitHub runner window, commits updated data, and deploys to GitHub Pages.",
+      modal_update_cron_p: "The repository includes <code>.github/workflows/deploy.yml</code> which runs daily around Finland lunchtime (~12:00 PM / 09:37 UTC) to sync the latest data and deploy directly to GitHub Pages.",
       modal_update_credit_h: "🎨 Design & Look-and-Feel Attribution:",
       modal_update_credit_p: "Heavily inspired by and adapted from Terry Djony's project <a href=\"https://bestmodelforyourbudget.terrydjony.com/\" target=\"_blank\" rel=\"noopener\">Best Model For Your Budget</a>. Built via AI vibe-coding for personal reference.",
       btn_confirm: "Got It",
