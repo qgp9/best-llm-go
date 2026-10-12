@@ -1,1 +1,0 @@
-window.__LAST_UPDATED_META__ = {"last_updated_utc": "2026-10-12 15:53 UTC", "last_updated_iso": "2026-10-12T15:53:11.867018+00:00", "cycle": "24h", "schedule_desc_en": "Updated daily", "schedule_desc_ko": "매일 자동 갱신"};
