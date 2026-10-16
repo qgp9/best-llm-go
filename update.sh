@@ -12,4 +12,6 @@ echo "🔄 Updating OpenCode Go models & Artificial Analysis benchmarks..."
 $PYTHON_BIN update_data.py
 echo "🔄 Updating Free Models catalog for OpenCode, OpenRouter & CommandCode..."
 $PYTHON_BIN build_free_catalog.py
-echo "✅ Update complete! Refresh index.html or free_models.html in your browser to see the latest data."
+echo "🔄 Updating Decision Models catalog (OpenRouter Decisions API)..."
+$PYTHON_BIN build_decision_catalog.py
+echo "✅ Update complete! Refresh index.html, free_models.html or decisions.html in your browser to see the latest data."

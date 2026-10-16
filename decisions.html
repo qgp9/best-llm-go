@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decision Models Guide · Jev · Kev · Tev · Clef — System One 가성비 비교</title>
+<meta name="description" content="System One / Decisions API decision 모델 비교: TypeSafe Jev, Kev, Tev, Cloudflare Clef, Luna 등 22종 가격·컨텍스트·오픈웨이트·호스팅 정리.">
+<style>
+  :root {
+    --page: #f8f6f2; --surface: #ffffff; --line: #e5e0d8; --line-subtle: #eeebe5;
+    --wash: #f0ece3; --ink: #1a1917; --ink-2: #4a4742; --ink-3: #7d7871;
+    --accent: #d97757; --accent-hover: #c46344; --accent-soft: rgba(217,119,87,.12); --accent-ink: #b24827;
+    --green: #2e7d32; --green-soft: #e8f5e9; --blue: #1565c0; --blue-soft: #e3f2fd;
+    --purple: #7b1fa2; --purple-soft: #f3e5f5;
+    --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+    --font: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --serif: "Lora", Georgia, serif;
+  }
+  [data-theme="dark"] {
+    --page: #0d1117; --surface: #161b22; --line: #30363d; --line-subtle: #21262d; --wash: #1f242c;
+    --ink: #f0f6fc; --ink-2: #8b949e; --ink-3: #6e7681;
+    --accent: #f97316; --accent-hover: #ea580c; --accent-soft: rgba(249,115,22,.18); --accent-ink: #fb923c;
+    --green: #3fb950; --green-soft: rgba(63,185,80,.15); --blue: #58a6ff; --blue-soft: rgba(88,166,255,.15);
+    --purple: #bc8cff; --purple-soft: rgba(188,140,255,.15);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--font); font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  a { color: var(--accent-ink); text-decoration: none; } a:hover { text-decoration: underline; }
+  .nav-bar { background: var(--surface); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 100; }
+  .nav-inner { max-width: 1240px; margin: 0 auto; padding: 10px 24px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .nav-brand-title { font-weight: 700; font-size: 15.5px; color: var(--ink); }
+  .nav-tabs-row { display: flex; align-items: center; gap: 6px; }
+  .nav-tab { display: inline-flex; padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--ink-2); border: 1px solid transparent; white-space: nowrap; }
+  .nav-tab:hover { background: var(--wash); color: var(--ink); text-decoration: none; }
+  .nav-tab.active { background: var(--accent-soft); color: var(--accent-ink); border-color: rgba(217,119,87,.3); }
+  .nav-theme-btn { width: 32px; height: 28px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); cursor: pointer; color: var(--ink); }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 28px 24px 64px; }
+  .hero h1 { font-family: var(--serif); font-size: 30px; font-weight: 500; margin: 0 0 10px; }
+  .hero .sub { color: var(--ink-2); font-size: 15px; max-width: 860px; margin: 0 0 10px; }
+  .hero .meta { font-size: 13px; color: var(--ink-3); margin-top: 8px; }
+  .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px,1fr)); gap: 16px; margin: 24px 0; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; }
+  .card h3 { margin: 0 0 8px; font-size: 16px; }
+  .card p, .card li { font-size: 13.5px; color: var(--ink-2); }
+  .card code { font-family: var(--mono); font-size: 12px; background: var(--page); padding: 1px 6px; border-radius: 4px; border: 1px solid var(--line); }
+  .toolbar { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px 20px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+  .pill { background: var(--page); border: 1px solid var(--line); color: var(--ink-2); padding: 5px 12px; border-radius: 999px; font-size: 12.5px; cursor: pointer; }
+  .pill.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .search { position: relative; flex: 1; min-width: 220px; max-width: 340px; }
+  .search input { width: 100%; padding: 7px 14px 7px 32px; border: 1px solid var(--line); border-radius: 999px; background: var(--page); color: var(--ink); font: inherit; font-size: 13px; }
+  .tbl-card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; overflow-x: auto; }
+  table.dec { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.dec th { background: var(--page); padding: 10px 14px; border-bottom: 1px solid var(--line); color: var(--ink-3); font-size: 12px; text-align: left; white-space: nowrap; }
+  table.dec td { padding: 11px 14px; border-bottom: 1px solid var(--line-subtle); color: var(--ink-2); vertical-align: top; }
+  table.dec tr:hover td { background: var(--wash); }
+  .tag { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 6px; white-space: nowrap; }
+  .t-free { background: var(--green-soft); color: var(--green); }
+  .t-open { background: var(--blue-soft); color: var(--blue); }
+  .t-plat { background: var(--wash); color: var(--ink-2); }
+  .t-alias { background: var(--purple-soft); color: var(--purple); }
+  .code-wrap { background: var(--page); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; font-family: var(--mono); font-size: 12.5px; overflow-x: auto; margin-top: 10px; white-space: pre; }
+  .count { font-size: 13.5px; color: var(--ink-2); margin-bottom: 12px; } .count b { color: var(--ink); }
+  .foot { margin-top: 28px; font-size: 12.5px; color: var(--ink-3); }
+  @media (max-width: 768px) { .wrap { padding: 14px 12px 48px; } .hero h1 { font-size: 22px; } .nav-inner { flex-direction: column; align-items: stretch; } }
+</style>
+</head>
+<body>
+<header class="nav-bar"><div class="nav-inner">
+  <div style="display:flex;justify-content:space-between;align-items:center;">
+    <a href="index.html" style="text-decoration:none;"><span class="nav-brand-title">⚡ OpenCode & Free LLM Intel</span></a>
+    <button class="nav-theme-btn" id="btnTheme" title="테마 전환">🌙</button>
+  </div>
+  <nav class="nav-tabs-row">
+    <a href="index.html" class="nav-tab">📊 Value Frontier</a>
+    <a href="free_models.html" class="nav-tab">🎁 Free Models</a>
+    <a href="decisions.html" class="nav-tab active">🧭 Decision Models</a>
+  </nav>
+</div></header>
+
+<main class="wrap">
+<section class="hero">
+  <h1>🧭 Decision Models — Jev · Kev · Tev · Clef · Luna</h1>
+  <p class="sub">채팅이 아니라 <b>판정</b>을 돌려주는 System One 모델 가이드. state + typed 질문(choice/score/noul)을 보내면 텍스트 대신 <b>확률 분포</b>가 돌아옵니다. 전 모델 output 무료, input $0.02~0.15/M로 <b>가격이 아니라 컨텍스트·옵션 수·레이턴시·개방성</b>으로 고르는 카테고리입니다.</p>
+  <div class="meta" id="metaLine">라이브 소스: OpenRouter Decisions 카탈로그 · 스냅샷 로딩 중…</div>
+</section>
+
+<section class="grid3">
+  <div class="card">
+    <h3>📞 호출법 2가지 (OpenRouter)</h3>
+    <ul style="padding-left:18px;margin:0;">
+      <li><code>POST /api/alpha/decisions</code> — Decisions API (모든 decision 모델 공용, <code>model</code>에 전체 ID)</li>
+      <li><code>POST /api/v1/systemone</code> — TypeSafe SDK 호환 (System One 규격 모델: Jev·Kev·Clef·Mercury 등)</li>
+    </ul>
+    <div class="code-wrap">curl https://openrouter.ai/api/alpha/decisions \
+ -H "Authorization: Bearer $OPENROUTER_API_KEY" \
+ -d '{"model":"typesafe/jev-1.13",
+      "state":{"ticket":"결제가 두 번 됐어요"},
+      "questions":{"refund":{"type":"noul",
+        "instructions":"환불을 요구하는가?"}}}'</div>
+  </div>
+  <div class="card">
+    <h3>🌀 OpenCode Zen의 Jev</h3>
+    <p style="margin:0;">Zen에서 System One 엔드포인트로 Jev를 씁니다. 무료/유료 둘 다 있음:</p>
+    <ul style="padding-left:18px;margin:8px 0 0;">
+      <li><code>jev-1.13-free</code> — $0 (Zen 전용)</li>
+      <li><code>jev-1.13</code> — $0.042/1M in (학습 미사용)</li>
+      <li>엔드포인트: <code>/zen/v1/systemone</code> 계열</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>🌿 오픈 대안: Laya · Clef</h3>
+    <ul style="padding-left:18px;margin:0;">
+      <li><b>Laya</b> (Apache 2.0) — <code>/v1/systemone</code> 호환, Jev 대비 7~8배 빠름·보정 우수, 단 77옵션급 대분류 약함. <a href="https://layaai.org" target="_blank" rel="noopener">layaai.org</a></li>
+      <li><b>Cloudflare Clef</b> (오픈소스) — Workers AI 직접 서빙 + OpenRouter. 9B 고속 / 27B 멀티모달 / 30B 옴니 MoE 3종.</li>
+      <li>Jev 약점(TypeSafe 공개): 숫자·날짜·다단계 로직, 리터럴 엣지케이스.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="toolbar">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;" id="vendorBar">
+    <button class="pill active" data-v="all">전체</button>
+    <button class="pill" data-v="Typesafe">TypeSafe</button>
+    <button class="pill" data-v="Cloudflare">Cloudflare</button>
+    <button class="pill" data-v="OpenAI">OpenAI</button>
+    <button class="pill" data-v="Perplexity">Perplexity</button>
+    <button class="pill" data-v="Upstage">Upstage</button>
+    <button class="pill" data-v="Nace">Nace.AI</button>
+  </div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+    <label style="font-size:12.5px;display:flex;gap:6px;align-items:center;cursor:pointer;"><input type="checkbox" id="freeChk"> 무료만</label>
+    <label style="font-size:12.5px;display:flex;gap:6px;align-items:center;cursor:pointer;"><input type="checkbox" id="openChk"> 오픈웨이트만</label>
+    <div class="search"><input id="q" type="search" placeholder="검색 (kev, clef, luna…)"></div>
+  </div>
+</section>
+
+<div class="count" id="cnt"></div>
+<section class="tbl-card"><table class="dec">
+<thead><tr><th>모델</th><th>가격 (in/1M)</th><th>컨텍스트</th><th>제공처</th><th>비고</th><th>링크</th></tr></thead>
+<tbody id="tbody"></tbody>
+</table></section>
+
+<p class="foot">출처: OpenRouter Decisions 카탈로그(라이브) · <a href="https://openrouter.ai/docs/guides/community/jev" target="_blank" rel="noopener">OpenRouter Jev 문서</a> · <a href="https://docs.typesafe.ai/concepts/system-one" target="_blank" rel="noopener">TypeSafe System One</a> · <a href="https://github.com/OpenRouterTeam/skills/tree/main/skills/openrouter-decisions" target="_blank" rel="noopener">openrouter-decisions 스킬</a> · Laya 비교(<a href="https://layaai.org" target="_blank" rel="noopener">layaai.org</a>). 가격·목록은 수시로 변하니 임계값은 실측 후 고정하세요.</p>
+</main>
+
+<script src="data/decision_models_catalog.js"></script>
+<script src="data/last_updated.js"></script>
+<script>
+(function(){
+  const data = window.__DECISION_MODELS_CATALOG__ || [];
+  const $ = id => document.getElementById(id);
+  const state = { v: "all", free: false, open: false, q: "" };
+  try {
+    const m = window.__LAST_UPDATED_META__ && window.__LAST_UPDATED_META__.last_updated_utc;
+    if (m) $("metaLine").textContent = "라이브 소스: OpenRouter Decisions 카탈로그 · 스냅샷 " + data.length + "종 · 사이트 갱신 " + m;
+    else $("metaLine").textContent = "라이브 소스: OpenRouter Decisions 카탈로그 · " + data.length + "종";
+  } catch(e){}
+  document.querySelectorAll("#vendorBar .pill").forEach(b => b.onclick = () => {
+    document.querySelectorAll("#vendorBar .pill").forEach(x => x.classList.remove("active"));
+    b.classList.add("active"); state.v = b.dataset.v; render();
+  });
+  $("freeChk").onchange = e => { state.free = e.target.checked; render(); };
+  $("openChk").onchange = e => { state.open = e.target.checked; render(); };
+  $("q").oninput = e => { state.q = e.target.value.toLowerCase(); render(); };
+  $("btnTheme").onclick = () => {
+    const h = document.documentElement;
+    h.dataset.theme = h.dataset.theme === "dark" ? "" : "dark";
+    try { localStorage.setItem("theme", h.dataset.theme); } catch(e){}
+  };
+  try { if (localStorage.getItem("theme") === "dark") document.documentElement.dataset.theme = "dark"; } catch(e){}
+  function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+  function render(){
+    const tb = $("tbody"); tb.replaceChildren();
+    const rows = data.filter(m => {
+      if (state.v !== "all" && !(m.vendor||"").toLowerCase().startsWith(state.v.toLowerCase())) return false;
+      if (state.free && !m.is_free) return false;
+      if (state.open && !m.open_weights) return false;
+      if (state.q && !((m.id+" "+m.name+" "+(m.description||"")).toLowerCase().includes(state.q))) return false;
+      return true;
+    });
+    $("cnt").innerHTML = "총 <b>" + rows.length + "</b> / " + data.length + "종 (전 모델 output 무료 · input $0.02~0.15/M)";
+    rows.forEach(m => {
+      const tr = document.createElement("tr");
+      let tags = "";
+      if (m.is_free) tags += ' <span class="tag t-free">무료</span>';
+      if (m.is_alias) tags += ' <span class="tag t-alias">alias</span>';
+      if (m.open_weights) tags += ' <span class="tag t-open">오픈</span>';
+      tr.innerHTML =
+        "<td><b>" + esc(m.name) + "</b><br><code style='font-size:11px;'>" + esc(m.id) + "</code>" + tags + "<br><span style='font-size:12px;'>" + esc(m.description||"") + "</span></td>" +
+        "<td><b>" + esc(m.price_label) + "</b></td>" +
+        "<td>" + esc(m.context_window) + "</td>" +
+        "<td>" + (m.platforms||[]).map(p => '<span class="tag t-plat">' + esc(p) + "</span>").join(" ") + "<br><span style='font-size:12px;'>" + esc(m.vendor_service||"") + "</span></td>" +
+        "<td style='font-size:12.5px;'>" + esc(m.notes||"—") + "</td>" +
+        "<td><a href='" + esc((m.links||{}).model_page||"#") + "' target='_blank' rel='noopener'>모델 ↗</a><br><a href='" + esc((m.links||{}).docs||"#") + "' target='_blank' rel='noopener'>문서 ↗</a></td>";
+      tb.appendChild(tr);
+    });
+  }
+  render();
+})();
+</script>
+</body>
+</html>

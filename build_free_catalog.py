@@ -518,6 +518,192 @@ awesome_models = [
         "cli_usage": "export CO_API_KEY=\"...\""
     },
     {
+        "id": "nvidia-nim/glm-5.3",
+        "name": "NVIDIA NIM · GLM-5.3",
+        "model_id": "z-ai/glm-5.3",
+        "platform": ["NVIDIA NIM"],
+        "provider": "NVIDIA · Zhipu AI",
+        "category": "reasoning",
+        "context_tokens": 1048576,
+        "context_window": "1M",
+        "intelligence_index": None,
+        "coding_index": None,
+        "rate_limit": "NVIDIA NIM 무료 체험 크레딧 (전화 인증 필요)",
+        "privacy": {
+            "is_safe": True,
+            "label": "🛡️ 보호됨 (Enterprise NIM)",
+            "detail": "NVIDIA 엔터프라이즈 클라우드 표준 보안"
+        },
+        "summary": {
+            "one_liner": "Z.ai의 753B MoE 플래그십(40B 활성). GLM-5.2와 동일 베이스의 후속 post-training으로 Terminal-Bench 3.0 오픈 웨이트 SOTA.",
+            "identity": "Z.ai GLM-5.3 + NVIDIA NIM 가속 엔진 (NVFP4, 1M 컨텍스트)",
+            "strengths": ["100만 토큰 컨텍스트", "저장소 규모 코드 생성·리팩토링 및 장기 에이전트 특화", "함수/도구 호출 및 추론 지원"],
+            "drawbacks": ["전화번호 인증 필요", "체험 크레딧 소진 시 유료", "사이버 역량 관련 가드레일 필요"],
+            "recommended_for": "대형 리포지토리 통째 분석 및 장기 터미널 에이전트 작업"
+        },
+        "links": {
+            "model_page": "https://build.nvidia.com/z-ai/glm-5-3",
+            "docs": "https://docs.api.nvidia.com",
+            "benchmark": None
+        },
+        "cli_usage": "curl https://integrate.api.nvidia.com/v1/chat/completions -H 'Authorization: Bearer $NVIDIA_API_KEY' -d '{\"model\": \"z-ai/glm-5.3\"}'"
+    },
+    {
+        "id": "nvidia-nim/deepseek-v4.1-flash",
+        "name": "NVIDIA NIM · DeepSeek V4.1 Flash",
+        "model_id": "deepseek-ai/deepseek-v4.1-flash",
+        "platform": ["NVIDIA NIM"],
+        "provider": "NVIDIA · DeepSeek",
+        "category": "reasoning",
+        "context_tokens": 1048576,
+        "context_window": "1M",
+        "intelligence_index": None,
+        "coding_index": None,
+        "rate_limit": "NVIDIA NIM 무료 체험 크레딧 (전화 인증 필요)",
+        "privacy": {
+            "is_safe": True,
+            "label": "🛡️ 보호됨 (Enterprise NIM)",
+            "detail": "NVIDIA 엔터프라이즈 클라우드 표준 보안"
+        },
+        "summary": {
+            "one_liner": "DeepSeek의 552B MoE 멀티모달 추론 모델(8B 활성). 1M 컨텍스트와 조절 가능한 reasoning effort.",
+            "identity": "DeepSeek-AI DeepSeek-V4.1-Flash + NVIDIA NIM",
+            "strengths": ["100만 토큰 컨텍스트", "Terminal-Bench 2.1 90.6점(벤더 발표)", "텍스트+이미지 입력, 도구 호출 지원"],
+            "drawbacks": ["전화번호 인증 필요", "체험 크레딧 소진 시 유료", "벤치마크는 벤더 발표치"],
+            "recommended_for": "장문서·코드베이스横断 추론 및 도구 활용 에이전트"
+        },
+        "links": {
+            "model_page": "https://build.nvidia.com/deepseek-ai/deepseek-v4.1-flash",
+            "docs": "https://docs.api.nvidia.com",
+            "benchmark": None
+        },
+        "cli_usage": "curl https://integrate.api.nvidia.com/v1/chat/completions -H 'Authorization: Bearer $NVIDIA_API_KEY' -d '{\"model\": \"deepseek-ai/deepseek-v4.1-flash\"}'"
+    },
+    {
+        "id": "nvidia-nim/kimi-k3",
+        "name": "NVIDIA NIM · Kimi K3",
+        "model_id": "moonshotai/kimi-k3",
+        "platform": ["NVIDIA NIM"],
+        "provider": "NVIDIA · Moonshot AI",
+        "category": "coding",
+        "context_tokens": 1048576,
+        "context_window": "1M",
+        "intelligence_index": None,
+        "coding_index": None,
+        "rate_limit": "NVIDIA NIM 무료 체험 크레딧 (전화 인증 필요)",
+        "privacy": {
+            "is_safe": True,
+            "label": "🛡️ 보호됨 (Enterprise NIM)",
+            "detail": "NVIDIA 엔터프라이즈 클라우드 표준 보안"
+        },
+        "summary": {
+            "one_liner": "Moonshot AI의 2.8T MoE 네이티브 멀티모달 에이전트 모델(104B 활성). 장기 코딩·지식 작업 특화.",
+            "identity": "Moonshot AI Kimi-K3 + NVIDIA NIM (1M 컨텍스트)",
+            "strengths": ["100만 토큰 컨텍스트", "장기 소프트웨어 엔지니어링 및 멀티모달 문서 이해", "함수/도구 호출 지원"],
+            "drawbacks": ["전화번호 인증 필요", "체험 크레딧 소진 시 유료", "멀티턴·툴콜 시 reasoning_content 전체 반환 필요"],
+            "recommended_for": "장기 코딩 에이전트 및 멀티모달 문서 기반 작업"
+        },
+        "links": {
+            "model_page": "https://build.nvidia.com/moonshotai/kimi-k3",
+            "docs": "https://docs.api.nvidia.com",
+            "benchmark": None
+        },
+        "cli_usage": "curl https://integrate.api.nvidia.com/v1/chat/completions -H 'Authorization: Bearer $NVIDIA_API_KEY' -d '{\"model\": \"moonshotai/kimi-k3\"}'"
+    },
+    {
+        "id": "nvidia-nim/gpt-oss-20b",
+        "name": "NVIDIA NIM · GPT-OSS 20B",
+        "model_id": "openai/gpt-oss-20b",
+        "platform": ["NVIDIA NIM"],
+        "provider": "NVIDIA · OpenAI",
+        "category": "lightweight",
+        "context_tokens": 131072,
+        "context_window": "131K",
+        "intelligence_index": None,
+        "coding_index": None,
+        "rate_limit": "NVIDIA NIM 무료 체험 크레딧 (전화 인증 필요)",
+        "privacy": {
+            "is_safe": True,
+            "label": "🛡️ 보호됨 (Enterprise NIM)",
+            "detail": "NVIDIA 엔터프라이즈 클라우드 표준 보안"
+        },
+        "summary": {
+            "one_liner": "OpenAI의 21B MoE 오픈 웨이트 추론 모델(3.6B 활성). 저지연·온프레미스 배포에 적합.",
+            "identity": "OpenAI gpt-oss-20b + NVIDIA NIM (Apache 2.0)",
+            "strengths": ["조절 가능한 reasoning effort", "함수 호출·구조화 출력·CoT 지원", "관대한 Apache 2.0 라이선스"],
+            "drawbacks": ["전화번호 인증 필요", "131K 컨텍스트로 초대형 파일 분석에는 제약"],
+            "recommended_for": "가벼운 추론·수리 작업 및 프라이빗 배포 테스트"
+        },
+        "links": {
+            "model_page": "https://build.nvidia.com/openai/gpt-oss-20b",
+            "docs": "https://docs.api.nvidia.com",
+            "benchmark": None
+        },
+        "cli_usage": "curl https://integrate.api.nvidia.com/v1/chat/completions -H 'Authorization: Bearer $NVIDIA_API_KEY' -d '{\"model\": \"openai/gpt-oss-20b\"}'"
+    },
+    {
+        "id": "nvidia-nim/glm-5.2",
+        "name": "NVIDIA NIM · GLM-5.2",
+        "model_id": "z-ai/glm-5.2",
+        "platform": ["NVIDIA NIM"],
+        "provider": "NVIDIA · Zhipu AI",
+        "category": "reasoning",
+        "context_tokens": 1048576,
+        "context_window": "1M",
+        "intelligence_index": 38.0,
+        "coding_index": 51.0,
+        "rate_limit": "최대 40 RPM (NVIDIA NIM 무료 개발자 크레딧 티어)",
+        "privacy": {
+            "is_safe": True,
+            "label": "🛡️ 보호됨 (Enterprise NIM)",
+            "detail": "NVIDIA 엔터프라이즈 클라우드 표준 보안"
+        },
+        "summary": {
+            "one_liner": "NVIDIA NIM에서 서빙되는 GLM-5.2. 1M 컨텍스트의 안정화된 이전 세대 플래그십 추론 모델.",
+            "identity": "Zhipu AI GLM-5.2 + NVIDIA NIM 가속 엔진",
+            "strengths": ["100만 토큰 대규모 컨텍스트", "분당 40회(40 RPM)의 쾌적한 처리 속도", "GLM-5.3 대비 검증된 안정성"],
+            "drawbacks": ["전화번호 인증 필요", "최신 5.3 대비 지능 소폭 낮음"],
+            "recommended_for": "GLM-5.3 Flash의 RPM 한도 초과 시 대체 백업 모델"
+        },
+        "links": {
+            "model_page": "https://build.nvidia.com/z-ai/glm-5-2",
+            "docs": "https://docs.api.nvidia.com",
+            "benchmark": "https://artificialanalysis.ai"
+        },
+        "cli_usage": "curl https://integrate.api.nvidia.com/v1/chat/completions -H 'Authorization: Bearer $NVIDIA_API_KEY' -d '{\"model\": \"z-ai/glm-5.2\"}'"
+    },
+    {
+        "id": "nvidia-nim/glm-5.1",
+        "name": "NVIDIA NIM · GLM-5.1",
+        "model_id": "z-ai/glm-5.1",
+        "platform": ["NVIDIA NIM"],
+        "provider": "NVIDIA · Zhipu AI",
+        "category": "reasoning",
+        "context_tokens": 202752,
+        "context_window": "202K",
+        "intelligence_index": 35.5,
+        "coding_index": 49.0,
+        "rate_limit": "최대 40 RPM (NVIDIA NIM 무료 개발자 크레딧 티어)",
+        "privacy": {
+            "is_safe": True,
+            "label": "🛡️ 보호됨 (Enterprise NIM)",
+            "detail": "NVIDIA 엔터프라이즈 클라우드 표준 보안"
+        },
+        "summary": {
+            "one_liner": "NVIDIA NIM의 GLM-5.1. 202K 컨텍스트의 경량·고속 추론 모델.",
+            "identity": "Zhipu AI GLM-5.1 + NVIDIA NIM 가속 엔진",
+            "strengths": ["분당 40회(40 RPM) 처리", "가벼운 일상 코딩·요약 작업에 적합"],
+            "drawbacks": ["전화번호 인증 필요", "202K 컨텍스트로 초대형 파일 분석에는 제약"],
+            "recommended_for": "빠른 일상 질의응답 및 경량 코드 생성용 서브 모델"
+        },
+        "links": {
+            "model_page": "https://build.nvidia.com/z-ai/glm-5-1",
+            "docs": "https://docs.api.nvidia.com",
+            "benchmark": "https://artificialanalysis.ai"
+        },
+        "cli_usage": "curl https://integrate.api.nvidia.com/v1/chat/completions -H 'Authorization: Bearer $NVIDIA_API_KEY' -d '{\"model\": \"z-ai/glm-5.1\"}'"
+    },
+    {
         "id": "nvidia-nim/glm-5.3-flash",
         "name": "NVIDIA NIM · GLM-5.3 Flash",
         "model_id": "z-ai/glm-5.3-flash",
@@ -551,6 +737,31 @@ awesome_models = [
 ]
 
 catalog.extend(awesome_models)
+
+# Final cross-platform pass: models served on BOTH OpenRouter/OpenCode and
+# NVIDIA NIM (verified against https://build.nvidia.com/models).
+# NIM keeps its own model IDs (nvidia/... or z-ai/...), so store nim_model_id
+# separately instead of overwriting the primary model_id/cli_usage.
+NIM_DUAL_TAG = {
+    "nemotron-3-ultra": ("nvidia/nemotron-3-ultra-550b-a55b", "https://build.nvidia.com/nvidia/nemotron-3-ultra-550b-a55b"),
+    "nemotron-3.5-lightning": ("nvidia/nemotron-3.5-lightning-30b-a3b", "https://build.nvidia.com/nvidia/nemotron-3-5-lightning-30b-a3b"),
+    "nemotron-3-super": ("nvidia/nemotron-3-super-120b-a12b", "https://build.nvidia.com/nvidia/nemotron-3-super-120b-a12b"),
+    "nemotron-3-nano": ("nvidia/nemotron-3-nano-omni-30b-a3b-reasoning", "https://build.nvidia.com/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"),
+    "gemma-4-31b": ("google/gemma-4-31b-it", "https://build.nvidia.com/google/gemma-4-31b-it"),
+    "laguna-xs": ("poolside/laguna-xs-2.1", "https://build.nvidia.com/poolside/laguna-xs-2-1"),
+}
+for m in catalog:
+    mid_low = (m.get("model_id") or "").lower()
+    for key, (nim_id, nim_page) in NIM_DUAL_TAG.items():
+        if key in mid_low and "nvidia-nim/" not in (m.get("id") or ""):
+            if "NVIDIA NIM" not in m["platform"]:
+                m["platform"].append("NVIDIA NIM")
+            m.setdefault("nim_model_id", nim_id)
+            m["links"].setdefault("nim_model_page", nim_page)
+            tag_note = f" OpenRouter/OpenCode와 NVIDIA NIM({nim_id}) 양쪽에서 무료 호출 가능."
+            if tag_note not in (m["summary"].get("one_liner") or ""):
+                m["summary"]["one_liner"] = (m["summary"]["one_liner"] or "") + tag_note
+            break
 
 print(f"Total Unified Free Models Catalog: {len(catalog)} entries")
 
