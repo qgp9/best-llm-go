@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 # 1. OpenRouter Live Free Models Data
 or_file = 'data/openrouter_free_models.json'
@@ -210,8 +211,9 @@ cmd_models = [
         "category": "reasoning",
         "context_tokens": 1000000,
         "context_window": "1M",
-        "intelligence_index": 39.8,
-        "coding_index": 53.0,
+        "intelligence_index": 41.8,
+        "coding_index": 71.5,
+        "aa_name": "GLM-5.3-Flash",
         "rate_limit": "하루 100T 토큰 용량 (프로모션 무료 제공, 5시간 제한 없음)",
         "privacy": {
             "is_safe": True,
@@ -219,9 +221,9 @@ cmd_models = [
             "detail": "CommandCode의 $0 프로모션 모델로 사용자 코드 Zero Retention 보장"
         },
         "summary": {
-            "one_liner": "커뮤니티 검증 결과 Zhipu GLM-5.3 Flash(지능 39.8점)의 리브랜딩 스텔스 모델로, 1M 컨텍스트와 압도적인 코딩 성능을 무료 제공.",
+            "one_liner": "커뮤니티 검증 결과 Zhipu GLM-5.3 Flash(지능 41.8점)의 리브랜딩 스텔스 모델로, 1M 컨텍스트와 압도적인 코딩 성능을 무료 제공.",
             "identity": "실체: Zhipu AI의 플래그십 코딩 추론 모델 GLM-5.3-Flash",
-            "strengths": ["지능 지수 39.8점으로 Claude 3.5 Sonnet 직하위권", "100만(1M) 토큰 대형 컨텍스트", "CommandCode CLI에서 100T/day의 방대한 한도"],
+            "strengths": ["지능 지수 41.8점으로 Claude 3.5 Sonnet 직하위권", "100만(1M) 토큰 대형 컨텍스트", "CommandCode CLI에서 100T/day의 방대한 한도"],
             "drawbacks": ["스텔스 프리뷰 프로모션이므로 향후 유료화되거나 티어가 변경될 가능성 있음"],
             "recommended_for": "CommandCode 터미널 에이전트에서 복잡한 전체 프로젝트 리팩토링 및 다중 파일 수정 시 강력 추천"
         },
@@ -526,8 +528,9 @@ awesome_models = [
         "category": "reasoning",
         "context_tokens": 1048576,
         "context_window": "1M",
-        "intelligence_index": None,
-        "coding_index": None,
+        "intelligence_index": 44.8,
+        "coding_index": 74.8,
+        "aa_name": ["GLM-5.3 (Max)", "GLM-5.3 (Low)"],
         "rate_limit": "NVIDIA NIM 무료 체험 크레딧 (전화 인증 필요)",
         "privacy": {
             "is_safe": True,
@@ -650,8 +653,9 @@ awesome_models = [
         "category": "reasoning",
         "context_tokens": 1048576,
         "context_window": "1M",
-        "intelligence_index": 38.0,
-        "coding_index": 51.0,
+        "intelligence_index": 33.7,
+        "coding_index": 68.8,
+        "aa_name": ["GLM-5.2 (Max)", "GLM-5.2 (Reasoning)", "GLM-5.2 (Non-reasoning)"],
         "rate_limit": "최대 40 RPM (NVIDIA NIM 무료 개발자 크레딧 티어)",
         "privacy": {
             "is_safe": True,
@@ -681,8 +685,9 @@ awesome_models = [
         "category": "reasoning",
         "context_tokens": 202752,
         "context_window": "202K",
-        "intelligence_index": 35.5,
-        "coding_index": 49.0,
+        "intelligence_index": 26.1,
+        "coding_index": 55.8,
+        "aa_name": ["GLM-5.1 (Reasoning)", "GLM-5.1 (Non-reasoning)"],
         "rate_limit": "최대 40 RPM (NVIDIA NIM 무료 개발자 크레딧 티어)",
         "privacy": {
             "is_safe": True,
@@ -712,8 +717,9 @@ awesome_models = [
         "category": "reasoning",
         "context_tokens": 1048576,
         "context_window": "1M",
-        "intelligence_index": 39.8,
-        "coding_index": 53.0,
+        "intelligence_index": 41.8,
+        "coding_index": 71.5,
+        "aa_name": "GLM-5.3-Flash",
         "rate_limit": "최대 40 RPM (NVIDIA NIM 무료 개발자 크레딧 티어)",
         "privacy": {
             "is_safe": True,
@@ -723,7 +729,7 @@ awesome_models = [
         "summary": {
             "one_liner": "NVIDIA NIM 인프라에서 서빙되는 1M 컨텍스트의 최신 GLM-5.3 Flash. 최대 40 RPM의 높은 분당 처리량.",
             "identity": "Zhipu AI GLM-5.3-Flash + NVIDIA NIM 가속 엔진",
-            "strengths": ["지능 지수 39.8점 및 100만 토큰 대규모 컨텍스트", "분당 40회(40 RPM)의 쾌적한 처리 속도"],
+            "strengths": ["지능 지수 41.8점 및 100만 토큰 대규모 컨텍스트", "분당 40회(40 RPM)의 쾌적한 처리 속도"],
             "drawbacks": ["전화번호 인증 필요"],
             "recommended_for": "엔터프라이즈급 안정성이 요구되는 팀 협업 개발 및 대규모 추론 테스트"
         },
@@ -737,6 +743,56 @@ awesome_models = [
 ]
 
 catalog.extend(awesome_models)
+
+# --- AA benchmark sync (fresh scores from the update_data.py pipeline) ---
+# Hardcoded NIM/stealth scores rot as Artificial Analysis re-benchmarks
+# (e.g. GLM-5.3-Flash 39.8/53.0 -> 41.8/71.5). Entries carrying `aa_name`
+# get their (index, coding) re-resolved here from data/models.json, which
+# update_data.py refreshes earlier in update.sh. Literals above remain
+# as offline fallback. Score-dependent prose is refreshed too so text
+# can't contradict the numbers.
+AA_BY_NAME = {}
+for _aa_src in ('data/models.json', 'data/opencode_go_complete.json'):
+    try:
+        with open(_aa_src, 'r', encoding='utf-8') as _f:
+            _aa_raw = json.load(_f)
+        _aa_list = _aa_raw.get('models', _aa_raw) if isinstance(_aa_raw, dict) else _aa_raw
+        for _m in _aa_list:
+            _n = _m.get('name') or _m.get('aa_name')
+            if _n and (_n not in AA_BY_NAME or _m.get('index') is not None):
+                AA_BY_NAME[_n] = _m
+    except Exception:
+        pass
+
+def _aa_lookup(*names):
+    cands = [AA_BY_NAME[n] for n in names
+             if n in AA_BY_NAME and AA_BY_NAME[n].get('index') is not None]
+    if not cands:
+        return None
+    cands.sort(key=lambda m: (m.get('index') or 0), reverse=True)
+    best = cands[0]
+    return best.get('index'), best.get('coding'), best.get('url')
+
+for _m in catalog:
+    _aa_names = _m.get('aa_name')
+    if not _aa_names:
+        continue
+    if isinstance(_aa_names, str):
+        _aa_names = [_aa_names]
+    _hit = _aa_lookup(*_aa_names)
+    if not _hit:
+        continue
+    _idx, _cod, _url = _hit
+    _m['intelligence_index'] = _idx
+    _m['coding_index'] = _cod
+    if _url:
+        _m['links']['benchmark'] = _url
+    _s = _m.get('summary') or {}
+    if _s.get('one_liner'):
+        _s['one_liner'] = re.sub(r'\(지능 [\d.]+점\)', f'(지능 {_idx:.1f}점)', _s['one_liner'])
+    _s['strengths'] = [re.sub(r'지능 지수 [\d.]+점', f'지능 지수 {_idx:.1f}점', _st)
+                       for _st in (_s.get('strengths') or [])]
+print(f"AA benchmark sync: resolved {sum(1 for m in catalog if m.get('aa_name'))} pinned entries against {len(AA_BY_NAME)} AA models")
 
 # Final cross-platform pass: models served on BOTH OpenRouter/OpenCode and
 # NVIDIA NIM (verified against https://build.nvidia.com/models).

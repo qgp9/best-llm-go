@@ -808,6 +808,8 @@
     border: 1px solid var(--line);
     border-radius: 16px;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
     width: 100%;
     max-width: 100%;
     min-width: 0;
@@ -815,6 +817,7 @@
   }
   table.compact-tbl {
     width: 100%;
+    min-width: 1080px;
     border-collapse: collapse;
     font-size: 13px;
     text-align: left;
@@ -841,6 +844,7 @@
   /* Provider Reference Table */
   table.prov-tbl {
     width: 100%;
+    min-width: 900px;
     border-collapse: collapse;
     font-size: 13px;
   }
@@ -1228,7 +1232,7 @@
       <p style="font-size:13.5px;color:var(--ink-2);margin-top:0;" data-i18n="free_acc1_desc">
         Verified list of <b>30 LLM API Providers</b> offering free API keys with email signup (no credit card required), with OpenAI-compatible Base URLs and key links. Click <code>Copy Base URL</code> to paste into your tools.
       </p>
-      <div style="overflow-x:auto;">
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:thin;">
         <table class="prov-tbl">
           <thead>
             <tr>
