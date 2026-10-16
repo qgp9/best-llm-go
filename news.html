@@ -70,12 +70,12 @@
 <main class="wrap">
 <section class="hero">
   <h1>📰 AI News — 최신순</h1>
-  <p class="sub">OpenCode 릴리스·changelog + Hacker News를 한 줄기로 합친 피드입니다. 섹션 구분 없이 날짜 내림차순.</p>
+  <p class="sub">OpenCode Go/Zen, 프로바이더, 일반 AI 뉴스를 한 줄기로 합친 피드입니다. 섹션 구분 없이 날짜 내림차순. (opencode CLI 릴리스 제외)</p>
   <div class="meta" id="metaLine">로딩 중…</div>
 </section>
 <div class="toolbar"><input id="q" type="search" placeholder="필터 (예: nemotron, opencode, luna…)"></div>
 <div class="feed" id="feed"></div>
-<p class="foot">소스: <a href="https://github.com/sst/opencode/releases" target="_blank" rel="noopener">sst/opencode releases</a> · <a href="https://opencode.ai/changelog" target="_blank" rel="noopener">opencode.ai/changelog</a> · <a href="https://hn.algolia.com" target="_blank" rel="noopener">HN Algolia</a>. 매일 CI에서 재생성됩니다.</p>
+<p class="foot">소스: <a href="https://hn.algolia.com" target="_blank" rel="noopener">HN Algolia</a> (OpenCode Zen / OpenCode Go / openrouter / NVIDIA NIM / AI coding agent / decision model / free LLM API). 매일 CI에서 재생성됩니다.</p>
 </main>
 
 <script src="data/news.js"></script>
@@ -99,10 +99,9 @@
     feed.filter(it => !q || ((it.title+" "+it.summary+" "+it.source).toLowerCase().includes(q))).forEach(it => {
       const d = document.createElement("div");
       d.className = "item";
-      const oc = it.source.indexOf("Hacker News") === -1;
       d.innerHTML =
         "<div class='item-top'><span>" + esc(it.date) + "</span>" +
-        "<span class='tag " + (oc ? "t-oc" : "t-hn") + "'>" + esc(it.source) + "</span></div>" +
+        "<span class='tag t-hn'>" + esc(it.source) + "</span></div>" +
         "<p class='item-title'><a href='" + esc(it.url) + "' target='_blank' rel='noopener'>" + esc(it.title) + "</a></p>" +
         (it.summary ? "<p class='item-sum'>" + esc(it.summary) + "</p>" : "");
       box.appendChild(d);

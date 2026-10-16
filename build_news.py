@@ -2,14 +2,13 @@
 """Build a single chronological news feed (no sections).
 
 Sources (all keyless, build-time only):
-- GitHub Releases: sst/opencode (versions, dates, notes)
-- opencode.ai/changelog: latest entry (static HTML)
-- HN Algolia: queries covering OpenCode / providers / general AI
+- HN Algolia: queries covering OpenCode Go/Zen, providers, general AI.
+  (opencode CLI releases/changelog deliberately excluded — Go/Zen
+  service news is what matters here.)
 Output: data/news.json / .js  (items sorted newest-first, capped at 60)
 """
 import json
 import os
-import re
 import time
 import urllib.request
 import urllib.parse
@@ -28,63 +27,10 @@ def get_json(url, timeout=15):
         return json.loads(r.read().decode("utf-8"))
 
 
-def get_text(url, timeout=15):
-    req = urllib.request.Request(url, headers=UA)
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return r.read().decode("utf-8", errors="ignore")
-
-
 items = []
 
-# --- 1. GitHub releases: sst/opencode ---
-try:
-    rels = get_json("https://api.github.com/repos/sst/opencode/releases?per_page=12")
-    if isinstance(rels, list):
-        for r in rels:
-            if not isinstance(r, dict) or r.get("draft"):
-                continue
-            tag = r.get("tag_name", "") or ""
-            if tag.startswith("pr-"):
-                continue  # PR demo artifacts, not releases
-            body = (r.get("body") or "").strip().split("\n")
-            summary = next((l.strip("# *") for l in body if l.strip("# *")[:1].isalnum()), "")
-            items.append({
-                "date": (r.get("published_at") or "")[:10],
-                "ts": int(datetime.fromisoformat((r.get("published_at") or "2000-01-01T00:00:00Z").replace("Z", "+00:00")).timestamp()),
-                "source": "OpenCode Releases",
-                "title": f"{r.get('tag_name', '')} — {(r.get('name') or '')[:80]}".strip(" —"),
-                "summary": summary[:220],
-                "url": r.get("html_url", ""),
-            })
-    print(f"github releases: {len([i for i in items if i['source']=='OpenCode Releases'])}")
-except Exception as e:
-    print(f"github releases failed: {e}")
-
-# --- 2. opencode.ai/changelog latest entry ---
-try:
-    html = get_text("https://opencode.ai/changelog")
-    text = re.sub(r"<script.*?</script>", "", html, flags=re.S)
-    text = re.sub(r"<style.*?</style>", "", text, flags=re.S)
-    text = re.sub(r"<[^>]+>", "|", text)
-    text = re.sub(r"\|+", "|", text)
-    m = re.search(r"\|(v\d+\.\d+\.\d+)\|([A-Z][a-z]+ \d{1,2}, \d{4})\|(.{20,600})", text)
-    if m:
-        ver, datestr, body = m.groups()
-        dt = datetime.strptime(datestr, "%B %d, %Y").replace(tzinfo=timezone.utc)
-        items.append({
-            "date": dt.strftime("%Y-%m-%d"),
-            "ts": int(dt.timestamp()),
-            "source": "OpenCode Changelog",
-            "title": f"{ver} — changelog highlights",
-            "summary": re.sub(r"\|", " ", body)[:220],
-            "url": "https://opencode.ai/changelog",
-        })
-        print(f"changelog: {ver} {datestr}")
-except Exception as e:
-    print(f"changelog failed: {e}")
-
-# --- 3. HN Algolia ---
-QUERIES = ["opencode", "openrouter", "NVIDIA NIM", "AI coding agent", "decision model"]
+# --- HN Algolia (sole source: Go/Zen service news, providers, general AI) ---
+QUERIES = ["OpenCode Zen", "OpenCode Go", "openrouter", "NVIDIA NIM", "AI coding agent", "decision model", "free LLM API"]
 since = int(time.time()) - 90 * 86400
 for q in QUERIES:
     try:
