@@ -817,14 +817,15 @@
   }
   table.compact-tbl {
     width: 100%;
-    min-width: 1080px;
+    min-width: 960px;
     border-collapse: collapse;
     font-size: 13px;
     text-align: left;
+    table-layout: fixed;
   }
   table.compact-tbl th {
     background: var(--page);
-    padding: 10px 14px;
+    padding: 10px 10px;
     border-bottom: 1px solid var(--line);
     color: var(--ink-3);
     font-weight: 600;
@@ -832,11 +833,20 @@
     white-space: nowrap;
   }
   table.compact-tbl td {
-    padding: 12px 14px;
+    padding: 10px;
     border-bottom: 1px solid var(--line-subtle);
     color: var(--ink-2);
     vertical-align: middle;
+    overflow-wrap: anywhere;
   }
+  table.compact-tbl col.col-model { width: 22%; }
+  table.compact-tbl col.col-plat { width: 10%; }
+  table.compact-tbl col.col-cat { width: 8%; }
+  table.compact-tbl col.col-score { width: 8%; }
+  table.compact-tbl col.col-ctx { width: 6%; }
+  table.compact-tbl col.col-priv { width: 8%; }
+  table.compact-tbl col.col-limit { width: 16%; }
+  table.compact-tbl col.col-links { width: 14%; }
   table.compact-tbl tr:hover td {
     background: var(--wash);
   }
@@ -1411,6 +1421,17 @@ print(res.choices[0].message.content)</code></pre>
   <!-- Table View Container -->
   <div id="tableContainer" class="tbl-card" style="display:none;">
     <table class="compact-tbl">
+      <colgroup>
+        <col class="col-model">
+        <col class="col-plat">
+        <col class="col-cat">
+        <col class="col-score">
+        <col class="col-score">
+        <col class="col-ctx">
+        <col class="col-priv">
+        <col class="col-limit">
+        <col class="col-links">
+      </colgroup>
       <thead>
         <tr>
           <th data-i18n="th_cat_name">Model & Identity</th>
@@ -1804,19 +1825,19 @@ print(res.choices[0].message.content)</code></pre>
       tr.innerHTML = `
         <td>
           <b style="color:var(--ink);">${m.name}</b><br>
-          <code style="font-family:var(--mono);font-size:11px;color:var(--ink-3);">${m.model_id}</code>
+          <code style="display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom;font-family:var(--mono);font-size:11px;color:var(--ink-3);" title="${m.model_id}">${m.model_id}</code>
           ${m.summary.identity ? `<div style="font-size:11.5px;color:var(--accent-ink);margin-top:2px;">↳ ${m.summary.identity}</div>` : ''}
         </td>
         <td>${platBadges}</td>
         <td><span class="tag tag-cat" style="font-size:10.5px;">${m.category}</span></td>
-        <td style="font-weight:700;color:var(--accent-ink);">${m.intelligence_index != null ? m.intelligence_index.toFixed(1) + scoreSuffix : '—'}</td>
-        <td style="font-weight:600;">${m.coding_index != null ? m.coding_index.toFixed(1) + scoreSuffix : '—'}</td>
-        <td style="font-weight:600;">${m.context_window || '—'}</td>
+        <td style="font-weight:700;color:var(--accent-ink);white-space:nowrap;">${m.intelligence_index != null ? m.intelligence_index.toFixed(1) + scoreSuffix : '—'}</td>
+        <td style="font-weight:600;white-space:nowrap;">${m.coding_index != null ? m.coding_index.toFixed(1) + scoreSuffix : '—'}</td>
+        <td style="font-weight:600;white-space:nowrap;">${m.context_window || '—'}</td>
         <td>${safeBadge}</td>
-        <td style="font-size:12px;color:var(--ink-2);max-width:200px;">${m.rate_limit || '—'}</td>
-        <td>
-          <div style="display:flex;gap:6px;align-items:center;">
-            <button type="button" class="btn-copy" style="border:1px solid var(--line);border-radius:4px;padding:2px 8px;font-size:11px;" data-cmd="${encodeURIComponent(m.cli_usage || m.model_id)}">${copyBtnText}</button>
+        <td style="font-size:12px;color:var(--ink-2);">${m.rate_limit || '—'}</td>
+        <td style="white-space:nowrap;">
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:nowrap;">
+            <button type="button" class="btn-copy" style="border:1px solid var(--line);border-radius:4px;padding:2px 8px;font-size:11px;flex:none;" data-cmd="${encodeURIComponent(m.cli_usage || m.model_id)}">${copyBtnText}</button>
             ${m.links.model_page ? `<a href="${m.links.model_page}" target="_blank" rel="noopener" style="font-size:11.5px;">${specLinkText}</a>` : ''}
           </div>
         </td>
