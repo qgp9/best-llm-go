@@ -20,3 +20,5 @@ data/free_models_catalog.js
 data/decision_models_catalog.json
 data/decision_models_catalog.js
 data/openrouter_decision_models.json
+data/news.json
+data/news.js
