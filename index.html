@@ -819,6 +819,9 @@
       <a href="decisions.html" class="nav-tab">
         <span>🧭 Decision Models</span>
       </a>
+      <a href="news.html" class="nav-tab">
+        <span>📰 News</span>
+      </a>
       <a class="nav-tab nav-tab-ext" href="https://opencode.ai/go" target="_blank" rel="noopener">
         OpenCode Go ↗
       </a>
@@ -843,7 +846,7 @@
   <p class="sub" id="hdrSub" data-i18n="hdr_sub">
     Pareto frontier value analyzer for OpenCode Go ($10/mo plan). Combines official model allowances ($15/$30/$60), API rates, and Artificial Analysis benchmarks to highlight optimal models.
   </p>
-  <div class="meta" id="meta" data-i18n="meta_loading">Loading data…</div>
+  <div class="meta" id="meta">Loading data…</div>
 </section>
 
 <div class="filters" id="filters">
@@ -2613,8 +2616,11 @@
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
+      updateMetaText();
       render();
     });
+  } else {
+    updateMetaText();
   }
 })();
 </script>
