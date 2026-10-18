@@ -1,24 +1,20 @@
 #!/usr/bin/env python3
-"""Build-time LLM summaries for a handful of representative sets.
+"""Generate daily ko/en summaries. Failed sets are omitted, never reused.
 
-Runs daily in CI (update.sh). For each representative set it picks the
-top models from the already-built catalogs and asks an LLM for a short
-ko+en summary (2-3 lines + top-3 one-line reasons). Results go to
-data/summaries.json / .js.
-
-Uses the OpenCode Go inference endpoint, so a single OPENCODE_API_KEY
-covers it (no separate OpenRouter/NVIDIA keys). Key resolution order:
-env var > .env file in repo root > skip. Without a key it keeps the
-previous summaries.json untouched and exits 0 — the site simply shows
-the last generated summaries.
-
-SUMMARY_MODELS: comma-separated fallback chain of OpenCode model IDs
-(default: "glm-5.3-flash,mimo-v2.6-flash,deepseek-v4.1-flash").
-Free/event models get delisted without notice, so each set tries
-them in order. SUMMARY_BASE_URL overrides the endpoint.
+OPENCODE_API_KEY: environment > repository .env. SUMMARY_MODELS (or legacy
+SUMMARY_MODEL) selects a comma-separated go:/nim: fallback chain; bare IDs use Go.
+SUMMARY_BASE_URL overrides Go; SUMMARY_NIM_CONN overrides Console discovery.
 """
+from contextlib import contextmanager
+import http.client
 import json
 import os
+import signal
+import re
+import socket
+import tempfile
+import time
+import urllib.error
 import urllib.request
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -38,15 +34,122 @@ if os.path.exists(_env_path):
                 os.environ[_k] = _v
 
 API_KEY = os.environ.get("OPENCODE_API_KEY", "").strip()
-BASE_URL = os.environ.get(
+GO_BASE = os.environ.get(
     "SUMMARY_BASE_URL",
     "https://opencode.ai/inference/go/openai/v1").rstrip("/")
-# Comma-separated fallback chain of OpenCode model IDs.
+# Each chain entry: "go:<model>" (Go endpoint) or "nim:<model>"
+# (console gateway -> NVIDIA custom connection, discovered at runtime).
+# Default tries Muse Spark (Go) first, then NIM flash via console.
 MODELS = [m.strip() for m in os.environ.get(
     "SUMMARY_MODELS", os.environ.get(
-        "SUMMARY_MODEL", "glm-5.3-flash,mimo-v2.6-flash,deepseek-v4.1-flash")
-).strip().split(",") if m.strip()] or ["glm-5.3-flash"]
+        "SUMMARY_MODEL",
+        "go:muse-spark-1.3-contributor,nim:z-ai/glm-5.3-flash,"
+        "go:glm-5.3-flash,go:mimo-v2.6-flash,go:deepseek-v4.1-flash")
+).strip().split(",") if m.strip()] or ["go:glm-5.3-flash"]
 SESSION_ID = os.environ.get("SUMMARY_SESSION_ID", "best-llm-daily-summaries")
+NIM_CONN_ENV = os.environ.get("SUMMARY_NIM_CONN", "").strip()
+NIM_KEY_HINT = os.environ.get("SUMMARY_NIM_KEY", "console-nvidia").strip()
+
+_NIM_URL = None
+REQUEST_TIMEOUT = 90
+RUN_TIMEOUT = 900
+
+
+class SummaryError(Exception):
+    """A safe diagnostic code, never a remote response body."""
+
+
+def remaining(deadline):
+    left = deadline - time.monotonic()
+    if left <= 0:
+        raise SummaryError("deadline")
+    return left
+
+
+@contextmanager
+def transfer_timeout(seconds):
+    """Linux CI: interrupt slow headers/body reads at the absolute deadline."""
+    def expired(signum, frame):
+        raise TimeoutError()
+    previous = signal.signal(signal.SIGALRM, expired)
+    timer = signal.setitimer(signal.ITIMER_REAL, seconds)
+    try:
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, *timer)
+        signal.signal(signal.SIGALRM, previous)
+
+
+def request_json(url, body=None, deadline=None):
+    deadline = deadline if deadline is not None else time.monotonic() + RUN_TIMEOUT
+    for attempt in range(2):
+        remaining(deadline)
+        req = urllib.request.Request(url, data=None if body is None else json.dumps(body).encode(),
+            headers={"Authorization": f"Bearer {API_KEY}",
+                     "Content-Type": "application/json",
+                     "User-Agent": "best-llm-summaries/1.0",
+                     "x-opencode-session": SESSION_ID})
+        retry = False
+        start = time.monotonic()
+        try:
+            # Bound the entire transfer as well as each blocking socket read.
+            with transfer_timeout(min(REQUEST_TIMEOUT, remaining(deadline))), \
+                    urllib.request.urlopen(req, timeout=min(REQUEST_TIMEOUT, remaining(deadline))) as r:
+                chunks = []
+                request_deadline = min(deadline, time.monotonic() + REQUEST_TIMEOUT)
+                while True:
+                    remaining(request_deadline)
+                    chunk = r.read1(65536)
+                    remaining(request_deadline)
+                    if not chunk:
+                        break
+                    chunks.append(chunk)
+                try:
+                    return json.loads(b"".join(chunks))
+                except (ValueError, UnicodeError):
+                    raise SummaryError("response-json") from None
+        except urllib.error.HTTPError as e:
+            code = e.code
+            e.close()
+            error = f"http-{code}"
+            retry = code == 429 or 500 <= code < 600
+        except (TimeoutError, socket.timeout):
+            error, retry = "timeout", True
+        except urllib.error.URLError as e:
+            error = "timeout" if isinstance(e.reason, (TimeoutError, socket.timeout)) else "network"
+            retry = True
+        except (http.client.HTTPException, ConnectionError, OSError):
+            error, retry = "network", True
+        if retry and attempt == 0:
+            label = body["model"] if body else "discovery"
+            print(f"    model={label} stage={error} attempt=1 retry=1 elapsed={time.monotonic()-start:.1f}s", flush=True)
+            time.sleep(min(1, remaining(deadline)))
+            continue
+        raise SummaryError(error)
+
+
+def nim_endpoint(deadline):
+    global _NIM_URL
+    if _NIM_URL:
+        return _NIM_URL
+    if NIM_CONN_ENV:
+        if not re.fullmatch(r"[A-Za-z0-9_-]+", NIM_CONN_ENV):
+            raise ValueError("invalid SUMMARY_NIM_CONN")
+        _NIM_URL = f"https://opencode.ai/inference/custom/{NIM_CONN_ENV}"
+    else:
+        conns = request_json("https://opencode.ai/console/api/providers", deadline=deadline)
+        if not isinstance(conns, list):
+            raise SummaryError("discovery-shape")
+        matches = [c for c in conns if isinstance(c, dict)
+                   and c.get("configKey") == NIM_KEY_HINT and c.get("enabled") is True]
+        if len(matches) != 1 or not isinstance(matches[0].get("id"), str):
+            raise SummaryError("discovery-no-unique-enabled-connection")
+        conn = matches[0]["id"]
+        if not re.fullmatch(r"[A-Za-z0-9_-]+", conn):
+            raise SummaryError("discovery-invalid-id")
+        _NIM_URL = f"https://opencode.ai/inference/custom/{conn}"
+    return _NIM_URL
+
 
 FREE_PATH = os.path.join(DATA_DIR, "free_models_catalog.json")
 GO_PATH = os.path.join(DATA_DIR, "opencode_go_complete.json")
@@ -69,15 +172,17 @@ def spec_free(m):
 
 
 def spec_go(m):
+    price = "unknown" if m.get("effective_price") is None else f"${m['effective_price']:.4f}/1M"
     return (f"{m.get('name')} | creator={m.get('creator')} | "
             f"index={m.get('index')} coding={m.get('coding')} "
-            f"eff_price=${(m.get('effective_price') or 0):.4f}/1M allowance=${m.get('allowance')} "
+            f"eff_price={price} allowance=${m.get('allowance')} "
             f"5h_req={m.get('requests_5h')}")
 
 
 def top(models, key, n=6, reverse=True):
-    return sorted(models, key=lambda m: (m.get(key) is not None, m.get(key) or 0),
-                  reverse=reverse)[:n]
+    known = [m for m in models if m.get(key) is not None]
+    unknown = [m for m in models if m.get(key) is None]
+    return (sorted(known, key=lambda m: m[key], reverse=reverse) + unknown)[:n]
 
 
 def build_sets(free, go):
@@ -109,83 +214,149 @@ PROMPT = """You compare LLM options for developers. Given the candidate models b
 Respond with JSON only: {"ko": "...", "en": "..."}
 Each text: 2-3 sentences naming the top 2-3 picks and when to choose which. No markdown, no extra keys. Keep each under 500 characters.
 
+Use only supplied candidates and facts. Missing metrics are unknown; do not invent scores or availability.
+
 Set: {title}
 Candidates:
 {models}
 """
 
 
-def summarize(title, models):
-    last_err = None
-    for model in MODELS:
-        body = json.dumps({
-            "model": model,
-            "messages": [{"role": "user",
-                          "content": PROMPT.replace("{title}", title).replace(
-                              "{models}", chr(10).join(models))}],
-            "temperature": 0.3,
-            "max_tokens": 1500,
-        }).encode()
+def parse_summary(text):
+    text = text.strip()
+    match = re.fullmatch(r"```(?:json)?\s*\n(.*?)\n```", text, re.DOTALL)
+    if match:
+        text = match[1]
+    try:
+        parsed = json.loads(text)
+    except (ValueError, TypeError):
+        raise SummaryError("summary-json") from None
+    if not isinstance(parsed, dict) or set(parsed) != {"ko", "en"}:
+        raise SummaryError("summary-schema")
+    for lang in ("ko", "en"):
+        value = parsed[lang]
+        if not isinstance(value, str) or not value.strip():
+            raise SummaryError("summary-empty-or-type")
+        if len(value) > 500:
+            raise SummaryError("summary-too-long")
+    return {lang: parsed[lang].strip() for lang in ("ko", "en")}
+
+
+def model_route(entry):
+    route, model = entry.split(":", 1) if ":" in entry else ("go", entry)
+    if route not in ("go", "nim") or not model or not re.fullmatch(r"[A-Za-z0-9_./:-]+", model):
+        raise ValueError("invalid SUMMARY_MODELS entry")
+    return route, model
+
+
+def response_text(res, protocol):
+    if not isinstance(res, dict):
+        raise SummaryError("response-shape")
+    if protocol == "responses":
+        if res.get("status") != "completed":
+            details = res.get("incomplete_details")
+            if isinstance(details, dict) and details.get("reason") == "max_output_tokens":
+                raise SummaryError("response-length")
+            raise SummaryError("response-failed" if res.get("status") == "failed" else "response-incomplete")
+        output = res.get("output")
+        if not isinstance(output, list):
+            raise SummaryError("response-shape")
+        for item in output:
+            if not isinstance(item, dict) or (item.get("type") == "message" and not isinstance(item.get("content"), list)):
+                raise SummaryError("response-shape")
+        texts = [c.get("text") for item in output
+                 if isinstance(item, dict) and item.get("type") == "message"
+                 for c in item.get("content", []) if isinstance(c, dict)
+                 and c.get("type") == "output_text" and isinstance(c.get("text"), str)]
+        text = "".join(texts)
+    else:
+        choices = res.get("choices")
+        if not isinstance(choices, list) or not choices or not isinstance(choices[0], dict):
+            raise SummaryError("response-choices")
+        reason = choices[0].get("finish_reason")
+        if reason != "stop":
+            raise SummaryError("response-length" if reason == "length" else "response-not-stopped")
+        message = choices[0].get("message")
+        if not isinstance(message, dict):
+            raise SummaryError("response-shape")
+        text = message.get("content")
+    if not isinstance(text, str) or not text.strip():
+        raise SummaryError("response-empty")
+    return text
+
+
+def call_model(entry, prompt, deadline):
+    route, model = model_route(entry)
+    base = nim_endpoint(deadline) if route == "nim" else GO_BASE
+    protocol = "responses" if route == "go" and model.startswith("muse-spark-") else "chat/completions"
+    body = {"model": model, "temperature": 0.3}
+    if protocol == "responses":
+        body.update(input=prompt, max_output_tokens=8000)
+    else:
+        body.update(messages=[{"role": "user", "content": prompt}], max_tokens=8000)
+    return parse_summary(response_text(request_json(base + "/" + protocol, body, deadline), protocol))
+
+
+def summarize(title, models, deadline):
+    if not models:
+        raise SummaryError("no-candidates")
+    prompt = PROMPT.replace("{title}", title).replace("{models}", "\n".join(models))
+    for entry in MODELS:
+        remaining(deadline)
+        start = time.monotonic()
         try:
-            req = urllib.request.Request(
-                BASE_URL + "/chat/completions", data=body,
-                headers={"Authorization": f"Bearer {API_KEY}",
-                         "Content-Type": "application/json",
-                         "User-Agent": "best-llm-summaries/1.0",
-                         "x-opencode-session": SESSION_ID})
-            with urllib.request.urlopen(req, timeout=90) as r:
-                res = json.load(r)
-            msg = res["choices"][0]["message"]
-            text = (msg.get("content") or "").strip()
-            if not text:
-                raise RuntimeError("empty content (thinking-only response)")
-            # strip code fences if any
-            if text.startswith("```"):
-                text = text.strip("`").split("\n", 1)[1] if "\n" in text else text.strip("`")
-                if text.lstrip().startswith("json"):
-                    text = text.lstrip()[4:].lstrip()
-            parsed = json.loads(text)
-            assert isinstance(parsed.get("ko"), str) and isinstance(parsed.get("en"), str)
-            if model != MODELS[0]:
-                print(f"    (fell back to {model})", end=" ")
-            return {"ko": parsed["ko"][:600], "en": parsed["en"][:600]}
-        except Exception as e:
-            last_err = e
-            continue
-    raise RuntimeError(f"all summary models failed {MODELS}: {last_err}")
+            result = call_model(entry, prompt, deadline)
+        except SummaryError as e:
+            print(f"    model={entry} stage={e} elapsed={time.monotonic()-start:.1f}s", flush=True)
+        else:
+            print(f"    model={entry} stage=ok elapsed={time.monotonic()-start:.1f}s", flush=True)
+            return result
+    raise SummaryError("all-models-failed")
+
+
+def write_outputs(out):
+    # Stage both serializations before replacing either published file.
+    staged = []
+    try:
+        for path, content in ((OUT_JSON, json.dumps(out, ensure_ascii=False, indent=2) + "\n"),
+                              (OUT_JS, "window.__SUMMARIES__ = " + json.dumps(out, ensure_ascii=False) + ";\n")):
+            with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=os.path.dirname(path),
+                                             delete=False) as f:
+                staged.append((f.name, path))
+                f.write(content)
+            os.chmod(f.name, 0o644)
+        for temp, path in staged:
+            os.replace(temp, path)
+    finally:
+        for temp, _ in staged:
+            if os.path.exists(temp):
+                os.unlink(temp)
+
+
+def warn(message):
+    print(("::warning::" if os.environ.get("GITHUB_ACTIONS") == "true" else "warning: ") + message, flush=True)
 
 
 def main():
+    deadline = time.monotonic() + RUN_TIMEOUT
+    for entry in MODELS:
+        model_route(entry)  # Configuration errors must not masquerade as model outages.
     free, go = load(FREE_PATH), load(GO_PATH)
+    if not isinstance(free, list) or not isinstance(go, list):
+        raise ValueError("catalogs must be arrays")
     sets = build_sets(free, go)
-    print(f"sets: {len(sets)} (endpoint={BASE_URL} models={MODELS})")
-    if not API_KEY:
-        print("no OPENCODE_API_KEY (env or .env) — keeping previous summaries.json")
-        if not os.path.exists(OUT_JSON):
-            with open(OUT_JSON, "w", encoding="utf-8") as f:
-                json.dump({}, f)
-            with open(OUT_JS, "w", encoding="utf-8") as f:
-                f.write("window.__SUMMARIES__ = {};\n")
-        return
-    prev = {}
-    if os.path.exists(OUT_JSON):
-        try:
-            prev = load(OUT_JSON)
-        except Exception:
-            prev = {}
-    out = dict(prev)
+    out = {}
+    print(f"sets: {len(sets)} (chain={MODELS})", flush=True)
     for s in sets:
         try:
-            out[s["id"]] = {"title": s["title"], **summarize(s["title"], s["models"])}
-            print(f"  ok: {s['id']}")
-        except Exception as e:
-            print(f"  fail: {s['id']} ({e}) — keeping previous" if s["id"] in out
-                  else f"  fail: {s['id']} ({e})")
-    with open(OUT_JSON, "w", encoding="utf-8") as f:
-        json.dump(out, f, ensure_ascii=False, indent=2)
-    with open(OUT_JS, "w", encoding="utf-8") as f:
-        f.write("window.__SUMMARIES__ = " + json.dumps(out, ensure_ascii=False) + ";\n")
-    print(f"wrote summaries: {len(out)} sets")
+            if not API_KEY:
+                raise SummaryError("no-api-key")
+            out[s["id"]] = {"title": s["title"], **summarize(s["title"], s["models"], deadline)}
+            print(f"  ok: {s['id']}", flush=True)
+        except SummaryError as e:
+            warn(f"summary {s['id']} omitted: {e}")
+    write_outputs(out)
+    print(f"summaries: success={len(out)} failed={len(sets)-len(out)}", flush=True)
 
 
 if __name__ == "__main__":

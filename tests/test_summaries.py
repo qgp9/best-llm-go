@@ -1,0 +1,166 @@
+import http.client
+import io
+import json
+import os
+from pathlib import Path
+import sys
+import tempfile
+import time
+import unittest
+from unittest.mock import patch
+import urllib.error
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+import build_summaries as s
+
+GOOD = {'ko': '한국어 요약', 'en': 'English summary'}
+CHAT = {'choices': [{'finish_reason': 'stop', 'message': {'content': json.dumps(GOOD)}}]}
+
+
+class Response(io.BytesIO):
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+
+
+class SummaryTests(unittest.TestCase):
+    def test_summary_validation(self):
+        self.assertEqual(s.parse_summary('```json\n' + json.dumps(GOOD) + '\n```'), GOOD)
+        for value in ('{"ko":"', '[]', '{"ko":"", "en":"x"}',
+                      '{"ko":"   ", "en":"x"}', '{"ko":1,"en":"x"}',
+                      json.dumps({**GOOD, 'extra': 1}), json.dumps({**GOOD, 'en': 'x' * 501})):
+            with self.subTest(value=value), self.assertRaises(s.SummaryError):
+                s.parse_summary(value)
+
+    def test_protocol_outputs(self):
+        self.assertEqual(s.parse_summary(s.response_text(CHAT, 'chat/completions')), GOOD)
+        response = {'status': 'completed', 'output': [
+            {'type': 'reasoning', 'content': [{'type': 'reasoning_text', 'text': 'private'}]},
+            {'type': 'message', 'content': [{'type': 'output_text', 'text': json.dumps(GOOD)}]}]}
+        self.assertEqual(s.parse_summary(s.response_text(response, 'responses')), GOOD)
+        for response, protocol in [
+            ({'status': 'incomplete', 'output': []}, 'responses'),
+            ({'status': 'completed', 'output': None}, 'responses'),
+            ({'status': 'completed', 'output': []}, 'responses'),
+            ({'choices': [{'finish_reason': 'length', 'message': {'content': json.dumps(GOOD)}}]}, 'chat/completions'),
+            ({'choices': [{'finish_reason': 'stop', 'message': {'content': ''}}]}, 'chat/completions'),
+            ({'choices': []}, 'chat/completions')]:
+            with self.subTest(response=response), self.assertRaises(s.SummaryError):
+                s.response_text(response, protocol)
+
+    def test_responses_token_limit(self):
+        with self.assertRaisesRegex(s.SummaryError, '^response-length$'):
+            s.response_text({'status': 'incomplete', 'incomplete_details': {'reason': 'max_output_tokens'}}, 'responses')
+
+    def test_run_budget_omits_remaining_sets(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(s, 'OUT_JSON', directory+'/summaries.json'), patch.object(s, 'OUT_JS', directory+'/summaries.js'), patch.object(s, 'API_KEY', 'key'), patch.object(s, 'RUN_TIMEOUT', -1), patch.object(s, 'call_model') as call:
+            s.main()
+            call.assert_not_called()
+            self.assertEqual(s.load(directory+'/summaries.json'), {})
+
+    def test_staging_failure_preserves_previous_outputs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            jp = Path(directory)/'summaries.json'
+            jp.write_text('previous')
+            with patch.object(s, 'OUT_JSON', str(jp)), patch.object(s, 'OUT_JS', directory+'/missing/summaries.js'):
+                with self.assertRaises(OSError):
+                    s.write_outputs({})
+            self.assertEqual(jp.read_text(), 'previous')
+            self.assertEqual(list(Path(directory).iterdir()), [jp])
+
+    def test_candidates_and_price(self):
+        models = [{'effective_price': None}, {'effective_price': 1}, {'effective_price': 0}]
+        self.assertEqual([m['effective_price'] for m in s.top(models, 'effective_price', reverse=False)], [0, 1, None])
+        self.assertIn('eff_price=unknown', s.spec_go(models[0]))
+        self.assertIn('eff_price=$0.0000', s.spec_go(models[2]))
+        sets = s.build_sets(s.load(s.FREE_PATH), s.load(s.GO_PATH))
+        self.assertEqual(len({x['id'] for x in sets}), 9)
+        self.assertTrue(all(x['models'] for x in sets))
+
+    def test_routes(self):
+        self.assertEqual(s.model_route('glm'), ('go', 'glm'))
+        self.assertEqual(s.model_route('nim:z-ai/glm'), ('nim', 'z-ai/glm'))
+        for entry in ('bad:model', 'go:', 'go:model?key=secret'):
+            with self.assertRaises(ValueError):
+                s.model_route(entry)
+
+    def test_direct_protocol_and_token_budget(self):
+        for model, endpoint, result, token_key in [
+            ('go:muse-spark-1.3-contributor', '/responses', {'status': 'completed', 'output': [
+                {'type': 'message', 'content': [{'type': 'output_text', 'text': json.dumps(GOOD)}]}]}, 'max_output_tokens'),
+            ('nim:z-ai/glm-5.3-flash', '/chat/completions', CHAT, 'max_tokens')]:
+            with patch.object(s, 'nim_endpoint', return_value='https://example.test'), patch.object(s, 'request_json', return_value=result) as request:
+                self.assertEqual(s.call_model(model, 'prompt', time.monotonic()+10), GOOD)
+                self.assertTrue(request.call_args.args[0].endswith(endpoint))
+                self.assertEqual(request.call_args.args[1][token_key], 8000)
+
+    def test_retry_and_safe_http_diagnostics(self):
+        errors = [TimeoutError(), urllib.error.URLError(TimeoutError()), urllib.error.URLError('secret'), http.client.IncompleteRead(b'partial'),
+                  urllib.error.HTTPError('https://example.test', 429, 'secret', {}, io.BytesIO(b'secret')),
+                  urllib.error.HTTPError('https://example.test', 503, 'secret', {}, io.BytesIO(b'secret'))]
+        for error in errors:
+            with self.subTest(error=type(error).__name__), patch.object(s.time, 'sleep'), patch.object(s.urllib.request, 'urlopen', side_effect=[error, Response(b'{}')]) as call:
+                self.assertEqual(s.request_json('https://example.test'), {})
+                self.assertEqual(call.call_count, 2)
+        with patch.object(s.urllib.request, 'urlopen', side_effect=urllib.error.HTTPError('x', 401, 'secret', {}, io.BytesIO(b'secret'))) as call:
+            with self.assertRaisesRegex(s.SummaryError, '^http-401$'):
+                s.request_json('https://example.test')
+            self.assertEqual(call.call_count, 1)
+
+    def test_deadline_and_slow_transfer(self):
+        with patch.object(s.urllib.request, 'urlopen') as call:
+            with self.assertRaisesRegex(s.SummaryError, 'deadline'):
+                s.request_json('https://example.test', deadline=time.monotonic()-1)
+            call.assert_not_called()
+        class Slow(Response):
+            def read1(self, n):
+                time.sleep(1)
+                return b'{}'
+        start = time.monotonic()
+        with patch.object(s.urllib.request, 'urlopen', return_value=Slow()):
+            with self.assertRaises(s.SummaryError):
+                s.request_json('https://example.test', deadline=start+0.05)
+        self.assertLess(time.monotonic()-start, 0.3)
+
+    def test_fallback(self):
+        with patch.object(s, 'MODELS', ['go:first', 'go:second']), patch.object(s, 'call_model', side_effect=[s.SummaryError('response-length'), GOOD]) as call:
+            self.assertEqual(s.summarize('test', ['candidate'], time.monotonic()+10), GOOD)
+            self.assertEqual(call.call_count, 2)
+
+    def test_discovery(self):
+        with patch.object(s, '_NIM_URL', None), patch.object(s, 'NIM_CONN_ENV', ''), patch.object(s, 'request_json', return_value=[{'configKey': s.NIM_KEY_HINT, 'enabled': True, 'id': 'conn_test'}]) as call:
+            self.assertTrue(s.nim_endpoint(time.monotonic()+10).endswith('/conn_test'))
+            s.nim_endpoint(time.monotonic()+10)
+            self.assertEqual(call.call_count, 1)
+        with patch.object(s, '_NIM_URL', None), patch.object(s, 'NIM_CONN_ENV', ''), patch.object(s, 'request_json', return_value={'providers': []}):
+            with self.assertRaisesRegex(s.SummaryError, 'discovery-shape'):
+                s.nim_endpoint(time.monotonic()+10)
+
+    def test_output_failures_remove_stale_data(self):
+        for key, results, expected in [('key', [GOOD] + [s.SummaryError('failed')] * 8, 1),
+                                       ('key', [s.SummaryError('failed')] * 9, 0), ('', [], 0)]:
+            with self.subTest(key=bool(key), expected=expected), tempfile.TemporaryDirectory() as directory:
+                jp, js = Path(directory)/'summaries.json', Path(directory)/'summaries.js'
+                jp.write_text('{"stale":{}}')
+                js.write_text('stale')
+                with patch.object(s, 'OUT_JSON', str(jp)), patch.object(s, 'OUT_JS', str(js)), patch.object(s, 'API_KEY', key), patch.object(s, 'summarize', side_effect=results):
+                    s.main()
+                result = json.loads(jp.read_text())
+                self.assertEqual(len(result), expected)
+                self.assertNotIn('stale', result)
+                self.assertEqual(json.loads(js.read_text().removeprefix('window.__SUMMARIES__ = ').strip().removesuffix(';')), result)
+                self.assertEqual(len(list(Path(directory).iterdir())), 2)
+
+    def test_input_and_output_failures_are_fatal(self):
+        with patch.object(s, 'FREE_PATH', '/nonexistent/catalog'):
+            with self.assertRaises(FileNotFoundError):
+                s.main()
+        with patch.object(s, 'OUT_JSON', '/nonexistent/summaries.json'):
+            with self.assertRaises(OSError):
+                s.write_outputs({})
+
+
+if __name__ == '__main__':
+    unittest.main()
