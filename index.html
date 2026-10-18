@@ -945,9 +945,21 @@
   </div>
 </div>
 
+<!-- AI summary (precomputed daily in CI) -->
+<div class="card" id="aiSummaryCard" style="display:none;border-color:rgba(217,119,87,.4);">
+  <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
+    <b>✨ AI 추천</b>
+    <div class="seg" role="group" aria-label="AI summary set" id="aiSetSeg" style="margin-left:8px;">
+      <button type="button" data-aiset="go-overall" aria-pressed="true">가성비 종합</button>
+      <button type="button" data-aiset="go-coding" aria-pressed="false">코딩용</button>
+      <button type="button" data-aiset="go-budget" aria-pressed="false">저예산</button>
+    </div>
+  </div>
+  <p class="cap" id="aiSummaryText" style="margin:0;"></p>
+</div>
+
 <div class="card">
-  <h2 id="scatterTitle">Intelligence Index vs Effective Price</h2>
-  <p class="cap" id="scatterCap">Cost-efficiency analysis. The orange line on top is the <b>Frontier Edge</b>, representing Pareto-optimal models with highest capability per cost.</p>
+  <h2 id="scatterTitle">Intelligence Index vs Effective Price</h2>  <p class="cap" id="scatterCap">Cost-efficiency analysis. The orange line on top is the <b>Frontier Edge</b>, representing Pareto-optimal models with highest capability per cost.</p>
   <svg id="scatter" viewBox="0 0 960 540" role="img" aria-label="Scatter plot of capability index versus price"></svg>
   <div class="legend">
     <span><i class="key" style="background:var(--accent)"></i><span data-i18n="leg_frontier">Value Frontier (Pareto Optimal)</span></span>
@@ -1125,6 +1137,7 @@
 <!-- Data scripts -->
 <script src="data/i18n.js"></script>
 <script src="data/last_updated.js"></script>
+<script src="data/summaries.js"></script>
 <script src="data/opencode_go_complete.js"></script>
 <script src="data/opencode_free_models.js"></script>
 <script src="data/models.js"></script>
@@ -2522,6 +2535,11 @@
   }
 
   /* ---------- event listeners ---------- */
+  document.querySelectorAll("#aiSetSeg button").forEach((b) => b.addEventListener("click", () => {
+    aiSetId = b.dataset.aiset;
+    renderGoAiSummary();
+  }));
+
   document.querySelectorAll("#costSeg button").forEach((b) => b.addEventListener("click", () => {
     state.cost = b.dataset.cost;
     document.querySelectorAll("#costSeg button").forEach((o) => o.setAttribute("aria-pressed", o === b ? "true" : "false"));
@@ -2608,10 +2626,29 @@
     });
   }
 
+  // AI summary box (precomputed sets in data/summaries.js)
+  let aiSetId = "go-overall";
+  function renderGoAiSummary() {
+    const card = document.getElementById("aiSummaryCard");
+    const txt = document.getElementById("aiSummaryText");
+    const S = window.__SUMMARIES__ || {};
+    if (!card || !txt) return;
+    const isKo = (window.I18N && window.I18N.lang === "ko");
+    const s = S[aiSetId];
+    if (!s || (!s.ko && !s.en)) { card.style.display = "none"; return; }
+    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    txt.textContent = isKo ? (s.ko || s.en) : (s.en || s.ko);
+    card.style.display = "block";
+    document.querySelectorAll("#aiSetSeg button").forEach(b => {
+      b.setAttribute("aria-pressed", b.dataset.aiset === aiSetId ? "true" : "false");
+    });
+  }
+
   // Load from URL or initialize default
   loadStateFromUrl();
   syncStateToUrl();
   renderPresetPills();
+  renderGoAiSummary();
   render();
 
   if (document.readyState === "loading") {

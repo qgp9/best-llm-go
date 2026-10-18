@@ -32,6 +32,8 @@ jobs:
           python-version: '3.11'
 
       - name: Run data update pipeline
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         run: |
           chmod +x update.sh
           ./update.sh
