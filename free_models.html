@@ -1767,6 +1767,7 @@ print(res.choices[0].message.content)</code></pre>
           <div class="card-tags">
             <span class="tag tag-cat">${catLabel}</span>
             ${safeTag}
+            ${m.reliability === "congested" ? `<span class="tag tag-train">${isKo ? "⚠️ 한도 초과 잦음" : "⚠️ Often rate-limited"}</span>` : ""}
             <span class="tag tag-plat">${m.provider}</span>
           </div>
 

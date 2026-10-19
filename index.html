@@ -975,7 +975,7 @@
     <span><i class="key" style="background:var(--accent)"></i><span data-i18n="leg_frontier">Value Frontier (Pareto Optimal)</span></span>
     <span><i class="key" style="background:var(--demote)"></i><span data-i18n="leg_dominated">Dominated (Cheaper model is smarter)</span></span>
     <span><i class="key" style="background:#3b82f6;transform:rotate(45deg);width:8px;height:8px;border-radius:1px;"></i><span data-i18n="leg_free">Free $0 (own lane)</span></span>
-    <span><i class="key line" style="background:var(--accent);height:3px;"></i><b><span data-i18n="leg_edge">Frontier Edge</span></b></span>
+    <span style="font-size:11.5px;color:var(--ink-3);" data-i18n="leg_free_note">※ NVIDIA NIM은 인기 모델 한도 부족으로 제외 (특수 용도 전용)</span>    <span><i class="key line" style="background:var(--accent);height:3px;"></i><b><span data-i18n="leg_edge">Frontier Edge</span></b></span>
     <span style="margin-left:auto"><i class="key ring-60"></i><span data-i18n="leg_tier60">$60 Tier (x6.0)</span></span>
     <span><i class="key ring-30"></i><span data-i18n="leg_tier30">$30 Tier (x3.0)</span></span>
     <span><i class="key ring-15"></i><span data-i18n="leg_tier15">$15 Tier (x1.5)</span></span>
@@ -1417,6 +1417,10 @@
     return (freeCatalog || [])
       .filter((m) => m && m.intelligence_index != null)
       .filter((m) => !knownFreeNames.has(normName(m.name)))
+      // NVIDIA NIM is excluded on purpose: its popular models are usually
+      // congested ("먹통"), so a high score there is not a usable option.
+      // NIM stays in the free catalog for special-purpose, low-traffic use.
+      .filter((m) => !(m.platform || []).some((p) => /NIM/i.test(p)))
       .map((m) => {
         const priv = m.privacy || {};
         return {

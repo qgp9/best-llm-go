@@ -886,6 +886,20 @@ awesome_models = [
 
 catalog.extend(awesome_models)
 
+# NVIDIA NIM note: its popular models are usually congested (rate limited), so
+# a high intelligence score there is not a usable option. NIM stays in the
+# catalog for special-purpose, low-traffic use.
+for entry in catalog:
+    if "NVIDIA NIM" not in (entry.get("platform") or []):
+        continue
+    entry["reliability"] = "congested"
+    drawbacks = entry.setdefault("summary", {}).setdefault("drawbacks", [])
+    caveat = ("인기 모델은 무료 한도 초과로 요청이 막혀 실사용이 어렵습니다 "
+              "(특수 용도·저빈도 전용, 지능점수 상위 모델은 사실상 사용 불가로 볼 것)")
+    if caveat not in drawbacks:
+        drawbacks.append(caveat)
+    entry["rate_limit"] = (entry.get("rate_limit") or "") + " · 인기 모델은 한도 초과 잦음"
+
 # --- AA benchmark sync (fresh scores from the update_data.py pipeline) ---
 # Hardcoded NIM/stealth scores rot as Artificial Analysis re-benchmarks
 # (e.g. GLM-5.3-Flash 39.8/53.0 -> 41.8/71.5). Entries carrying `aa_name`
