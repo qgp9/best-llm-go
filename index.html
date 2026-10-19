@@ -1493,6 +1493,7 @@
         const priv = m.privacy || {};
         return {
           id: m.id,
+          laneKey: m.id,
           name: m.name,
           creator: m.provider || "—",
           index: m.intelligence_index,
@@ -1515,6 +1516,30 @@
           summary: m.summary || {},
         };
       });
+  }
+
+  /* The free lane gets a fixed layout that does not depend on which filters
+     are active: every free model is placed once, in a stable order, and
+     filtering only shows or hides markers instead of reshuffling them.
+     The layout is computed once per page load and reused. */
+  let FREE_LANE_LAYOUT = null;
+
+  function buildFreeLaneLayout() {
+    const goFree = goData.filter((m) => m.kind === "free" && m.index != null);
+    const knownNames = new Set(goFree.map((m) => normName(m.name)));
+    const entries = [];
+    goFree.forEach((m) => entries.push({ key: "go:" + m.go_id, name: m.name, v: m.index }));
+    freeLaneModels(knownNames).forEach((m) => entries.push({ key: m.laneKey, name: m.name, v: m.v }));
+    entries.sort((a, b) => b.v - a.v || a.name.localeCompare(b.name));
+    const columns = Math.min(4, Math.max(1, Math.ceil(Math.sqrt(entries.length))));
+    const map = new Map();
+    entries.forEach((e, i) => map.set(e.key, { col: i % columns, order: i }));
+    return { map, columns, total: entries.length, indexes: entries.map((e) => e.v) };
+  }
+
+  function freeLaneLayout() {
+    if (!FREE_LANE_LAYOUT) FREE_LANE_LAYOUT = buildFreeLaneLayout();
+    return FREE_LANE_LAYOUT;
   }
 
   function compute() {
@@ -1557,8 +1582,11 @@
       label: m.name
     }));
 
-    // Add the $0 models of the unified free catalog to the free lane
-    const knownFree = new Set(rows.filter((d) => d.kind === "free").map((d) => normName(d.name)));
+    // Add the $0 models of the unified free catalog to the free lane.
+    // The lane layout is fixed, so switching a filter only shows or hides
+    // markers - it never reshuffles the ones already on screen.
+    const laneLayout = freeLaneLayout();
+    const knownFree = new Set(goData.filter((d) => d.kind === "free").map((d) => normName(d.name)));
     const laneRows = freeLaneModels(knownFree).filter((m) => {
       if (state.selectionMode === "custom") return false;
       if (m.index < state.minIdx) return false;
@@ -1572,6 +1600,10 @@
       x: 0,
       label: m.name
     })));
+    // Go free models keep their lane slot as well
+    rows.forEach((d) => {
+      if (d.kind === "free" && !d.laneKey) d.laneKey = "go:" + (d.go_id || d.name);
+    });
 
     if (state.collapse) {
       const best = new Map();
@@ -1584,10 +1616,19 @@
     }
 
     const q = state.q.trim().toLowerCase();
-    const vis = rows.filter((d) => 
+    const vis = rows.filter((d) =>
       (!state.maker || d.creator === state.maker) &&
       (!q || (d.name && d.name.toLowerCase().includes(q)) || (d.creator && d.creator.toLowerCase().includes(q)))
     );
+
+    // The capability axis is scaled by the catalog of the current scope and
+    // the minimum-intelligence filter only - not by the privacy, maker or
+    // search filters. Toggling a filter therefore never rescales the chart
+    // and never moves the markers.
+    const yRange = [...new Set([
+      ...baseList.filter((m) => m.index != null && m.index >= state.minIdx).map((m) => m.index),
+      ...(laneLayout ? laneLayout.indexes.filter((v) => v >= state.minIdx) : []),
+    ])];
 
     // Weighted Pareto frontier on currently active/visible models:
     // a model joins only if its index gain over the last frontier point exceeds
@@ -1606,7 +1647,7 @@
 
     const finalVis = state.frontierOnly ? vis.filter((d) => d.front || d.kind === "free") : vis;
 
-    return { rows, vis: finalVis, frontier };
+    return { rows, vis: finalVis, frontier, laneLayout, yRange };
   }
 
   /* ---------- tooltip ---------- */
@@ -1701,7 +1742,7 @@
   };
 
   /* ---------- scatter ---------- */
-  function drawScatter(rows, vis, frontier) {
+  function drawScatter(rows, vis, frontier, laneLayout, yRange) {
     const svg = $("scatter"); svg.replaceChildren();
     const W = 960, H = 540, M = { t: 26, r: 40, b: 56, l: 62 };
     const pw = W - M.l - M.r, ph = H - M.t - M.b;
@@ -1718,12 +1759,12 @@
     // lane on the left of the plot where their capability is still readable.
     const freeVis = vis.filter((d) => !(d.x > 0));
     const paidVis = vis.filter((d) => d.x > 0);
-    const freeColumns = freeVis.length
-      ? Math.min(4, Math.max(1, Math.ceil(Math.sqrt(freeVis.length)))) : 0;
+    const freeColumns = (laneLayout && laneLayout.columns) || 0;
     const LANE = freeVis.length ? Math.min(232, Math.max(80, 34 + freeColumns * 30)) : 0;
     const plotLeft = M.l + LANE;
 
-    const xs = paidVis.map((d) => d.x), ys = vis.map((d) => d.v);
+    const xs = paidVis.map((d) => d.x);
+    const ys = (yRange && yRange.length) ? yRange : vis.map((d) => d.v);
     if (!xs.length) {
       const t = el("text", { x: W / 2, y: H / 2, "text-anchor": "middle", class: "tick" });
       t.textContent = isKo ? "가격축에 표시할 모델이 없습니다 (무료 모델만 선택됨)." : "No priced models to plot (only $0 free models selected).";
@@ -1783,6 +1824,9 @@
     svg.appendChild(yt);
 
     // Frontier upper edge and fill
+    // Boxes of already placed labels; the frontier caption reserves its slot
+    // here so that model labels never end up on top of it.
+    const placed = [];
     if (frontier.length > 0) {
       // Step-wise frontier points (holding highest capability achieved so far across price domain)
       const stepPoints = [];
@@ -1820,18 +1864,31 @@
         class: "frontier-edge"
       }));
 
-      // Label on the edge
+      // Label on the edge: keep it clear of the last frontier point and
+      // reserve its box, so the model label of that point moves aside
+      // instead of overlapping the caption.
       const lastF = frontier[frontier.length - 1];
+      const edgeText = isKo ? "▲ Frontier Edge (최적 가치선)" : "▲ Frontier Edge (Pareto Frontier)";
+      const edgeW = edgeText.length * 6.4;
+      let edgeX = X(lastF.x) + 10;
+      let edgeAnchor = "start";
+      if (edgeX + edgeW > W - 6) { edgeX = X(lastF.x) - 10; edgeAnchor = "end"; }
+      const edgeY = Math.max(M.t + 12, Math.min(Y(lastF.v) - 12, M.t + ph - 4));
       const edgeLabel = el("text", {
-        x: X(lastF.x) + 8,
-        y: Y(lastF.v) - 8,
+        x: edgeX,
+        y: edgeY,
+        "text-anchor": edgeAnchor,
         class: "axis-title",
         fill: "var(--accent-ink)",
         "font-weight": "600",
-        "font-size": "11px"
+        "font-size": "10.5px"
       });
-      edgeLabel.textContent = isKo ? "▲ Frontier Edge (최적 가치선)" : "▲ Frontier Edge (Pareto Frontier)";
+      edgeLabel.textContent = edgeText;
       svg.appendChild(edgeLabel);
+      placed.push({
+        bx: edgeAnchor === "start" ? edgeX : edgeX - edgeW,
+        by: edgeY - 11, w: edgeW, h: 13
+      });
     }
 
     // Draw dots
@@ -1875,7 +1932,6 @@
     });
 
     // Free ($0) models live in their own lane on the left of the price axis
-    const placed = [];
     const laneDots = [];
     if (freeVis.length) {
       const sortedFree = [...freeVis].sort((a, b) => b.v - a.v);
@@ -1889,7 +1945,10 @@
         return text.length > 16 ? text.slice(0, 15) + "…" : text;
       };
       sortedFree.forEach((d, i) => {
-        const col = i % columns;
+        // column comes from the precomputed layout, so toggling a filter
+        // never moves a marker that is already on screen
+        const slot = (laneLayout && laneLayout.map.get(d.laneKey)) || null;
+        const col = slot ? slot.col : i % columns;
         const cx = M.l + 12 + col * colWidth + colWidth / 2;
         const cy = Y(d.v);
         const isTrain = !!d.trains_on_data;
@@ -1913,7 +1972,7 @@
         svg.append(hit, ring);
         laneDots.push({ bx: cx - 8, by: cy - 8, w: 16, h: 16 });
         // label the strongest free models only, and only when it fits
-        if (i < 8) {
+        if (slot ? slot.order < 8 : i < 8) {
           const text = shortLabel(d.name);
           const w = text.length * 5.2 + 4;
           const box = { bx: cx - w / 2, by: cy + 7, w: w, h: 12 };
@@ -2267,7 +2326,7 @@
   function render() {
     tipHide();
     const isKo = (window.I18N && window.I18N.lang === "ko");
-    const { rows, vis, frontier } = compute();
+    const { rows, vis, frontier, laneLayout, yRange } = compute();
     $("count").textContent = isKo
       ? `${vis.length}개 / 전체 ${rows.length}개 모델 · ${frontier.length}개 프론티어`
       : `${vis.length} / ${rows.length} models · ${frontier.length} frontier picks`;
@@ -2304,7 +2363,7 @@
       ind.innerHTML = `<span>${window.I18N ? window.I18N.t("mode_indicator_blended") : ""}</span>`;
     }
 
-    drawScatter(rows, vis, frontier);
+    drawScatter(rows, vis, frontier, laneLayout, yRange);
     budgetTable(vis);
     updateKindSummary();
     const scoreSuffix = isKo ? "점" : " pts";
