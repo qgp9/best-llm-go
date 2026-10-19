@@ -39,13 +39,14 @@ GO_BASE = os.environ.get(
     "https://opencode.ai/inference/go/openai/v1").rstrip("/")
 # Each chain entry: "go:<model>" (Go endpoint) or "nim:<model>"
 # (console gateway -> NVIDIA custom connection, discovered at runtime).
-# Default tries Muse Spark (Go) first, then NIM flash via console.
+# Default chain: free Go flash models first (MiniMax M3.1 Flash Free,
+# DeepSeek V4.1 Flash), then NIM/GLM flash as fallback.
 MODELS = [m.strip() for m in os.environ.get(
     "SUMMARY_MODELS", os.environ.get(
         "SUMMARY_MODEL",
-        "go:muse-spark-1.3-contributor,nim:z-ai/glm-5.3-flash,"
-        "go:glm-5.3-flash,go:mimo-v2.6-flash,go:deepseek-v4.1-flash")
-).strip().split(",") if m.strip()] or ["go:glm-5.3-flash"]
+        "go:minimax-m3.1-flash-free,go:deepseek-v4.1-flash,"
+        "nim:z-ai/glm-5.3-flash,go:glm-5.3-flash")
+).strip().split(",") if m.strip()] or ["go:minimax-m3.1-flash-free"]
 SESSION_ID = os.environ.get("SUMMARY_SESSION_ID", "best-llm-daily-summaries")
 NIM_CONN_ENV = os.environ.get("SUMMARY_NIM_CONN", "").strip()
 NIM_KEY_HINT = os.environ.get("SUMMARY_NIM_KEY", "console-nvidia").strip()
