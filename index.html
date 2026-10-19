@@ -792,12 +792,52 @@
 .page-layout{display:block;}
 .page-layout .sidebar{display:block;}
 .page-layout .main-col{display:block;}
-@media (min-width:1480px){
-  .page-layout{display:grid;grid-template-columns:340px minmax(0,1fr);gap:20px;align-items:start;}
-  .page-layout .sidebar{position:sticky;top:14px;max-height:calc(100vh - 28px);overflow-y:auto;overflow-x:hidden;padding-right:6px;}
-  .page-layout .sidebar .filters-row{flex-wrap:wrap;gap:8px;}
-  .page-layout .sidebar #costSeg{width:100%;}
-  .page-layout .sidebar #costSeg button{flex:1 1 auto;}
+.page-layout .sidebar-title{display:none;}
+
+/* Wide screens: the filter/selection box moves into a left sidebar and the
+   main column keeps its original width, so the graph renders exactly as
+   before (nothing is squeezed). */
+@media (min-width:1560px){
+  .viz-root{max-width:1540px;}
+  .page-layout{
+    display:grid;grid-template-columns:280px minmax(0,1192px);gap:20px;align-items:start;
+  }
+  .page-layout .sidebar{
+    position:sticky;top:14px;max-height:calc(100vh - 28px);overflow-y:auto;overflow-x:hidden;
+    margin:0;padding:14px 16px;border-radius:18px;background:var(--surface);
+    border:1px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.02);
+  }
+  .page-layout .sidebar-title{
+    display:block;font-weight:600;color:var(--ink);font-size:14px;margin:0 0 10px;
+    padding-bottom:9px;border-bottom:1px dashed var(--line);
+  }
+  /* segmented controls become a vertical list of full-width options */
+  .page-layout .sidebar .seg{
+    display:flex;flex-direction:column;align-items:stretch;gap:4px;
+    border:0;border-radius:0;background:transparent;padding:0;overflow:visible;width:100%;
+  }
+  .page-layout .sidebar .seg button{
+    border:1px solid var(--line);border-radius:10px;padding:7px 12px;
+    white-space:nowrap;text-align:left;background:var(--page);
+  }
+  .page-layout .sidebar .seg button[aria-pressed="true"]{
+    background:var(--ink);color:var(--page);border-color:var(--ink);
+  }
+  .page-layout .sidebar .filters-row{flex-direction:column;align-items:stretch;gap:9px;}
+  .page-layout .sidebar .filters label{justify-content:space-between;flex-wrap:wrap;}
+  .page-layout .sidebar .filters select,
+  .page-layout .sidebar .filters input[type=search]{width:100%;min-width:0;}
+  .page-layout .sidebar .filters input[type=range]{width:100%;}
+  .page-layout .sidebar .count,
+  .page-layout .sidebar .mode-indicator{margin-left:0;width:100%;}
+  .page-layout .sidebar .mode-indicator{justify-content:center;}
+  .page-layout .sidebar #btnSavePreset,
+  .page-layout .sidebar #btnShareUrl,
+  .page-layout .sidebar #btnToggleAdvancedFilters{flex:1 1 auto;justify-content:center;}
+  .page-layout .sidebar .preset-actions{flex-direction:column;align-items:stretch;width:100%;gap:6px;}
+  .page-layout .sidebar .preset-actions .btn{width:100%;white-space:nowrap;}
+  .page-layout .sidebar .count{font-size:13px;line-height:1.5;}
+  .page-layout .sidebar{word-break:keep-all;overflow-wrap:anywhere;}
 }
 
 /* ---------- AI summary guides (structured) ---------- */.sv-headline{font-weight:650;font-size:14px;line-height:1.6;margin-bottom:6px;}
@@ -870,6 +910,7 @@
 
 <div class="page-layout">
 <div class="sidebar" id="filters">
+  <div class="sidebar-title" data-i18n="sidebar_title">⚙️ 필터 · 모델 선택</div>
   <!-- 1. Top primary bar: Cost basis + Catalog Scope + Mode Indicator + Count -->
   <div class="filters-row">
     <!-- View Mode: Effective vs Task vs Quota vs Raw -->
@@ -900,7 +941,7 @@
     <div class="preset-bar" id="presetPillBar">
       <!-- Built-in & Custom Presets will be rendered here -->
     </div>
-    <div style="display:flex; gap:6px; margin-left:auto; align-items:center;">
+    <div class="preset-actions" style="display:flex; gap:6px; margin-left:auto; align-items:center;">
       <button type="button" class="btn btn-sm" id="btnSavePreset" title="Save current filter & model selection preset to browser">➕ <span data-i18n="btn_save_preset">Save Preset</span></button>
       <button type="button" class="btn btn-sm" id="btnShareUrl" title="Copy URL link containing current state to clipboard">🔗 <span data-i18n="btn_copy_link">Copy Link</span></button>
       <button type="button" class="btn btn-sm" id="btnToggleAdvancedFilters" aria-expanded="false" title="Toggle detailed filters & options" style="font-weight:600;display:inline-flex;align-items:center;gap:5px;">
