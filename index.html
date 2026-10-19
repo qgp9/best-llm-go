@@ -436,6 +436,7 @@
 
   /* Preset Pills */
   .preset-bar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .preset-actions { display: flex; gap: 6px; margin-left: auto; align-items: center; }
   .preset-pill {
     display: inline-flex; align-items: center; gap: 6px; font-size: 12px;
     padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line);
@@ -796,48 +797,74 @@
 
 /* Wide screens: the filter/selection box moves into a left sidebar and the
    main column keeps its original width, so the graph renders exactly as
-   before (nothing is squeezed). */
-@media (min-width:1560px){
-  .viz-root{max-width:1540px;}
+   before (nothing is squeezed). The sidebar is wide enough to hold two
+   options per row, so everything fits without scrolling. */
+@media (min-width:1640px){
+  .viz-root{max-width:1640px;}
   .page-layout{
-    display:grid;grid-template-columns:280px minmax(0,1192px);gap:20px;align-items:start;
+    display:grid;grid-template-columns:380px minmax(0,1192px);gap:20px;align-items:start;
   }
   .page-layout .sidebar{
     position:sticky;top:14px;max-height:calc(100vh - 28px);overflow-y:auto;overflow-x:hidden;
-    margin:0;padding:14px 16px;border-radius:18px;background:var(--surface);
+    margin:0;padding:14px 16px 8px;border-radius:18px;background:var(--surface);
     border:1px solid var(--line);box-shadow:0 2px 8px rgba(0,0,0,.02);
   }
   .page-layout .sidebar-title{
     display:block;font-weight:600;color:var(--ink);font-size:14px;margin:0 0 10px;
     padding-bottom:9px;border-bottom:1px dashed var(--line);
   }
-  /* segmented controls become a vertical list of full-width options */
+  /* filter rows become a two column grid */
+  .page-layout .sidebar .filters-row{
+    display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;align-items:center;row-gap:8px;
+  }
+  .page-layout .sidebar .f-wide{grid-column:1 / -1;}
+  .page-layout .sidebar .filters label{justify-content:space-between;flex-wrap:wrap;gap:6px;}
+  .page-layout .sidebar .filters select,
+  .page-layout .sidebar .filters input[type=search]{width:100%;min-width:0;}
+  .page-layout .sidebar .filters input[type=range]{width:100%;}
+  /* segmented controls: two options per row */
   .page-layout .sidebar .seg{
-    display:flex;flex-direction:column;align-items:stretch;gap:4px;
+    grid-column:1 / -1;display:grid;grid-template-columns:1fr 1fr;gap:5px;
     border:0;border-radius:0;background:transparent;padding:0;overflow:visible;width:100%;
   }
   .page-layout .sidebar .seg button{
-    border:1px solid var(--line);border-radius:10px;padding:7px 12px;
-    white-space:nowrap;text-align:left;background:var(--page);
+    border:1px solid var(--line);border-radius:10px;padding:6px 8px;
+    white-space:nowrap;text-align:center;background:var(--page);font-size:13px;
   }
   .page-layout .sidebar .seg button[aria-pressed="true"]{
     background:var(--ink);color:var(--page);border-color:var(--ink);
   }
-  .page-layout .sidebar .filters-row{flex-direction:column;align-items:stretch;gap:9px;}
-  .page-layout .sidebar .filters label{justify-content:space-between;flex-wrap:wrap;}
-  .page-layout .sidebar .filters select,
-  .page-layout .sidebar .filters input[type=search]{width:100%;min-width:0;}
-  .page-layout .sidebar .filters input[type=range]{width:100%;}
-  .page-layout .sidebar .count,
-  .page-layout .sidebar .mode-indicator{margin-left:0;width:100%;}
-  .page-layout .sidebar .mode-indicator{justify-content:center;}
-  .page-layout .sidebar #btnSavePreset,
-  .page-layout .sidebar #btnShareUrl,
-  .page-layout .sidebar #btnToggleAdvancedFilters{flex:1 1 auto;justify-content:center;}
-  .page-layout .sidebar .preset-actions{flex-direction:column;align-items:stretch;width:100%;gap:6px;}
-  .page-layout .sidebar .preset-actions .btn{width:100%;white-space:nowrap;}
-  .page-layout .sidebar .count{font-size:13px;line-height:1.5;}
+  /* the odd button of an odd-sized group spans both columns */
+  .page-layout .sidebar #costSeg button:last-child{grid-column:1 / -1;}
+  .page-layout .sidebar .mode-indicator{grid-column:1 / -1;justify-content:center;font-size:12.5px;}
+  .page-layout .sidebar .count{grid-column:1 / -1;margin-left:0;text-align:center;font-size:13px;}
+  .page-layout .sidebar .preset-actions{
+    grid-column:1 / -1;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;
+  }
+  .page-layout .sidebar .preset-actions .btn{
+    width:100%;white-space:nowrap;overflow:hidden;font-size:10.5px;padding:5px 3px;
+  }
+  .page-layout .sidebar .preset-actions .btn span{margin-left:2px;}
+  .page-layout .sidebar #btnToggleSectionsDrawer{grid-column:1 / -1;justify-content:center;}
+  .page-layout .sidebar #btnSelectAllDrawer,
+  .page-layout .sidebar #btnClearAllDrawer{width:100%;}
+
+  .page-layout .sidebar .filters-row > span[data-i18n],
+  .page-layout .sidebar .filters-row > span:first-child{grid-column:1 / -1;}
+  .page-layout .sidebar .filters-row > span[style*="margin-left:auto"]{grid-column:1 / -1;}
+  .page-layout .sidebar .f-presets > span:first-child{grid-column:auto;}
+  .page-layout .sidebar .f-presets .preset-bar{grid-column:auto;justify-self:end;}
+  .page-layout .sidebar .f-presets .preset-actions{grid-column:1 / -1;}
+  .page-layout .sidebar .count{word-break:keep-all;}
+  .page-layout .sidebar #advancedFiltersSection .filters-row{gap:6px 10px;}
+  .page-layout .sidebar #advancedFiltersSection span[style*="margin-left:auto"]{font-size:11px;line-height:1.45;}
+  .page-layout .sidebar #kindSummary{font-size:11px;line-height:1.45;}
+  .page-layout .sidebar{gap:8px 10px;}
+  .page-layout .sidebar .mode-indicator{font-size:12px;padding:4px 9px;}
+  .page-layout .sidebar .sidebar-title{margin-bottom:8px;padding-bottom:7px;}
+  .page-layout .sidebar .preset-pill{font-size:11.5px;padding:2px 9px;}
   .page-layout .sidebar{word-break:keep-all;overflow-wrap:anywhere;}
+  .page-layout .sidebar #advancedFiltersSection .filters-row:first-child{padding-top:0;}
 }
 
 /* ---------- AI summary guides (structured) ---------- */.sv-headline{font-weight:650;font-size:14px;line-height:1.6;margin-bottom:6px;}
@@ -936,12 +963,12 @@
   </div>
 
   <!-- 2. Presets Row: Pill bar + Save + Copy + Collapsible Toggle -->
-  <div class="filters-row" style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 13.5px; align-items: center;">
+  <div class="filters-row f-presets" style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 13.5px; align-items: center;">
     <span style="font-weight:600;color:var(--ink);"><span data-i18n="lbl_presets">💾 Presets:</span></span>
     <div class="preset-bar" id="presetPillBar">
       <!-- Built-in & Custom Presets will be rendered here -->
     </div>
-    <div class="preset-actions" style="display:flex; gap:6px; margin-left:auto; align-items:center;">
+    <div class="preset-actions">
       <button type="button" class="btn btn-sm" id="btnSavePreset" title="Save current filter & model selection preset to browser">➕ <span data-i18n="btn_save_preset">Save Preset</span></button>
       <button type="button" class="btn btn-sm" id="btnShareUrl" title="Copy URL link containing current state to clipboard">🔗 <span data-i18n="btn_copy_link">Copy Link</span></button>
       <button type="button" class="btn btn-sm" id="btnToggleAdvancedFilters" aria-expanded="false" title="Toggle detailed filters & options" style="font-weight:600;display:inline-flex;align-items:center;gap:5px;">
@@ -953,11 +980,11 @@
   <!-- 3. Collapsible Advanced Filters Section (나머지 상세 필터 및 설정) -->
   <div id="advancedFiltersSection">
     <div class="filters-row" style="padding-top: 4px;">
-      <label><span data-i18n="lbl_min_idx">Min Intelligence</span> <input type="range" id="minIdx" min="0" max="50" step="5" value="20" aria-label="Minimum index"> <span id="minIdxVal" style="font-weight:600;min-width:18px;">20</span></label>
+      <label class="f-wide"><span data-i18n="lbl_min_idx">Min Intelligence</span> <input type="range" id="minIdx" min="0" max="50" step="5" value="20" aria-label="Minimum index"> <span id="minIdxVal" style="font-weight:600;min-width:18px;">20</span></label>
       <label title="Keep only the highest score variant"><input type="checkbox" id="collapse" checked> <span data-i18n="lbl_collapse">1 row per model</span></label>
       <label><span data-i18n="lbl_maker">Maker</span> <select id="makerSel"><option value="" data-i18n="opt_all_makers">All Makers</option></select></label>
       <label><span data-i18n="lbl_multiplier">Multiplier</span> <select id="multiplierSel"><option value="" data-i18n="opt_all_multipliers">All Multipliers</option></select></label>
-      <label><input type="search" id="search" placeholder="Search model…" data-i18n-ph="ph_search" aria-label="Search model"></label>
+      <label class="f-wide"><input type="search" id="search" placeholder="Search model…" data-i18n-ph="ph_search" aria-label="Search model"></label>
       <label><input type="checkbox" id="frontierOnly"> <span data-i18n="lbl_frontier_only">Frontier only</span></label>
       <label><input type="checkbox" id="labelsAll"> <span data-i18n="lbl_labels_all">Show all labels</span></label>
     </div>
@@ -995,10 +1022,10 @@
     <!-- Data Privacy Row -->
     <div class="filters-row" style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 13.5px;">
       <span style="font-weight:600;color:var(--ink);"><span data-i18n="lbl_privacy_policy">🛡️ Data Privacy & Training Policy:</span></span>
-      <label title="Models that do not use user prompt data for training (Zero Data Retention / Safe). Includes $0 free models.">
+      <label class="f-wide" title="Models that do not use user prompt data for training (Zero Data Retention / Safe). Includes $0 free models.">
         <input type="checkbox" id="filterNoTrain" checked> <span data-i18n="lbl_no_train">Safe / No Training</span>
       </label>
-      <label title="Contributor / discounted models where prompt data may be used for model training">
+      <label class="f-wide" title="Contributor / discounted models where prompt data may be used for model training">
         <input type="checkbox" id="filterTrain"> <span data-i18n="lbl_train">Model Training: Yes (Contributor)</span>
       </label>
       <span style="font-size:12px;color:var(--ink-3);margin-left:auto;" data-i18n="lbl_privacy_hint">※ Contributor models are disabled by default. Checking recalculates the <b>Frontier Edge</b> in real time.</span>
