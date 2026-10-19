@@ -954,6 +954,21 @@
   </div>
 </div>
 
+<div class="card">
+  <h2 id="scatterTitle">Intelligence Index vs Effective Price</h2>  <p class="cap" id="scatterCap">Cost-efficiency analysis. The orange line on top is the <b>Frontier Edge</b>, representing Pareto-optimal models with highest capability per cost.</p>
+  <svg id="scatter" viewBox="0 0 960 540" role="img" aria-label="Scatter plot of capability index versus price"></svg>
+  <div class="legend">
+    <span><i class="key" style="background:var(--accent)"></i><span data-i18n="leg_frontier">Value Frontier (Pareto Optimal)</span></span>
+    <span><i class="key" style="background:var(--demote)"></i><span data-i18n="leg_dominated">Dominated (Cheaper model is smarter)</span></span>
+    <span><i class="key" style="background:#3b82f6;transform:rotate(45deg);width:8px;height:8px;border-radius:1px;"></i><span data-i18n="leg_free">Free $0 (own lane)</span></span>
+    <span><i class="key line" style="background:var(--accent);height:3px;"></i><b><span data-i18n="leg_edge">Frontier Edge</span></b></span>
+    <span style="margin-left:auto"><i class="key ring-60"></i><span data-i18n="leg_tier60">$60 Tier (x6.0)</span></span>
+    <span><i class="key ring-30"></i><span data-i18n="leg_tier30">$30 Tier (x3.0)</span></span>
+    <span><i class="key ring-15"></i><span data-i18n="leg_tier15">$15 Tier (x1.5)</span></span>
+    <span><span class="tag-tier tag-train" style="font-size:10.5px;" data-i18n="leg_training">Training: Yes</span></span>
+  </div>
+</div>
+
 <!-- AI summary (precomputed daily in CI) -->
 <div class="card" id="aiSummaryCard" style="display:none;border-color:rgba(217,119,87,.4);">
   <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
@@ -968,20 +983,6 @@
     </div>
   </div>
   <div id="aiSummaryText" style="font-size:13.5px;line-height:1.65;"></div>
-</div>
-
-<div class="card">
-  <h2 id="scatterTitle">Intelligence Index vs Effective Price</h2>  <p class="cap" id="scatterCap">Cost-efficiency analysis. The orange line on top is the <b>Frontier Edge</b>, representing Pareto-optimal models with highest capability per cost.</p>
-  <svg id="scatter" viewBox="0 0 960 540" role="img" aria-label="Scatter plot of capability index versus price"></svg>
-  <div class="legend">
-    <span><i class="key" style="background:var(--accent)"></i><span data-i18n="leg_frontier">Value Frontier (Pareto Optimal)</span></span>
-    <span><i class="key" style="background:var(--demote)"></i><span data-i18n="leg_dominated">Dominated (Cheaper model is smarter)</span></span>
-    <span><i class="key line" style="background:var(--accent);height:3px;"></i><b><span data-i18n="leg_edge">Frontier Edge</span></b></span>
-    <span style="margin-left:auto"><i class="key ring-60"></i><span data-i18n="leg_tier60">$60 Tier (x6.0)</span></span>
-    <span><i class="key ring-30"></i><span data-i18n="leg_tier30">$30 Tier (x3.0)</span></span>
-    <span><i class="key ring-15"></i><span data-i18n="leg_tier15">$15 Tier (x1.5)</span></span>
-    <span><span class="tag-tier tag-train" style="font-size:10.5px;" data-i18n="leg_training">Training: Yes</span></span>
-  </div>
 </div>
 
 <!-- 전략적 모델 가이드 -->
@@ -1076,6 +1077,7 @@
           <th data-i18n="th_free_platform">Platform</th>
           <th data-i18n="th_free_index">Intelligence (AA)</th>
           <th data-i18n="th_free_coding">Coding (AA)</th>
+          <th data-i18n="th_free_context">Context (console)</th>
           <th data-i18n="th_free_privacy">Data Privacy</th>
           <th data-i18n="th_free_price">Cost</th>
         </tr>
@@ -1218,6 +1220,12 @@
         trains_on_data: match.trains_on_data || false,
         kind: match.kind || "standard",
         unlimited: !!match.unlimited,
+        context_limit: match.context_limit || null,
+        output_limit: match.output_limit || null,
+        modalities: match.modalities || [],
+        tool_call: match.tool_call,
+        release_date: match.release_date || null,
+        base_model: match.base_model || null,
         retention: match.retention || "0 days",
         privacy_note: match.privacy_note || "No training · 0 days",
         blended: match.blended || m.blended
@@ -1462,12 +1470,21 @@
 
     const isKo = (window.I18N && window.I18N.lang === "ko");
     const scoreSuffix = isKo ? "점" : " pts";
+    const base = d.base_model || {};
+    const baseTxt = base.input != null
+      ? (isKo
+          ? `무료 종료 후 유료가: ${base.id} $${base.input}/1M (입력), $${base.output}/1M (출력)`
+          : `Paid tier of this model: ${base.id} $${base.input}/1M in, $${base.output}/1M out`)
+      : (isKo ? "유료 대응 모델 없음 (무료 전용)" : "No paid counterpart (free-only)");
     const rows = [
       [METRIC, num(d.v, 1) + scoreSuffix],
       [isKo ? "제조사" : "Creator", d.creator || "—"],
       [isKo ? "Go 월간 한도" : "Go Monthly Cap", d.kind === "free" ? (isKo ? "Free ($0, 한도 차감 없음)" : "Free ($0, no allowance burn)") : (d.allowance ? `$${d.allowance} (${isKo ? '배율' : 'multiplier'} x${d.multiplier})` : "—")],
       [isKo ? "5시간 롤링 제한" : "5h Rolling Limit", d.requests_5h ? `${num(d.requests_5h)} requests / 5h` : (d.unlimited ? (isKo ? "무제한 (한시적)" : "Unlimited (limited time)") : "—")],
+      [isKo ? "컨텍스트 / 출력 한도" : "Context / output limit", d.context_limit ? `${num(d.context_limit)} / ${d.output_limit ? num(d.output_limit) : "—"}` : (isKo ? "미공개" : "unknown")],
+      [isKo ? "입력 모달리티" : "Input modalities", (d.modalities && d.modalities.length) ? d.modalities.join(", ") : (isKo ? "텍스트" : "text")],
       [isKo ? "데이터 프라이버시" : "Data Privacy", d.trains_on_data ? (isKo ? "⚠️ 모델 학습 활용 (Yes)" : "⚠️ Trains on user data") : (isKo ? `보호됨 (학습 안함 · ${d.retention || '0 days'})` : `Safe (No training · ${d.retention || '0 days'})`)],
+      [isKo ? "유료 기준가" : "Paid list price", baseTxt],
       [isKo ? "태스크당 Go 체감" : "Go Cost /task", d.effective_task != null ? (money(d.effective_task) + " /task") : "—"],
       [isKo ? "태스크당 정가" : "Raw Cost /task", d.task != null ? (money(d.task) + " /task") : "—"],
       [isKo ? "Go 체감 단가" : "Go Effective $/1M", money(d.effective_price) + " /1M"],
@@ -1476,7 +1493,7 @@
     ];
 
     rows.forEach(([lab, val], i) => {
-      if (i === 2 || i === 4 || i === 6) {
+      if (i === 2 || i === 6 || i === 8) {
         const div = h("div", "tip-divider");
         tip.appendChild(div);
       }
@@ -1546,21 +1563,43 @@
       return;
     }
 
-    const xs = rows.filter((d) => d.x > 0).map((d) => d.x), ys = rows.map((d) => d.v);
+    // $0 free models cannot live on a log price axis, so they get a dedicated
+    // lane on the left of the plot where their capability is still readable.
+    const freeVis = vis.filter((d) => !(d.x > 0));
+    const paidVis = vis.filter((d) => d.x > 0);
+    const LANE = freeVis.length ? Math.min(132, Math.max(78, pw * 0.13)) : 0;
+    const plotLeft = M.l + LANE;
+
+    const xs = paidVis.map((d) => d.x), ys = vis.map((d) => d.v);
     if (!xs.length) {
       const t = el("text", { x: W / 2, y: H / 2, "text-anchor": "middle", class: "tick" });
       t.textContent = isKo ? "가격축에 표시할 모델이 없습니다 (무료 모델만 선택됨)." : "No priced models to plot (only $0 free models selected).";
       svg.appendChild(t);
-      return;
+      if (!freeVis.length) return;
     }
-    const xmin = Math.min(...xs) / 1.5, xmax = Math.max(...xs) * 1.5;
+    const xmin = xs.length ? Math.min(...xs) / 1.5 : 1, xmax = xs.length ? Math.max(...xs) * 1.5 : 10;
     const x0 = Math.log10(xmin), x1 = Math.log10(xmax);
     const ystep = 5;
     const y0 = Math.floor((Math.min(...ys) - 2) / ystep) * ystep;
     const y1 = Math.ceil((Math.max(...ys) + 2) / ystep) * ystep;
 
-    const X = (v) => M.l + (Math.log10(v) - x0) / (x1 - x0) * pw;
+    const plotWidth = pw - LANE;
+    const X = (v) => plotLeft + (Math.log10(v) - x0) / (x1 - x0) * plotWidth;
     const Y = (v) => M.t + ph - (v - y0) / (y1 - y0) * ph;
+
+    // Free lane background + label
+    if (LANE) {
+      svg.appendChild(el("rect", {
+        x: M.l, y: M.t, width: LANE, height: ph,
+        fill: "var(--accent-soft)", "fill-opacity": 0.5, stroke: "var(--line)", "stroke-width": 1
+      }));
+      const laneLabel = el("text", {
+        x: M.l + LANE / 2, y: M.t + 14, "text-anchor": "middle", class: "axis-title",
+        "font-size": "10.5px", fill: "var(--ink-3)"
+      });
+      laneLabel.textContent = isKo ? "무료 $0" : "Free $0";
+      svg.appendChild(laneLabel);
+    }
 
     // Y grid
     for (let v = y0; v <= y1; v += ystep) {
@@ -1571,7 +1610,7 @@
     }
 
     // X grid
-    niceLogTicks(xmin, xmax).forEach((v) => {
+    if (xs.length) niceLogTicks(xmin, xmax).forEach((v) => {
       svg.appendChild(el("line", { x1: X(v), x2: X(v), y1: M.t, y2: M.t + ph, stroke: "var(--grid)", "stroke-width": 1 }));
       const t = el("text", { x: X(v), y: M.t + ph + 22, "text-anchor": "middle", class: "tick" });
       t.textContent = fmtTick(v);
@@ -1582,7 +1621,7 @@
 
     // Axis titles
     const cfg = COST_CONFIG[state.cost];
-    const xt = el("text", { x: M.l + pw / 2, y: M.t + ph + 46, "text-anchor": "middle", class: "axis-title" });
+    const xt = el("text", { x: plotLeft + plotWidth / 2, y: M.t + ph + 46, "text-anchor": "middle", class: "axis-title" });
     xt.textContent = cfg.axis;
     svg.appendChild(xt);
 
@@ -1643,7 +1682,7 @@
     }
 
     // Draw dots
-    const ordered = [...vis].filter((d) => d.x > 0).sort((a, b) => (a.front ? 1 : 0) - (b.front ? 1 : 0));
+    const ordered = [...paidVis].sort((a, b) => (a.front ? 1 : 0) - (b.front ? 1 : 0));
     ordered.forEach((d) => {
       const cx = X(d.x), cy = Y(d.v);
       const c = d.front ? "var(--accent)" : "var(--demote)";
@@ -1682,10 +1721,47 @@
       svg.append(hit, ring);
     });
 
+    // Free ($0) models live in their own lane on the left of the price axis
+    if (freeVis.length) {
+      const sortedFree = [...freeVis].sort((a, b) => b.v - a.v);
+      const columns = Math.min(3, Math.max(1, Math.ceil(sortedFree.length / 2)));
+      const colWidth = (LANE - 26) / columns;
+      sortedFree.forEach((d, i) => {
+        const col = i % columns;
+        const cx = M.l + 14 + col * colWidth + colWidth / 2;
+        const cy = Y(d.v);
+        const isTrain = !!d.trains_on_data;
+        // diamond marker for free models
+        const r = 7;
+        svg.appendChild(el("polygon", {
+          points: `${cx},${cy - r} ${cx + r},${cy} ${cx},${cy + r} ${cx - r},${cy}`,
+          fill: isTrain ? "var(--demote)" : "#3b82f6",
+          stroke: isTrain ? "#ef4444" : "#1d4ed8", "stroke-width": isTrain ? 2 : 1
+        }));
+        const hit = el("circle", {
+          cx, cy, r: 13, fill: "transparent", class: "hit", tabindex: "0", role: "img",
+          "aria-label": `${d.name}: ${METRIC} ${num(d.v, 1)}, $0 (free)`
+        });
+        hit.style.cursor = "pointer";
+        const ring = el("circle", { cx, cy, r: 10, class: "focus-ring" });
+        bindHover(hit, d, () => {
+          const b = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
+          return [b.left + cx / vb.width * b.width, b.top + cy / vb.height * b.height];
+        });
+        svg.append(hit, ring);
+        const lb = el("text", {
+          x: cx, y: cy + 20, "text-anchor": "middle", class: "pt-label",
+          fill: "var(--ink-2)", "font-size": "10px"
+        });
+        lb.textContent = d.name;
+        svg.appendChild(lb);
+      });
+    }
+
     // Greedy label placement
     const placed = [];
     const labelLayer = el("g");
-    const plotVis = vis.filter((d) => d.x > 0);
+    const plotVis = paidVis;
     const dots = plotVis.map((o) => ({ bx: X(o.x) - 8, by: Y(o.v) - 8, w: 16, h: 16 }));
     const byPriority = [...plotVis].sort((a, b) => (b.front ? 1 : 0) - (a.front ? 1 : 0) || b.v - a.v);
 
@@ -1825,7 +1901,13 @@
       tr.appendChild(chkTd);
 
       const nameTd = h("td");
-      nameTd.innerHTML = `<b>${d.name}</b>` + (d.go_id ? `<br><span style="font-size:11px;color:var(--ink-3);font-family:var(--mono);">opencode-go/${d.go_id}</span>` : "");
+      const ctxBits = [];
+      if (d.context_limit) ctxBits.push(`ctx ${num(d.context_limit)}`);
+      const mods = (d.modalities || []).filter((x) => x !== "text");
+      if (mods.length) ctxBits.push(mods.join("/"));
+      nameTd.innerHTML = `<b>${d.name}</b>`
+        + (d.go_id ? `<br><span style="font-size:11px;color:var(--ink-3);font-family:var(--mono);">opencode-go/${d.go_id}</span>` : "")
+        + (ctxBits.length ? `<br><span style="font-size:11px;color:var(--ink-3);">${ctxBits.join(" · ")}</span>` : "");
       tr.appendChild(nameTd);
 
       // Creator column
@@ -1862,7 +1944,17 @@
       tr.appendChild(h("td", null, d.requests_5h ? `${num(d.requests_5h)}/5h` : (d.unlimited ? (isKo ? "무제한" : "Unlimited") : "—")));
       tr.appendChild(h("td", null, d.effective_task != null ? money(d.effective_task) : "—"));
       tr.appendChild(h("td", null, d.task != null ? money(d.task) : "—"));
-      tr.appendChild(h("td", null, money(d.effective_price)));
+      const priceTd = h("td");
+      priceTd.textContent = money(d.effective_price);
+      if (d.kind === "free" && d.base_model && d.base_model.input != null) {
+        const sub = h("span", null, (isKo ? "유료 " : "paid ") + `$${d.base_model.input}/1M`);
+        sub.style.display = "block";
+        sub.style.fontSize = "10.5px";
+        sub.style.color = "var(--ink-3)";
+        sub.title = `${d.base_model.id} (${d.base_model.relation})`;
+        priceTd.appendChild(sub);
+      }
+      tr.appendChild(priceTd);
       tr.appendChild(h("td", null, percent(d.quota_burn)));
       tr.appendChild(h("td", null, money(d.blended)));
 
@@ -1949,6 +2041,23 @@
       idxTd.textContent = d.index ? num(d.index, 1) + scoreSuffix : (isKo ? "— (Stealth/신규)" : "— (Stealth / New)");
       tr.appendChild(idxTd);
 
+      // Context limit (from the OpenCode console catalog)
+      const ctxTd = h("td");
+      if (d.context_limit) {
+        ctxTd.textContent = num(d.context_limit);
+        const mods = (d.modalities || []).filter((x) => x !== "text");
+        if (mods.length) {
+          const sub = h("span", null, mods.join("/"));
+          sub.style.display = "block";
+          sub.style.fontSize = "10.5px";
+          sub.style.color = "var(--ink-3)";
+          ctxTd.appendChild(sub);
+        }
+      } else {
+        ctxTd.textContent = "—";
+      }
+      tr.appendChild(ctxTd);
+
       // Coding Index
       const codeTd = h("td");
       codeTd.textContent = d.coding ? num(d.coding, 1) + scoreSuffix : "—";
@@ -1964,9 +2073,17 @@
       privTd.title = d.privacy_note || "";
       tr.appendChild(privTd);
 
-      // Pricing (Free)
+      // Pricing (Free + paid list price)
       const costTd = h("td");
-      costTd.innerHTML = `<span class="tag-tier tag-free">$0.00 (Free)</span>`;
+      costTd.appendChild(h("span", "tag-tier tag-free", "$0.00 (Free)"));
+      if (d.base_model && d.base_model.input != null) {
+        const sub = h("span", null, (isKo ? "유료 " : "paid ") + `$${d.base_model.input}/1M`);
+        sub.style.display = "block";
+        sub.style.fontSize = "10.5px";
+        sub.style.color = "var(--ink-3)";
+        sub.title = `${d.base_model.id} (${d.base_model.relation})`;
+        costTd.appendChild(sub);
+      }
       tr.appendChild(costTd);
 
       tb.appendChild(tr);

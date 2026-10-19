@@ -13,6 +13,8 @@ import json
 import re
 import os
 import ssl
+
+import console_data
 from datetime import datetime, timezone
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -194,6 +196,15 @@ def make_slug(name):
     clean = re.sub(r'\(.*?\)', '', name).strip().lower()
     return re.sub(r'[^a-z0-9.]+', '-', clean).strip('-')
 
+
+# --- console provider catalog (machine-readable limits, modalities, pricing) ---
+# build_console_catalog.py writes data/console_models.json from the OpenCode
+# console API. It is optional: without it the data still comes from the
+# documentation pages, just without the authoritative limits/modalities.
+CONSOLE_PROVIDERS = console_data.load()
+CONSOLE_INDEX = console_data.build_index(CONSOLE_PROVIDERS)
+PRICE_WARNINGS = []
+
 final_models = []
 for m in console_models:
     name = m['name']
@@ -247,6 +258,26 @@ for m in console_models:
     task_cost = aa.get('task') if aa else None
     effective_task = (task_cost / multiplier) if (task_cost is not None and multiplier > 0) else task_cost
 
+    # --- console catalog enrichment (authoritative limits/modalities/pricing) ---
+    console_entry = (console_data.lookup(CONSOLE_INDEX, slug)
+                     or console_data.lookup(CONSOLE_INDEX, name))
+    console_model = console_entry['model'] if console_entry else None
+    context_limit = None
+    output_limit = None
+    release_date = None
+    modalities = []
+    tool_call = None
+    if console_model:
+        context_limit = console_model.get('context_limit')
+        output_limit = console_model.get('output_limit')
+        release_date = console_model.get('release_date')
+        modalities = console_model.get('input_modalities') or []
+        tool_call = console_model.get('tool_call')
+        console_price = (console_model.get('cost_input'), console_model.get('cost_output'))
+        if console_price[0] is not None and console_price[0] > m['input'] + 1e-9:
+            PRICE_WARNINGS.append(
+                f"{slug}: console ${console_price[0]}/1M > docs ${m['input']}/1M")
+
     final_models.append({
         'id': f'opencode-go/{slug}',
         'go_id': slug,
@@ -273,8 +304,31 @@ for m in console_models:
         'index': index_score,
         'coding': coding_score,
         'tps': tps,
-        'aa_name': aa_name
+        'aa_name': aa_name,
+        'context_limit': context_limit,
+        'output_limit': output_limit,
+        'release_date': release_date,
+        'modalities': modalities,
+        'tool_call': tool_call
     })
+
+# Free models: resolve the paid counterpart and its list price
+for entry in final_models:
+    if entry.get('kind') != 'free':
+        continue
+    own = console_data.lookup(CONSOLE_INDEX, entry['go_id'], allow_prefix=False)
+    family = own['model'].get('family') if own else None
+    entry['base_model'] = console_data.base_model_for(
+        entry['go_id'], CONSOLE_INDEX, final_models, family,
+        own['provider'] if own else None)
+    entry['family'] = family
+
+if PRICE_WARNINGS:
+    print(f"   Price cross-check warnings ({len(PRICE_WARNINGS)}):")
+    for warning in PRICE_WARNINGS:
+        print(f"     - {warning}")
+else:
+    print("   Price cross-check: console API and Go docs agree on all priced models.")
 
 # Save outputs for Go models
 with open(os.path.join(DATA_DIR, "opencode_go_complete.json"), "w") as f:
@@ -381,6 +435,14 @@ try:
                     available_in_go = len(go_match) > 0
                     go_limit = go_match[0]['allowance'] if available_in_go else None
 
+                    # console catalog: real limits, modalities, paid counterpart
+                    free_entry = console_data.lookup(CONSOLE_INDEX, mid, allow_prefix=False)
+                    free_model = free_entry['model'] if free_entry else {}
+                    base_model = console_data.base_model_for(
+                        mid, CONSOLE_INDEX, final_models,
+                        free_model.get('family'),
+                        free_entry['provider'] if free_entry else None)
+
                     free_models.append({
                         'id': f'free/{mid}',
                         'name': mname,
@@ -400,7 +462,13 @@ try:
                         'coding': coding,
                         'tps': tps,
                         'aa_name': aa_name,
-                        'go_allowance': go_limit
+                        'go_allowance': go_limit,
+                        'context_limit': free_model.get('context_limit'),
+                        'output_limit': free_model.get('output_limit'),
+                        'modalities': free_model.get('input_modalities') or [],
+                        'tool_call': free_model.get('tool_call'),
+                        'release_date': free_model.get('release_date'),
+                        'base_model': base_model
                     })
     print(f"   Successfully collected {len(free_models)} free models from OpenCode Zen!")
 except Exception as e:

@@ -200,12 +200,26 @@ def digest_free(free):
     for m in free:
         priv = m.get("privacy") or {}
         summary = m.get("summary") or {}
+        modalities = [x for x in (m.get("modalities") or []) if x != "text"]
+        base = m.get("base_model") or {}
+        extra = []
+        if modalities:
+            extra.append("multimodal=" + ",".join(modalities))
+        if m.get("tool_call") is not None:
+            extra.append(f"tools={'yes' if m['tool_call'] else 'no'}")
+        if base.get("input") is not None:
+            extra.append(f"paid_twin={base.get('id')}"
+                         f"(${base.get('input')}/1M in, ${base.get('output')}/1M out,"
+                         f"relation={base.get('relation')})")
+        if m.get("release_date"):
+            extra.append(f"released={m['release_date']}")
         lines.append(
             f"- {m.get('name')} | model_id={m.get('model_id')} | "
             f"platform={','.join(m.get('platform', []))} | provider={m.get('provider')} | "
             f"intel={m.get('intelligence_index')} coding={m.get('coding_index')} "
             f"ctx={m.get('context_window')} | "
             f"training={'no' if priv.get('is_safe') else 'yes'} | "
+            f"{' | '.join(extra)} | "
             f"{summary.get('one_liner', '')} {summary.get('recommended_for', '')}".rstrip()
         )
     return lines
@@ -215,12 +229,28 @@ def digest_go(go):
     lines = []
     for m in go:
         price = "unknown" if m.get("effective_price") is None else f"${m['effective_price']:.4f}/1M"
+        modalities = [x for x in (m.get("modalities") or []) if x != "text"]
+        base = m.get("base_model") or {}
+        extra = []
+        if m.get("context_limit"):
+            extra.append(f"ctx={m['context_limit']}")
+        if m.get("output_limit"):
+            extra.append(f"max_out={m['output_limit']}")
+        if modalities:
+            extra.append("multimodal=" + ",".join(modalities))
+        if base.get("input") is not None:
+            extra.append(f"paid_twin={base.get('id')}"
+                         f"(${base.get('input')}/1M in, ${base.get('output')}/1M out,"
+                         f"relation={base.get('relation')})")
+        if m.get("release_date"):
+            extra.append(f"released={m['release_date']}")
         lines.append(
             f"- {m.get('name')} | go_id={m.get('go_id')} | creator={m.get('creator')} | "
             f"index={m.get('index')} coding={m.get('coding')} | eff_price={price} | "
             f"allowance=${m.get('allowance')} | 5h_req={m.get('requests_5h')} | "
             f"kind={m.get('kind')} | "
-            f"training={'yes' if m.get('trains_on_data') else 'no'}"
+            f"training={'yes' if m.get('trains_on_data') else 'no'} | "
+            f"{' | '.join(extra)}"
         )
     return lines
 

@@ -2,6 +2,31 @@ import json
 import os
 import re
 
+import console_data
+
+# OpenCode console provider catalog: authoritative context/output limits,
+# supported modalities, tool support, release dates and list prices.
+CONSOLE_PROVIDERS = console_data.load()
+CONSOLE_INDEX = console_data.build_index(CONSOLE_PROVIDERS)
+GO_ROWS = []
+if os.path.exists('data/opencode_go_complete.json'):
+    with open('data/opencode_go_complete.json', 'r', encoding='utf-8') as f:
+        GO_ROWS = json.load(f)
+
+
+def console_entry(model_id):
+    # console ids are keyed by their last path segment
+    return console_data.lookup(CONSOLE_INDEX, (model_id or '').split('/')[-1], allow_prefix=False)
+
+
+def format_context(tokens):
+    if not tokens:
+        return None
+    if tokens >= 1000000:
+        return f"{round(tokens / 1000000, 1)}M"
+    return f"{int(tokens / 1000)}K"
+
+
 # 1. OpenRouter Live Free Models Data
 or_file = 'data/openrouter_free_models.json'
 or_free_models_raw = []
@@ -76,6 +101,14 @@ for m in or_free_models_raw:
     identity = ""
     rec = ""
     aa_name = None
+
+    # console catalog: real context limit, modalities, tools, list price
+    or_entry = console_entry(mid)
+    or_model = or_entry['model'] if or_entry else {}
+    or_context = or_model.get('context_limit') or ctx
+    or_modalities = or_model.get('input_modalities') or []
+    or_multimodal = [m for m in or_modalities if m != 'text']
+    or_base = console_data.base_model_for(mid, CONSOLE_INDEX, GO_ROWS, or_model.get('family'), or_entry['provider'] if or_entry else None)
     
     if "ling-3.1-flash" in mid:
         category = "reasoning"
@@ -197,6 +230,16 @@ for m in or_free_models_raw:
     else:
         continue # skip safety or niche embeddings
 
+    # console-sourced facts appended to every OpenRouter entry
+    if or_multimodal and not any("멀티모달" in s for s in strengths):
+        strengths.append("멀티모달 입력 지원: " + ", ".join(or_multimodal))
+    if or_base:
+        relation = {'same': '동일 모델', 'sibling': '동일 계열', 'family': '유사 모델'}.get(
+            or_base.get('relation'), '유사 모델')
+        drawbacks.append(
+            f"무료 종료 후 유료가 {relation} {or_base['id']} 기준 "
+            f"${or_base['input']:.2f}/1M (입력) · ${or_base['output']:.2f}/1M (출력)")
+
     # 공급자 데이터 정책 기반 프라이버시 표기
     ppol = or_provider_policy.get(provider.lower(), {})
     p_train = ppol.get('training')
@@ -234,8 +277,12 @@ for m in or_free_models_raw:
         "platform": ["OpenRouter"],
         "provider": provider.capitalize(),
         "category": category,
-        "context_tokens": ctx,
-        "context_window": f"{int(ctx/1000)}K" if ctx < 1000000 else f"{round(ctx/1000000, 1)}M",
+        "context_tokens": or_context,
+        "context_window": format_context(or_context) or (f"{int(ctx/1000)}K" if ctx < 1000000 else f"{round(ctx/1000000, 1)}M"),
+        "modalities": or_modalities,
+        "tool_call": or_model.get('tool_call'),
+        "release_date": or_model.get('release_date'),
+        "base_model": or_base,
         "intelligence_index": intel_idx,
         "coding_index": coding_idx,
         "aa_name": aa_name,
@@ -376,10 +423,23 @@ if os.path.exists(opencode_raw_path):
         platforms = ["OpenCode Zen"]
         if op.get('available_in_go'):
             platforms.append("OpenCode Go")
-        
+
         is_safe = not op.get('trains_on_data', False)
         trains = op.get('trains_on_data', False)
-        
+
+        # --- console catalog: real limits, modalities, tools, list price ---
+        entry = console_entry(mid)
+        console_model = entry['model'] if entry else {}
+        context_tokens = console_model.get('context_limit') or 128000
+        context_window = format_context(context_tokens) or "128K"
+        output_limit = console_model.get('output_limit')
+        modalities = console_model.get('input_modalities') or []
+        tool_call = console_model.get('tool_call')
+        release_date = console_model.get('release_date')
+        family = console_model.get('family')
+        base_model = console_data.base_model_for(mid, CONSOLE_INDEX, GO_ROWS, family, entry['provider'] if entry else None)
+        multimodal = [m for m in modalities if m not in ('text',)]
+
         category = "general"
         if "LongCat" in name: category = "coding"
         elif "Space Bunny" in name: category = "general"
@@ -424,6 +484,19 @@ if os.path.exists(opencode_raw_path):
             drawbacks = ["데이터 학습 정책 확인 필요" if trains else "벤치마크 점수 미공개"]
             rec = "OpenCode 무료 엔드포인트 연동 테스트"
         
+        # console-sourced facts appended to every free model
+        if multimodal and not any("멀티모달" in s for s in strengths):
+            strengths.append("멀티모달 입력 지원: " + ", ".join(multimodal))
+        if output_limit:
+            strengths.append(f"최대 출력 {format_context(output_limit)} 토큰")
+        if base_model:
+            relation = {'same': '동일 모델', 'sibling': '동일 계열', 'family': '유사 모델'}.get(
+                base_model.get('relation'), '유사 모델')
+            label = "무료 종료 후 유료가"
+            drawbacks.append(
+                f"{label} {relation} {base_model['id']} 기준 "
+                f"${base_model['input']:.2f}/1M (입력) · ${base_model['output']:.2f}/1M (출력)")
+
         catalog.append({
             "id": f"opencode/{mid}",
             "name": name,
@@ -431,8 +504,13 @@ if os.path.exists(opencode_raw_path):
             "platform": platforms,
             "provider": creator,
             "category": category,
-            "context_tokens": 128000,
-            "context_window": "128K",
+            "context_tokens": context_tokens,
+            "context_window": context_window,
+            "output_limit": output_limit,
+            "modalities": modalities,
+            "tool_call": tool_call,
+            "release_date": release_date,
+            "base_model": base_model,
             "intelligence_index": op.get('index'),
             "coding_index": op.get('coding'),
             "aa_name": op.get('aa_name'),
