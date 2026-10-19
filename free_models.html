@@ -1077,6 +1077,14 @@
       font-size: 11px;
     }
   }
+
+/* ---------- AI summary guides (structured) ---------- */
+.sv-headline{font-weight:650;font-size:14px;line-height:1.6;margin-bottom:6px;}
+.sv-picks{margin:6px 0 0;padding-left:18px;}
+.sv-picks li{margin:3px 0;line-height:1.6;}
+.sv-picks b{font-weight:600;}
+.sv-caveats{margin-top:8px;padding-top:6px;border-top:1px dashed var(--line);color:var(--ink-2);font-size:12.5px;line-height:1.6;}
+.sv-howto{margin-top:8px;padding-top:6px;border-top:1px dashed var(--line);font-size:12.5px;line-height:1.6;color:var(--ink-2);}
 </style>
 </head>
 <body>
@@ -1489,6 +1497,7 @@ print(res.choices[0].message.content)</code></pre>
 <script src="data/last_updated.js"></script>
 <script src="data/awesome_freellm_providers.js"></script>
 <script src="data/free_models_catalog.js"></script>
+<script src="data/summary_view.js"></script>
 <script src="data/summaries.js"></script>
 <script>
 (function() {
@@ -1594,20 +1603,22 @@ print(res.choices[0].message.content)</code></pre>
     });
   }
 
-  // AI summary box: pick precomputed set matching current filter
+  // AI summary box: pick the precomputed guide matching current filter
   function updateAiSummary(isKo) {
     const box = $("aiSummaryBox");
     if (!box) return;
     const S = window.__SUMMARIES__ || {};
-    const catMap = { coding: "free-coding", reasoning: "free-reasoning",
-                     long_context: "free-longcontext", lightweight: "free-fast" };
-    const id = state.safeOnly ? "free-private"
-              : (catMap[state.category] || "free-overall");
-    const s = S[id];
-    if (!s || (!s.ko && !s.en)) { box.style.display = "none"; return; }
-    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
-    box.innerHTML = "<b>✨ AI 추천 · " + esc(s.title || id) + "</b><br>" + esc(isKo ? (s.ko || s.en) : (s.en || s.ko));
-    box.style.display = "block";
+    let id = "free-guide";
+    if (state.safeOnly) id = "privacy";
+    else if (state.platform === "OpenCode") id = "go-guide";
+    else if (["coding", "reasoning", "long_context", "lightweight"].includes(state.category)) id = "agentic";
+    const shown = window.SummaryView
+      ? window.SummaryView.render(box, S[id], isKo)
+      : false;
+    if (!shown) { box.style.display = "none"; return; }
+    const title = document.createElement("b");
+    title.textContent = "✨ AI 가이드";
+    box.insertBefore(title, box.firstChild);
   }
 
   // Filter and sort

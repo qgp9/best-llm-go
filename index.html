@@ -787,6 +787,14 @@
       left: 0;
     }
   }
+
+/* ---------- AI summary guides (structured) ---------- */
+.sv-headline{font-weight:650;font-size:14px;line-height:1.6;margin-bottom:6px;}
+.sv-picks{margin:6px 0 0;padding-left:18px;}
+.sv-picks li{margin:3px 0;line-height:1.6;}
+.sv-picks b{font-weight:600;}
+.sv-caveats{margin-top:8px;padding-top:6px;border-top:1px dashed var(--line);color:var(--ink-2);font-size:12.5px;line-height:1.6;}
+.sv-howto{margin-top:8px;padding-top:6px;border-top:1px dashed var(--line);font-size:12.5px;line-height:1.6;color:var(--ink-2);}
 </style>
 </head>
 <body>
@@ -949,14 +957,17 @@
 <!-- AI summary (precomputed daily in CI) -->
 <div class="card" id="aiSummaryCard" style="display:none;border-color:rgba(217,119,87,.4);">
   <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
-    <b>✨ AI 추천</b>
+    <b>✨ AI 가이드</b>
     <div class="seg" role="group" aria-label="AI summary set" id="aiSetSeg" style="margin-left:8px;">
-      <button type="button" data-aiset="go-overall" aria-pressed="true">가성비 종합</button>
-      <button type="button" data-aiset="go-coding" aria-pressed="false">코딩용</button>
-      <button type="button" data-aiset="go-budget" aria-pressed="false">저예산</button>
+      <button type="button" data-aiset="overview" aria-pressed="true">전체 가이드</button>
+      <button type="button" data-aiset="agentic" aria-pressed="false">에이전트·코딩</button>
+      <button type="button" data-aiset="cost" aria-pressed="false">비용·쿼터</button>
+      <button type="button" data-aiset="privacy" aria-pressed="false">프라이버시</button>
+      <button type="button" data-aiset="free-guide" aria-pressed="false">무료 가이드</button>
+      <button type="button" data-aiset="go-guide" aria-pressed="false">Go 가이드</button>
     </div>
   </div>
-  <p class="cap" id="aiSummaryText" style="margin:0;"></p>
+  <div id="aiSummaryText" style="font-size:13.5px;line-height:1.65;"></div>
 </div>
 
 <div class="card">
@@ -1138,6 +1149,7 @@
 <!-- Data scripts -->
 <script src="data/i18n.js"></script>
 <script src="data/last_updated.js"></script>
+<script src="data/summary_view.js"></script>
 <script src="data/summaries.js"></script>
 <script src="data/opencode_go_complete.js"></script>
 <script src="data/opencode_free_models.js"></script>
@@ -2666,18 +2678,17 @@
   }
 
   // AI summary box (precomputed sets in data/summaries.js)
-  let aiSetId = "go-overall";
+  let aiSetId = "overview";
   function renderGoAiSummary() {
     const card = document.getElementById("aiSummaryCard");
     const txt = document.getElementById("aiSummaryText");
     const S = window.__SUMMARIES__ || {};
     if (!card || !txt) return;
     const isKo = (window.I18N && window.I18N.lang === "ko");
-    const s = S[aiSetId];
-    if (!s || (!s.ko && !s.en)) { card.style.display = "none"; return; }
-    const esc = (t) => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
-    txt.textContent = isKo ? (s.ko || s.en) : (s.en || s.ko);
-    card.style.display = "block";
+    const shown = window.SummaryView
+      ? window.SummaryView.render(txt, S[aiSetId], isKo)
+      : false;
+    card.style.display = shown ? "block" : "none";
     document.querySelectorAll("#aiSetSeg button").forEach(b => {
       b.setAttribute("aria-pressed", b.dataset.aiset === aiSetId ? "true" : "false");
     });

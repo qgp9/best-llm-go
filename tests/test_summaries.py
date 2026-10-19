@@ -13,7 +13,12 @@ import urllib.error
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import build_summaries as s
 
-GOOD = {'ko': '한국어 요약', 'en': 'English summary'}
+GOOD = {
+    'ko': {'headline': '한국어 헤드라인', 'picks': [{'model': 'Alpha', 'why': '이유'}],
+           'caveats': ['주의'], 'howto': '다음 단계'},
+    'en': {'headline': 'English headline', 'picks': [{'model': 'Alpha', 'why': 'reason'}],
+           'caveats': ['caveat'], 'howto': 'next step'},
+}
 CHAT = {'choices': [{'finish_reason': 'stop', 'message': {'content': json.dumps(GOOD)}}]}
 
 
@@ -37,7 +42,7 @@ class SummaryTests(unittest.TestCase):
              'privacy': {'is_safe': category == 'general'}}
             for category in ('general', 'coding', 'reasoning', 'long_context', 'lightweight')
         ]
-        go = [{'name': 'paid', 'index': 20, 'coding': 30, 'effective_price': 1},
+        go = [{'name': 'paid', 'index': 20, 'coding': 30, 'effective_price': 1, 'trains_on_data': True},
               {'name': 'free', 'index': 10, 'coding': 20, 'effective_price': 0},
               {'name': 'unknown', 'effective_price': None}]
         for attribute, filename, data in (('FREE_PATH', 'free.json', free), ('GO_PATH', 'go.json', go)):
@@ -49,11 +54,48 @@ class SummaryTests(unittest.TestCase):
 
     def test_summary_validation(self):
         self.assertEqual(s.parse_summary('```json\n' + json.dumps(GOOD) + '\n```'), GOOD)
-        for value in ('{"ko":"', '[]', '{"ko":"", "en":"x"}',
-                      '{"ko":"   ", "en":"x"}', '{"ko":1,"en":"x"}',
-                      json.dumps({**GOOD, 'extra': 1}), json.dumps({**GOOD, 'en': 'x' * 501})):
-            with self.subTest(value=value), self.assertRaises(s.SummaryError):
+
+        def broken(mutate):
+            value = json.loads(json.dumps(GOOD))
+            mutate(value)
+            return json.dumps(value)
+
+        cases = [
+            ('{"ko":"', 'summary-json'),
+            ('[]', 'summary-schema'),
+            (broken(lambda v: v.pop('en')), 'summary-schema'),
+            (broken(lambda v: v.update(extra=1)), 'summary-schema'),
+            (broken(lambda v: v['ko'].update(headline='')), 'summary-empty-or-type'),
+            (broken(lambda v: v['ko'].update(headline=1)), 'summary-schema'),
+            (broken(lambda v: v['ko'].pop('picks')), 'summary-schema'),
+            (broken(lambda v: v['ko'].update(picks=[])), 'summary-schema'),
+            (broken(lambda v: v['ko'].update(picks='x')), 'summary-schema'),
+            (broken(lambda v: v['ko']['picks'][0].pop('why')), 'summary-schema'),
+            (broken(lambda v: v['ko'].update(caveats=[1])), 'summary-schema'),
+        ]
+        for value, code in cases:
+            with self.subTest(value=value[:40]), self.assertRaisesRegex(s.SummaryError, f'^{code}$'):
                 s.parse_summary(value)
+
+    def test_summary_truncates_long_fields(self):
+        value = json.loads(json.dumps(GOOD))
+        value['ko']['headline'] = '가' * 500
+        value['ko']['picks'][0]['why'] = '나' * 500
+        value['ko']['caveats'][0] = '다' * 500
+        value['ko']['howto'] = '라' * 500
+        parsed = s.parse_summary(json.dumps(value))
+        self.assertEqual(len(parsed['ko']['headline']), s.LIMITS['headline'])
+        self.assertEqual(len(parsed['ko']['picks'][0]['why']), s.LIMITS['why'])
+        self.assertEqual(len(parsed['ko']['caveats'][0]), s.LIMITS['caveat'])
+        self.assertEqual(len(parsed['ko']['howto']), s.LIMITS['howto'])
+
+    def test_summary_rejects_unknown_models(self):
+        value = json.loads(json.dumps(GOOD))
+        value['ko']['picks'][0]['model'] = 'Nonexistent Model'
+        with self.assertRaisesRegex(s.SummaryError, '^summary-unknown-model$'):
+            s.parse_summary(json.dumps(value), known={'alpha'})
+        parsed = s.parse_summary(json.dumps(value), known={'alpha', 'nonexistent model'})
+        self.assertEqual(parsed['ko']['picks'][0]['model'], 'Nonexistent Model')
 
     def test_protocol_outputs(self):
         self.assertEqual(s.parse_summary(s.response_text(CHAT, 'chat/completions')), GOOD)
@@ -97,17 +139,22 @@ class SummaryTests(unittest.TestCase):
         self.assertIn('eff_price=unknown', s.spec_go(models[0]))
         self.assertIn('eff_price=$0.0000', s.spec_go(models[2]))
         sets = s.build_sets(s.load(s.FREE_PATH), s.load(s.GO_PATH))
-        self.assertEqual(len({x['id'] for x in sets}), 9)
+        self.assertEqual(len(sets), 6)
+        self.assertEqual({x['id'] for x in sets},
+                         {'overview', 'agentic', 'privacy', 'cost', 'free-guide', 'go-guide'})
         self.assertTrue(all(x['models'] for x in sets))
-        by_id = {x['id']: x['models'] for x in sets}
-        for category, set_id in (('coding', 'free-coding'), ('reasoning', 'free-reasoning'),
-                                 ('long_context', 'free-longcontext'), ('lightweight', 'free-fast')):
-            self.assertEqual(len(by_id[set_id]), 1)
-            self.assertIn(f'{category} ({category})', by_id[set_id][0])
-        self.assertEqual(len(by_id['free-private']), 1)
-        self.assertIn('general (general)', by_id['free-private'][0])
-        self.assertTrue(by_id['go-budget'][0].startswith('free |'))
-        self.assertTrue(by_id['go-budget'][-1].startswith('unknown |'))
+        for entry in sets:
+            # every set carries the full catalog digest plus a bilingual topic
+            self.assertIn('Free model catalog', entry['digest'])
+            self.assertIn('OpenCode Go subscription models', entry['digest'])
+            self.assertIn('/', entry['title'])
+            self.assertTrue(entry['focus'].strip())
+        by_id = {x['id']: x for x in sets}
+        # the free guide covers every free model, the go guide every go model
+        self.assertEqual(len(by_id['free-guide']['models']), 5)
+        self.assertEqual(len(by_id['go-guide']['models']), 3)
+        # privacy shortlist surfaces the training-on-data models
+        self.assertTrue(any('paid' in line for line in by_id['privacy']['models']))
 
     def test_routes(self):
         self.assertEqual(s.model_route('glm'), ('go', 'glm'))
@@ -124,7 +171,16 @@ class SummaryTests(unittest.TestCase):
             with patch.object(s, 'nim_endpoint', return_value='https://example.test'), patch.object(s, 'request_json', return_value=result) as request:
                 self.assertEqual(s.call_model(model, 'prompt', time.monotonic()+10), GOOD)
                 self.assertTrue(request.call_args.args[0].endswith(endpoint))
-                self.assertEqual(request.call_args.args[1][token_key], 8000)
+                self.assertEqual(request.call_args.args[1][token_key], s.MAX_TOKENS)
+                if token_key == 'max_tokens':
+                    self.assertEqual(request.call_args.args[1]['reasoning_effort'], s.REASONING_EFFORT)
+
+    def test_reasoning_effort_fallback_on_bad_request(self):
+        with patch.object(s, 'nim_endpoint', return_value='https://example.test'), \
+                patch.object(s, 'request_json', side_effect=[s.SummaryError('http-400'), CHAT]) as request:
+            self.assertEqual(s.call_model('nim:z-ai/glm-5.3-flash', 'prompt', time.monotonic()+10), GOOD)
+            self.assertEqual(request.call_count, 2)
+            self.assertNotIn('reasoning_effort', request.call_args_list[1].args[1])
 
     def test_retry_and_safe_http_diagnostics(self):
         errors = [TimeoutError(), urllib.error.URLError(TimeoutError()), urllib.error.URLError('secret'), http.client.IncompleteRead(b'partial'),
@@ -155,8 +211,9 @@ class SummaryTests(unittest.TestCase):
         self.assertLess(time.monotonic()-start, 0.3)
 
     def test_fallback(self):
+        spec = {'title': 't', 'focus': 'f', 'digest': 'd', 'models': ['candidate']}
         with patch.object(s, 'MODELS', ['go:first', 'go:second']), patch.object(s, 'call_model', side_effect=[s.SummaryError('response-length'), GOOD]) as call:
-            self.assertEqual(s.summarize('test', ['candidate'], time.monotonic()+10), GOOD)
+            self.assertEqual(s.summarize(spec, time.monotonic()+10), GOOD)
             self.assertEqual(call.call_count, 2)
 
     def test_discovery(self):

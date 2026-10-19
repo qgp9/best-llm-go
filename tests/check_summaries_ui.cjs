@@ -60,7 +60,7 @@ async function main() {
       if(i===199) throw Error('page did not initialize');
     }
     const go=page==='index.html';
-    const id=go?'go-overall':'free-overall';
+    const id=go?'overview':'free-guide';
     const selector=go?'aiSummaryCard':'aiSummaryBox';
     const text=go?`document.getElementById('aiSummaryText').textContent`:`document.getElementById('aiSummaryBox').textContent`;
     const result = await evaluate(`(() => {
@@ -70,21 +70,23 @@ async function main() {
       delete window.__SUMMARIES__['${id}']; I18N.setLanguage('ko');
       const hidden=document.getElementById('${selector}').style.display==='none';
       window.__SUMMARIES__['${id}']=s; I18N.setLanguage('ko');
-      return {ko:ko.includes(s.ko), en:en.includes(s.en), hidden,
+      return {ko:ko.includes(s.ko.headline) && ko.includes(s.ko.picks[0].model),
+              en:en.includes(s.en.headline) && en.includes(s.en.picks[0].model), hidden,
               restored:document.getElementById('${selector}').style.display==='block'};
     })()`);
     assert.deepEqual(result,{ko:true,en:true,hidden:true,restored:true});
     console.log(`${page}: ko/en, missing summary hidden, restored summary visible: PASS`);
     const sets = await evaluate(`(() => {
-      const cases = ${go ? "[['go-overall','go-overall'],['go-coding','go-coding'],['go-budget','go-budget']]" : "[['free-overall','all'],['free-coding','coding'],['free-reasoning','reasoning'],['free-longcontext','long_context'],['free-fast','lightweight'],['free-private','private']]"};
+      const cases = ${go ? "[['overview','overview'],['agentic','agentic'],['cost','cost'],['privacy','privacy'],['free-guide','free-guide'],['go-guide','go-guide']]" : "[['free-guide','all'],['agentic','coding'],['agentic','reasoning'],['go-guide','opencode'],['privacy','private']]"};
       return cases.map(([id, filter]) => {
         if (${go}) document.querySelector('[data-aiset="'+filter+'"]').click();
         else if (filter === 'private') document.getElementById('safeOnlyChk').click();
+        else if (filter === 'opencode') document.querySelector('#platformFilterBar [data-plat="OpenCode"]').click();
         else document.querySelector('#categoryFilterBar [data-cat="'+filter+'"]').click();
         I18N.setLanguage('ko'); const ko=${text};
         I18N.setLanguage('en'); const en=${text};
         const summary=window.__SUMMARIES__[id];
-        return {id, ok:ko.includes(summary.ko) && en.includes(summary.en)
+        return {id, ok:ko.includes(summary.ko.headline) && en.includes(summary.en.headline)
                    && document.getElementById('${selector}').style.display==='block'};
       });
     })()`);
