@@ -47,6 +47,8 @@ try:
             limit_col = cols[-1]
             lim_match = re.search(r'\$(\d+)', limit_col)
             lim = int(lim_match.group(1)) if lim_match else 0
+            limit_text = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', limit_col)).strip()
+            unlimited = 'unlimited' in limit_text.lower()
             inp_num = float(re.sub(r'[^0-9.]', '', inp)) if re.search(r'[0-9]', inp) else 0.0
             out_num = float(re.sub(r'[^0-9.]', '', out)) if re.search(r'[0-9]', out) else 0.0
             blended = (3 * inp_num + out_num) / 4.0 if (inp_num or out_num) else 0.0
@@ -57,6 +59,8 @@ try:
                 'cached_read': cached_read,
                 'cached_write': cached_write,
                 'monthly_limit': lim,
+                'limit_text': limit_text,
+                'unlimited': unlimited,
                 'blended': blended
             })
     # Parse Privacy table
@@ -232,6 +236,14 @@ for m in console_models:
     retention = p_entry.get('retention', '0 days')
     privacy_note = 'Model training (Yes)' if trains_on_data else f"No training · {retention}"
 
+    # 모델 분류: free($0) / contributor(학습 활용) / standard
+    if m['input'] == 0 and m['output'] == 0:
+        kind = 'free'
+    elif trains_on_data:
+        kind = 'contributor'
+    else:
+        kind = 'standard'
+
     task_cost = aa.get('task') if aa else None
     effective_task = (task_cost / multiplier) if (task_cost is not None and multiplier > 0) else task_cost
 
@@ -255,6 +267,9 @@ for m in console_models:
         'trains_on_data': trains_on_data,
         'retention': retention,
         'privacy_note': privacy_note,
+        'kind': kind,
+        'unlimited': m.get('unlimited', False),
+        'limit_text': m.get('limit_text', ''),
         'index': index_score,
         'coding': coding_score,
         'tps': tps,
@@ -312,22 +327,34 @@ try:
                     endpoint = ep_info.get('endpoint', 'https://opencode.ai/zen/v1/chat/completions')
                     
                     # privacy & training
+                    # 우선순위: 1) Go 콘솔 Privacy 표(정확히 일치) 2) Zen Privacy 예외 목록 3) Go 표(부분 일치)
+                    # Zen 기본 정책은 "제공자들은 zero-retention + 학습 미사용" 이므로, 예외 목록에 없으면 학습 미사용으로 처리한다.
                     trains = False
                     p_text = ""
                     nl = mname.lower()
-                    for pk, pv in zen_privacy.items():
-                        if pk in nl or nl in pk:
-                            p_text = pv
-                            if 'used to improve' in pv.lower() or 'train' in pv.lower():
-                                trains = True
-                            break
+                    g_entry = privacy_info.get(nl)
+                    if g_entry:
+                        trains = g_entry['training'].strip().lower() == 'yes'
+                        p_text = f"Go Privacy: 학습 {g_entry['training']} · 보존 {g_entry['retention']}"
+                    else:
+                        for pk, pv in zen_privacy.items():
+                            if pk in nl or nl in pk:
+                                p_text = pv
+                                low = pv.lower()
+                                negated = ('not used for training' in low or 'no training' in low
+                                            or 'do not use your data for model training' in low)
+                                trains = (not negated) and (
+                                    'used to improve' in low or 'used to train' in low or 'train' in low)
+                                break
                     if not p_text:
-                        if 'space bunny' in nl or 'longcat' in nl:
-                            p_text = "Zero retention, no training"
-                            trains = False
-                        elif 'contributor' in nl or 'free' in nl:
-                            p_text = "Data may be used for model training during free period"
-                            trains = True
+                        for pk, pv in privacy_info.items():
+                            if pk in nl or nl in pk:
+                                trains = pv['training'].strip().lower() == 'yes'
+                                p_text = f"Go Privacy: 학습 {pv['training']} · 보존 {pv['retention']}"
+                                break
+                    if not p_text:
+                        p_text = "Zero retention, no training (Zen 기본 정책 · 학습 예외 목록에 없음)"
+                        trains = False
 
                     # manufacturer
                     maker = "OpenCode Zen"
@@ -340,6 +367,7 @@ try:
                     elif 'fledge' in nl: maker = "Fledge"
                     elif 'pickle' in nl: maker = "Stealth"
                     elif 'jev' in nl: maker = "TypeSafe"
+                    elif 'minimax' in nl: maker = "MiniMax"
 
                     # benchmarks
                     aa = find_aa(mname)
@@ -365,6 +393,7 @@ try:
                         'output': out,
                         'cached_read': cached_r,
                         'trains_on_data': trains,
+                        'kind': 'contributor' if trains else 'free',
                         'privacy_note': p_text or ("Model training (Yes)" if trains else "No training"),
                         'endpoint': endpoint,
                         'index': idx,

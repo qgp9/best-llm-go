@@ -35,6 +35,22 @@ if not or_free_models_raw and os.path.exists(or_file):
 
 print(f"Loaded {len(or_free_models_raw)} raw free models from OpenRouter API")
 
+# 1b. OpenRouter 공급자별 데이터 정책(학습/보존) 조회
+or_provider_policy = {}
+try:
+    import urllib.request
+    req = urllib.request.Request("https://openrouter.ai/api/frontend/v1/all-providers",
+                                 headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=8) as resp:
+        if resp.status == 200:
+            pdata = json.loads(resp.read().decode('utf-8')).get('data', [])
+            for p in pdata:
+                if p.get('slug'):
+                    or_provider_policy[p['slug']] = p.get('dataPolicy') or {}
+    print(f"Loaded {len(or_provider_policy)} OpenRouter provider data policies")
+except Exception as e:
+    print(f"Provider policy fetch skipped ({e})")
+
 # Catalog Builder
 catalog = []
 
@@ -59,6 +75,7 @@ for m in or_free_models_raw:
     drawbacks = []
     identity = ""
     rec = ""
+    aa_name = None
     
     if "ling-3.1-flash" in mid:
         category = "reasoning"
@@ -158,6 +175,18 @@ for m in or_free_models_raw:
         strengths = ["경량(2.6B)", "신경망 상태 공간(SSM) 기반의 차세대 구조"]
         drawbacks = ["65K 컨텍스트", "지능 지수 8.4점으로 실험적 성격"]
         rec = "초경량 엣지 환경 테스트 및 리퀴드 신경망 구조 실험"
+    elif "minimax-m3.1-flash" in mid:
+        category = "general"
+        clean_name = "MiniMax · M3.1 Flash"
+        aa_name = "MiniMax-M3.1-Flash"
+        identity = "MiniMax의 멀티모달(text+image+video) Flash 모델. M3 대비 에이전트·코딩·사이버보안 성능 대폭 개선"
+        strengths = ["OpenRouter에서 $0 (:free) 제공",
+                     "100만 토큰(1M) 컨텍스트 + 최대 524K 출력 토큰",
+                     "reasoning effort max 지원 (강한 사고 체인)",
+                     "이미지·비디오 입력 멀티모달"]
+        drawbacks = ["OpenRouter 무료 공통 한도(20 RPM · RPD) 적용",
+                     "공급자(MiniMax) 정책상 프롬프트는 보관됨 (학습 미사용)"]
+        rec = "장문 리포지토리 분석, 에이전트 작업, 멀티모달(이미지) 분석을 $0로 병렬 처리할 때"
     elif "openrouter/free" in mid:
         category = "general"
         clean_name = "OpenRouter Free Auto-Router"
@@ -167,6 +196,36 @@ for m in or_free_models_raw:
         rec = "어떤 모델을 골라야 할지 모르겠을 때 만능 기본 엔드포인트로 사용"
     else:
         continue # skip safety or niche embeddings
+
+    # 공급자 데이터 정책 기반 프라이버시 표기
+    ppol = or_provider_policy.get(provider.lower(), {})
+    p_train = ppol.get('training')
+    p_retains = ppol.get('retainsPrompts')
+    p_days = ppol.get('retentionDays')
+    if p_train is None:
+        privacy = {
+            "is_safe": True,
+            "label": "🛡️ 보호됨 (표준 API 이용 약관)",
+            "detail": "OpenRouter 공식 정책: API 키 호출 시 프롬프트는 제3자 학습에 강제 사용되지 않음 (공식 공급자 정책 준수)"
+        }
+    elif p_train:
+        privacy = {
+            "is_safe": False,
+            "label": "⚠️ 데이터 학습 가능 (공급사 정책)",
+            "detail": f"OpenRouter 공급자 정책: {provider}는 프롬프트를 학습에 사용할 수 있음"
+        }
+    else:
+        if not p_retains:
+            ret_txt = "보관 없음 (ZDR)"
+        elif p_days:
+            ret_txt = f"보관 {p_days}일"
+        else:
+            ret_txt = "보관 (기간 미공개)"
+        privacy = {
+            "is_safe": True,
+            "label": f"🛡️ 학습 미사용 ({ret_txt})",
+            "detail": f"OpenRouter 공급자({provider}) 정책: 학습 미사용 · 프롬프트 {ret_txt}"
+        }
 
     catalog.append({
         "id": f"or/{mid.replace('/', '_').replace(':', '_')}",
@@ -179,12 +238,9 @@ for m in or_free_models_raw:
         "context_window": f"{int(ctx/1000)}K" if ctx < 1000000 else f"{round(ctx/1000000, 1)}M",
         "intelligence_index": intel_idx,
         "coding_index": coding_idx,
+        "aa_name": aa_name,
         "rate_limit": "20 RPM · 50~1,000 RPD (OpenRouter 무료 공통 한도)",
-        "privacy": {
-            "is_safe": True,
-            "label": "🛡️ 보호됨 (표준 API 이용 약관)",
-            "detail": "OpenRouter 공식 정책: API 키 호출 시 프롬프트는 제3자 학습에 강제 사용되지 않음 (공식 공급자 정책 준수)"
-        },
+        "privacy": privacy,
         "summary": {
             "one_liner": desc[:180] + "..." if len(desc) > 180 else desc,
             "identity": identity,
@@ -355,6 +411,13 @@ if os.path.exists(opencode_raw_path):
             strengths = ["새로운 추론 기법 사전 체험 가능", "완전 $0"]
             drawbacks = ["⚠️ 무료 기간 중 수집 데이터가 모델 개선에 활용됨", "스펙 미공개"]
             rec = "실험적인 새로운 모델 테스트"
+        elif "MiniMax M3.1 Flash" in name:
+            identity = "MiniMax의 멀티모달 Flash 모델을 OpenCode Zen/Go에서 $0으로 제공"
+            strengths = ["Zen & Go 양쪽 모두에서 $0 무료", "지능 지수 42.4점 (무료 모델 중 상위권)",
+                         "Zero Retention · 학습 미사용 (Go Privacy 표: Not used / 0 days)",
+                         "M3 대비 에이전트·코딩·사이버보안 성능 개선"]
+            drawbacks = ["벤치마크 코딩 지수 미공개", "Go 5시간 롤링 요청 한도 적용"]
+            rec = "사내 기밀성보다 처리량과 비용이 중요한 대규모 에이전트/코딩 작업"
         else:
             identity = f"OpenCode {cat} 무료 서비스 모델"
             strengths = ["$0 무료", "OpenCode 콘솔에서 즉시 활성화"]
@@ -372,10 +435,11 @@ if os.path.exists(opencode_raw_path):
             "context_window": "128K",
             "intelligence_index": op.get('index'),
             "coding_index": op.get('coding'),
+            "aa_name": op.get('aa_name'),
             "rate_limit": "OpenCode Zen / Go 표준 롤링 정책 ($0 무과금)",
             "privacy": {
                 "is_safe": is_safe,
-                "label": "🛡️ 보호됨 (학습 미사용 · ZDR)" if is_safe else "⚠️ 데이터 학습 활용 (피드백 수집)",
+                "label": "🛡️ 보호됨 (학습 미사용)" if is_safe else "⚠️ 데이터 학습 활용 (피드백 수집)",
                 "detail": op.get('privacy_note') or ("Zero retention" if is_safe else "Collected data may be used to improve model")
             },
             "summary": {

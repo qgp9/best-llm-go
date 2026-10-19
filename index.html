@@ -934,13 +934,14 @@
     <!-- Data Privacy Row -->
     <div class="filters-row" style="margin-top: 6px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 13.5px;">
       <span style="font-weight:600;color:var(--ink);"><span data-i18n="lbl_privacy_policy">🛡️ Data Privacy & Training Policy:</span></span>
-      <label title="Models that do not use user prompt data for training (Zero Data Retention / Safe)">
+      <label title="Models that do not use user prompt data for training (Zero Data Retention / Safe). Includes $0 free models.">
         <input type="checkbox" id="filterNoTrain" checked> <span data-i18n="lbl_no_train">Safe / No Training</span>
       </label>
       <label title="Contributor / discounted models where prompt data may be used for model training">
         <input type="checkbox" id="filterTrain"> <span data-i18n="lbl_train">Model Training: Yes (Contributor)</span>
       </label>
       <span style="font-size:12px;color:var(--ink-3);margin-left:auto;" data-i18n="lbl_privacy_hint">※ Contributor models are disabled by default. Checking recalculates the <b>Frontier Edge</b> in real time.</span>
+      <span style="font-size:12px;color:var(--ink-3);" id="kindSummary"></span>
     </div>
   </div>
 </div>
@@ -1203,6 +1204,8 @@
         effective_task: match.effective_task != null ? match.effective_task : (m.task != null ? (m.task / match.multiplier) : null),
         quota_burn: match.quota_burn,
         trains_on_data: match.trains_on_data || false,
+        kind: match.kind || "standard",
+        unlimited: !!match.unlimited,
         retention: match.retention || "0 days",
         privacy_note: match.privacy_note || "No training · 0 days",
         blended: match.blended || m.blended
@@ -1366,7 +1369,10 @@
 
     let baseList = state.scope === "go_only" ? goData : ALL_ENRICHED;
     let rows = baseList.filter((m) => {
-      if (m.index == null || m.index < state.minIdx || !(m[xKey] > 0)) return false;
+      if (m.index == null || m.index < state.minIdx) return false;
+      // $0 Free 모델(무료 티어)은 가격 축에 없지만 표에는 반드시 포함
+      const isFree = m.kind === "free";
+      if (!isFree && !(m[xKey] > 0)) return false;
       const isTrain = !!m.trains_on_data;
       if (isTrain && !state.includeTrain) return false;
       if (!isTrain && !state.includeNoTrain) return false;
@@ -1417,16 +1423,18 @@
     // a model joins only if its index gain over the last frontier point exceeds
     // FRONTIER_K * (cost increase in $), so tiny gains at much higher cost are ignored.
     // Only meaningful when x is in dollars; quota burn (%) uses plain Pareto.
+    // $0 Free 모델은 로그 가격 축에 올릴 수 없으므로 프론티어 계산에서 제외한다.
     const FRONTIER_K = state.cost === "go_quota" ? 0 : window.FRONTIER_K;
     const frontier = [];
-    [...vis].sort((a, b) => a.x - b.x || b.v - a.v).forEach((d) => {
+    const priced = rows.filter((d) => d.x > 0);
+    [...priced].sort((a, b) => a.x - b.x || b.v - a.v).forEach((d) => {
       const last = frontier[frontier.length - 1];
       if (!last || d.v > last.v + FRONTIER_K * (d.x - last.x)) frontier.push(d);
     });
     const onF = new Set(frontier.map((d) => d.id));
     vis.forEach((d) => (d.front = onF.has(d.id)));
 
-    const finalVis = state.frontierOnly ? vis.filter((d) => d.front) : vis;
+    const finalVis = state.frontierOnly ? vis.filter((d) => d.front || d.kind === "free") : vis;
 
     return { rows, vis: finalVis, frontier };
   }
@@ -1445,8 +1453,8 @@
     const rows = [
       [METRIC, num(d.v, 1) + scoreSuffix],
       [isKo ? "제조사" : "Creator", d.creator || "—"],
-      [isKo ? "Go 월간 한도" : "Go Monthly Cap", d.allowance ? `$${d.allowance} (${isKo ? '배율' : 'multiplier'} x${d.multiplier})` : "—"],
-      [isKo ? "5시간 롤링 제한" : "5h Rolling Limit", d.requests_5h ? `${num(d.requests_5h)} requests / 5h` : "—"],
+      [isKo ? "Go 월간 한도" : "Go Monthly Cap", d.kind === "free" ? (isKo ? "Free ($0, 한도 차감 없음)" : "Free ($0, no allowance burn)") : (d.allowance ? `$${d.allowance} (${isKo ? '배율' : 'multiplier'} x${d.multiplier})` : "—")],
+      [isKo ? "5시간 롤링 제한" : "5h Rolling Limit", d.requests_5h ? `${num(d.requests_5h)} requests / 5h` : (d.unlimited ? (isKo ? "무제한 (한시적)" : "Unlimited (limited time)") : "—")],
       [isKo ? "데이터 프라이버시" : "Data Privacy", d.trains_on_data ? (isKo ? "⚠️ 모델 학습 활용 (Yes)" : "⚠️ Trains on user data") : (isKo ? `보호됨 (학습 안함 · ${d.retention || '0 days'})` : `Safe (No training · ${d.retention || '0 days'})`)],
       [isKo ? "태스크당 Go 체감" : "Go Cost /task", d.effective_task != null ? (money(d.effective_task) + " /task") : "—"],
       [isKo ? "태스크당 정가" : "Raw Cost /task", d.task != null ? (money(d.task) + " /task") : "—"],
@@ -1526,7 +1534,13 @@
       return;
     }
 
-    const xs = rows.map((d) => d.x), ys = rows.map((d) => d.v);
+    const xs = rows.filter((d) => d.x > 0).map((d) => d.x), ys = rows.map((d) => d.v);
+    if (!xs.length) {
+      const t = el("text", { x: W / 2, y: H / 2, "text-anchor": "middle", class: "tick" });
+      t.textContent = isKo ? "가격축에 표시할 모델이 없습니다 (무료 모델만 선택됨)." : "No priced models to plot (only $0 free models selected).";
+      svg.appendChild(t);
+      return;
+    }
     const xmin = Math.min(...xs) / 1.5, xmax = Math.max(...xs) * 1.5;
     const x0 = Math.log10(xmin), x1 = Math.log10(xmax);
     const ystep = 5;
@@ -1617,7 +1631,7 @@
     }
 
     // Draw dots
-    const ordered = [...vis].sort((a, b) => (a.front ? 1 : 0) - (b.front ? 1 : 0));
+    const ordered = [...vis].filter((d) => d.x > 0).sort((a, b) => (a.front ? 1 : 0) - (b.front ? 1 : 0));
     ordered.forEach((d) => {
       const cx = X(d.x), cy = Y(d.v);
       const c = d.front ? "var(--accent)" : "var(--demote)";
@@ -1659,8 +1673,9 @@
     // Greedy label placement
     const placed = [];
     const labelLayer = el("g");
-    const dots = vis.map((o) => ({ bx: X(o.x) - 8, by: Y(o.v) - 8, w: 16, h: 16 }));
-    const byPriority = [...vis].sort((a, b) => (b.front ? 1 : 0) - (a.front ? 1 : 0) || b.v - a.v);
+    const plotVis = vis.filter((d) => d.x > 0);
+    const dots = plotVis.map((o) => ({ bx: X(o.x) - 8, by: Y(o.v) - 8, w: 16, h: 16 }));
+    const byPriority = [...plotVis].sort((a, b) => (b.front ? 1 : 0) - (a.front ? 1 : 0) || b.v - a.v);
 
     byPriority.forEach((d) => {
       const cx = X(d.x), cy = Y(d.v);
@@ -1712,7 +1727,8 @@
     const isKo = (window.I18N && window.I18N.lang === "ko");
     const cfg = COST_CONFIG[state.cost];
     const fr = [];
-    [...vis].sort((a, b) => a.x - b.x || b.v - a.v).forEach((d) => {
+    const pricedVis = vis.filter((d) => d.x > 0);
+    [...pricedVis].sort((a, b) => a.x - b.x || b.v - a.v).forEach((d) => {
       if (!fr.length || d.v > fr[fr.length - 1].v) fr.push(d);
     });
     if (!fr.length) {
@@ -1728,7 +1744,7 @@
           : next
             ? (isKo ? `${cfg.fmt(d.x)} ~ ${cfg.fmt(next.x)} 미만` : `${cfg.fmt(d.x)} ~ ${cfg.fmt(next.x)}`)
             : (isKo ? `${cfg.fmt(d.x)} 이상` : `≥ ${cfg.fmt(d.x)}`);
-      const pool = vis.filter((o) => o.id !== d.id && (!next || o.x < next.x));
+      const pool = pricedVis.filter((o) => o.id !== d.id && (!next || o.x < next.x));
       const ru = pool.sort((a, b) => b.v - a.v || a.x - b.x)[0];
       const tr = h("tr");
 
@@ -1810,7 +1826,7 @@
       // Privacy column
       const privTd = h("td");
       if (d.trains_on_data) {
-        privTd.appendChild(h("span", "tag-tier tag-train", isKo ? "⚠️ 학습 활용" : "⚠️ Trains on Data"));
+        privTd.appendChild(h("span", "tag-tier tag-train", isKo ? "⚠️ 학습 활용 (기여자)" : "⚠️ Trains on Data (Contributor)"));
       } else {
         privTd.appendChild(h("span", "tag-tier tag-clean", isKo ? `학습 안함 · ${d.retention || '0d'}` : `Safe · ${d.retention || '0d'}`));
       }
@@ -1820,12 +1836,18 @@
       // Go Allowance tag
       const tierTd = h("td");
       const tInfo = TIER_DEFS[d.allowance] || TIER_DEFS["none"];
-      const tag = h("span", "tag-tier " + tInfo.class, tInfo.name);
-      tierTd.appendChild(tag);
+      if (d.kind === "free") {
+        const tag = h("span", "tag-tier tag-free", isKo ? "Free ($0)" : "Free ($0)");
+        tag.title = isKo ? "무료 티어: 월 한도를 차감하지 않고 $0으로 호출 (한시적 무제한)" : "Free tier: $0 without burning monthly allowance (limited-time unlimited)";
+        tierTd.appendChild(tag);
+      } else {
+        const tag = h("span", "tag-tier " + tInfo.class, tInfo.name);
+        tierTd.appendChild(tag);
+      }
       tr.appendChild(tierTd);
 
       tr.appendChild(h("td", null, d.multiplier ? `x${d.multiplier.toFixed(1)}` : "x1.0"));
-      tr.appendChild(h("td", null, d.requests_5h ? `${num(d.requests_5h)}/5h` : "—"));
+      tr.appendChild(h("td", null, d.requests_5h ? `${num(d.requests_5h)}/5h` : (d.unlimited ? (isKo ? "무제한" : "Unlimited") : "—")));
       tr.appendChild(h("td", null, d.effective_task != null ? money(d.effective_task) : "—"));
       tr.appendChild(h("td", null, d.task != null ? money(d.task) : "—"));
       tr.appendChild(h("td", null, money(d.effective_price)));
@@ -1862,9 +1884,10 @@
     const scoreSuffix = isKo ? "점" : " pts";
 
     if ($("freeCountBadge")) {
+      const hidden = freeData.length - filtered.length;
       $("freeCountBadge").textContent = isKo
-        ? `${filtered.length}개 모델 (전체 ${freeData.length}개)`
-        : `${filtered.length} models (${freeData.length} total)`;
+        ? `${filtered.length}개 모델 (전체 ${freeData.length}개${hidden ? ` · 기여자 ${hidden}개 숨김` : ""})`
+        : `${filtered.length} models (${freeData.length} total${hidden ? ` · ${hidden} contributor hidden` : ""})`;
     }
 
     if (!filtered.length) {
@@ -1924,7 +1947,7 @@
       if (d.trains_on_data) {
         privTd.appendChild(h("span", "tag-tier tag-train", isKo ? "⚠️ 학습 활용 (피드백 수집)" : "⚠️ Trains on Data (Feedback)"));
       } else {
-        privTd.appendChild(h("span", "tag-tier tag-clean", isKo ? "보호됨 (학습 안함 · ZDR)" : "Safe (No Training · ZDR)"));
+        privTd.appendChild(h("span", "tag-tier tag-clean", isKo ? "보호됨 (학습 안함)" : "Safe (No Training)"));
       }
       privTd.title = d.privacy_note || "";
       tr.appendChild(privTd);
@@ -1981,6 +2004,7 @@
 
     drawScatter(rows, vis, frontier);
     budgetTable(vis);
+    updateKindSummary();
     const scoreSuffix = isKo ? "점" : " pts";
     bars("barIndex", "moreIndex", [...vis].sort((a, b) => b.v - a.v || a.x - b.x), "v", (v) => num(v, 1) + scoreSuffix, state.showAllIndex, () => { state.showAllIndex = !state.showAllIndex; render(); });
     table(vis);
@@ -1988,7 +2012,21 @@
     updateSelectionUI();
   }
 
-  /* ---------- Provider / Group Model Sections Drawer ---------- */
+  /* ---------- model kind summary (Free / Contributor / Standard) ---------- */
+  function updateKindSummary() {
+    const box = $("kindSummary");
+    if (!box) return;
+    const isKo = (window.I18N && window.I18N.lang === "ko");
+    const list = state.scope === "go_only" ? goData : ALL_ENRICHED;
+    const freeN = list.filter((m) => m.kind === "free").length;
+    const contribN = list.filter((m) => m.kind === "contributor" || m.trains_on_data).length;
+    const stdN = list.length - freeN - contribN;
+    box.innerHTML = isKo
+      ? `│ <b>Free $0</b> ${freeN}개 (항상 표시) · <b>Contributor</b> ${contribN}개 (학습 활용, 기본 숨김) · Standard ${stdN}개`
+      : `│ <b>Free $0</b> ${freeN} (always shown) · <b>Contributor</b> ${contribN} (training, hidden by default) · Standard ${stdN}`;
+  }
+
+  /* ---------- provider / group model sections drawer ---------- */
   function renderProviderSections() {
     const container = $("providerSectionsContainer");
     if (!container) return;
