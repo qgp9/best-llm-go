@@ -19,6 +19,7 @@ data/last_updated.js
 data/free_models_catalog.json
 data/free_models_catalog.js
 data/openrouter_free_models.json
+data/console_models.json
 data/decision_models_catalog.json
 data/decision_models_catalog.js
 data/openrouter_decision_models.json

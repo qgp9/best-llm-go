@@ -10,6 +10,8 @@ fi
 
 echo "🔄 Updating OpenCode Go models & Artificial Analysis benchmarks..."
 $PYTHON_BIN update_data.py
+echo "🔄 Updating OpenCode console provider catalog (limits, modalities, pricing)..."
+$PYTHON_BIN build_console_catalog.py
 echo "🔄 Updating Free Models catalog for OpenCode, OpenRouter & CommandCode..."
 $PYTHON_BIN build_free_catalog.py
 echo "🔄 Updating Decision Models catalog (OpenRouter Decisions API)..."
