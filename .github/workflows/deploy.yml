@@ -31,8 +31,15 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Test summary generation
-        run: python3 -B -m unittest discover -s tests -v
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Test catalogs and analysis
+        run: |
+          python3 -B -m unittest discover -s tests -v
+          node --test tests/test_frontier_analysis.cjs
 
       - name: Run data update pipeline
         env:

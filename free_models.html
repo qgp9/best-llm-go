@@ -1078,13 +1078,6 @@
     }
   }
 
-/* ---------- AI summary guides (structured) ---------- */
-.sv-headline{font-weight:650;font-size:14px;line-height:1.6;margin-bottom:6px;}
-.sv-picks{margin:6px 0 0;padding-left:18px;}
-.sv-picks li{margin:3px 0;line-height:1.6;}
-.sv-picks b{font-weight:600;}
-.sv-caveats{margin-top:8px;padding-top:6px;border-top:1px dashed var(--line);color:var(--ink-2);font-size:12.5px;line-height:1.6;}
-.sv-howto{margin-top:8px;padding-top:6px;border-top:1px dashed var(--line);font-size:12.5px;line-height:1.6;color:var(--ink-2);}
 </style>
 </head>
 <body>
@@ -1422,7 +1415,6 @@ print(res.choices[0].message.content)</code></pre>
   </div>
 
   <!-- AI Summary for current filter (precomputed daily in CI) -->
-  <div id="aiSummaryBox" style="display:none;background:var(--accent-soft);border:1px solid rgba(217,119,87,.35);border-radius:14px;padding:12px 16px;margin-bottom:16px;font-size:13px;line-height:1.6;"></div>
 
   <!-- Cards Grid View Container -->
   <div id="gridContainer" class="model-grid">
@@ -1497,8 +1489,6 @@ print(res.choices[0].message.content)</code></pre>
 <script src="data/last_updated.js"></script>
 <script src="data/awesome_freellm_providers.js"></script>
 <script src="data/free_models_catalog.js"></script>
-<script src="data/summary_view.js"></script>
-<script src="data/summaries.js"></script>
 <script>
 (function() {
   const $ = (id) => document.getElementById(id);
@@ -1601,24 +1591,6 @@ print(res.choices[0].message.content)</code></pre>
         });
       });
     });
-  }
-
-  // AI summary box: pick the precomputed guide matching current filter
-  function updateAiSummary(isKo) {
-    const box = $("aiSummaryBox");
-    if (!box) return;
-    const S = window.__SUMMARIES__ || {};
-    let id = "free-guide";
-    if (state.safeOnly) id = "privacy";
-    else if (state.platform === "OpenCode") id = "go-guide";
-    else if (["coding", "reasoning", "long_context", "lightweight"].includes(state.category)) id = "agentic";
-    const shown = window.SummaryView
-      ? window.SummaryView.render(box, S[id], isKo)
-      : false;
-    if (!shown) { box.style.display = "none"; return; }
-    const title = document.createElement("b");
-    title.textContent = "✨ AI 가이드";
-    box.insertBefore(title, box.firstChild);
   }
 
   // Filter and sort
@@ -1891,7 +1863,6 @@ print(res.choices[0].message.content)</code></pre>
   function render() {
     const isKo = (window.I18N && window.I18N.lang === "ko");
     const list = filterAndSort();
-    updateAiSummary(isKo);
     $("catalogCountMsg").innerHTML = isKo
       ? `조건에 맞는 무료 모델 <b>${list.length}개</b> 표시 중 (전체 ${data.length}개)`
       : `Showing <b>${list.length}</b> free models (${data.length} total)`;

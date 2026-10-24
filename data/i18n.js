@@ -79,8 +79,8 @@
       // Scatter Chart
       scatter_title: "Intelligence Index vs {costTitle}: {metric}",
       scatter_cap: "{costCap} The orange top line (Frontier Edge) marks Pareto-optimal models with the best intelligence per cost.",
-      leg_frontier: "Value Frontier (Pareto Optimal)",
-      leg_dominated: "Dominated (Cheaper model is smarter)",
+      leg_frontier: "On Frontier",
+      leg_dominated: "Outside Frontier (not necessarily dominated)",
       leg_free: "Free $0 (own lane)",
       leg_free_note: "※ NVIDIA NIM excluded: popular models are rate-limited (special-purpose use only)",
       sidebar_title: "⚙️ Filters · Model Selection",
@@ -335,8 +335,8 @@
       // Scatter Chart
       scatter_title: "지능 지수 vs {costTitle}: {metric}",
       scatter_cap: "{costCap} 주황색 최적선(Frontier Edge)은 비용 대비 최고 지능을 갖춘 파레토 최적 모델입니다.",
-      leg_frontier: "가치 프론티어 (파레토 최적)",
-      leg_dominated: "열위 (더 싼 모델이 더 우수)",
+      leg_frontier: "Frontier 포함",
+      leg_dominated: "Frontier 제외 (파레토 열위와 구별)",
       leg_free: "무료 $0 (좌측 전용 영역)",
       leg_free_note: "※ NVIDIA NIM은 인기 모델 한도 부족으로 제외 (특수 용도 전용)",
       sidebar_title: "⚙️ 필터 · 모델 선택",

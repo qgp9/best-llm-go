@@ -18,6 +18,4 @@ echo "🔄 Updating Decision Models catalog (OpenRouter Decisions API)..."
 $PYTHON_BIN build_decision_catalog.py
 echo "🔄 Updating News feed (HN: Go/Zen + providers)..."
 $PYTHON_BIN build_news.py
-echo "🔄 Updating AI summaries for representative sets (needs OPENCODE_API_KEY; failed summaries are omitted)..."
-$PYTHON_BIN build_summaries.py
 echo "✅ Update complete! Refresh index.html, free_models.html or decisions.html in your browser to see the latest data."

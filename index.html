@@ -867,12 +867,12 @@
   .page-layout .sidebar #advancedFiltersSection .filters-row:first-child{padding-top:0;}
 }
 
-/* ---------- AI summary guides (structured) ---------- */.sv-headline{font-weight:650;font-size:14px;line-height:1.6;margin-bottom:6px;}
-.sv-picks{margin:6px 0 0;padding-left:18px;}
-.sv-picks li{margin:3px 0;line-height:1.6;}
-.sv-picks b{font-weight:600;}
-.sv-caveats{margin-top:8px;padding-top:6px;border-top:1px dashed var(--line);color:var(--ink-2);font-size:12.5px;line-height:1.6;}
-.sv-howto{margin-top:8px;padding-top:6px;border-top:1px dashed var(--line);font-size:12.5px;line-height:1.6;color:var(--ink-2);}
+.condition-analysis { overflow-wrap: anywhere; }
+.condition-analysis h2 { margin-bottom: 8px; }
+.condition-analysis ul { margin: 12px 0; padding-left: 22px; }
+.condition-analysis li { margin: 10px 0; line-height: 1.65; }
+.analysis-context, .analysis-free { font-size: 13px; line-height: 1.6; }
+.analysis-note { font-size: 12px; line-height: 1.6; color: var(--ink-3); margin: 6px 0 0; }
 </style>
 </head>
 <body>
@@ -1040,8 +1040,8 @@
   <h2 id="scatterTitle">Intelligence Index vs Effective Price</h2>  <p class="cap" id="scatterCap">Cost-efficiency analysis. The orange line on top is the <b>Frontier Edge</b>, representing Pareto-optimal models with highest capability per cost.</p>
   <svg id="scatter" viewBox="0 0 960 540" role="img" aria-label="Scatter plot of capability index versus price"></svg>
   <div class="legend">
-    <span><i class="key" style="background:var(--accent)"></i><span data-i18n="leg_frontier">Value Frontier (Pareto Optimal)</span></span>
-    <span><i class="key" style="background:var(--demote)"></i><span data-i18n="leg_dominated">Dominated (Cheaper model is smarter)</span></span>
+    <span><i class="key" style="background:var(--accent)"></i><span data-i18n="leg_frontier">On Frontier</span></span>
+    <span><i class="key" style="background:var(--demote)"></i><span data-i18n="leg_dominated">Outside Frontier</span></span>
     <span><i class="key" style="background:#3b82f6;transform:rotate(45deg);width:8px;height:8px;border-radius:1px;"></i><span data-i18n="leg_free">Free $0 (own lane)</span></span>
     <span style="font-size:11.5px;color:var(--ink-3);" data-i18n="leg_free_note">※ NVIDIA NIM은 인기 모델 한도 부족으로 제외 (특수 용도 전용)</span>    <span><i class="key line" style="background:var(--accent);height:3px;"></i><b><span data-i18n="leg_edge">Frontier Edge</span></b></span>
     <span style="margin-left:auto"><i class="key ring-60"></i><span data-i18n="leg_tier60">$60 Tier (x6.0)</span></span>
@@ -1051,21 +1051,8 @@
   </div>
 </div>
 
-<!-- AI summary (precomputed daily in CI) -->
-<div class="card" id="aiSummaryCard" style="display:none;border-color:rgba(217,119,87,.4);">
-  <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
-    <b>✨ AI 가이드</b>
-    <div class="seg" role="group" aria-label="AI summary set" id="aiSetSeg" style="margin-left:8px;">
-      <button type="button" data-aiset="overview" aria-pressed="true">전체 가이드</button>
-      <button type="button" data-aiset="agentic" aria-pressed="false">에이전트·코딩</button>
-      <button type="button" data-aiset="cost" aria-pressed="false">비용·쿼터</button>
-      <button type="button" data-aiset="privacy" aria-pressed="false">프라이버시</button>
-      <button type="button" data-aiset="free-guide" aria-pressed="false">무료 가이드</button>
-      <button type="button" data-aiset="go-guide" aria-pressed="false">Go 가이드</button>
-    </div>
-  </div>
-  <div id="aiSummaryText" style="font-size:13.5px;line-height:1.65;"></div>
-</div>
+<!-- Computed from the same candidates and frontier as the graph. -->
+<section class="card condition-analysis" id="conditionAnalysis" aria-live="polite"></section>
 
 <!-- 전략적 모델 가이드 -->
 <div class="card">
@@ -1236,8 +1223,7 @@
 <!-- Data scripts -->
 <script src="data/i18n.js"></script>
 <script src="data/last_updated.js"></script>
-<script src="data/summary_view.js"></script>
-<script src="data/summaries.js"></script>
+<script src="data/frontier_analysis.js"></script>
 <script src="data/opencode_go_complete.js"></script>
 <script src="data/opencode_free_models.js"></script>
 <script src="data/free_models_catalog.js"></script>
@@ -1438,8 +1424,11 @@
     const makers = [...new Set(list.map((m) => m.creator).filter(Boolean))].sort((a, b) => a.localeCompare(b));
     $("makerSel").replaceChildren();
     const allTxt = (window.I18N && window.I18N.lang === "ko") ? "전체 제조사" : "All Makers";
-    $("makerSel").appendChild(h("option", null, allTxt));
+    const allOption = h("option", null, allTxt);
+    allOption.value = "";
+    $("makerSel").appendChild(allOption);
     makers.forEach((mk) => { const o = h("option", null, mk); o.value = mk; $("makerSel").appendChild(o); });
+    $("makerSel").value = state.maker;
   };
   updateMakers();
 
@@ -1548,7 +1537,7 @@
 
     let baseList = state.scope === "go_only" ? goData : ALL_ENRICHED;
     let rows = baseList.filter((m) => {
-      if (m.index == null || m.index < state.minIdx) return false;
+      if (!Number.isFinite(m.index) || m.index < state.minIdx) return false;
       // $0 Free 모델(무료 티어)은 가격 축에 없지만 표에는 반드시 포함
       const isFree = m.kind === "free";
       if (!isFree && !(m[xKey] > 0)) return false;
@@ -1630,24 +1619,11 @@
       ...(laneLayout ? laneLayout.indexes.filter((v) => v >= state.minIdx) : []),
     ])];
 
-    // Weighted Pareto frontier on currently active/visible models:
-    // a model joins only if its index gain over the last frontier point exceeds
-    // FRONTIER_K * (cost increase in $), so tiny gains at much higher cost are ignored.
-    // Only meaningful when x is in dollars; quota burn (%) uses plain Pareto.
-    // $0 Free 모델은 로그 가격 축에 올릴 수 없으므로 프론티어 계산에서 제외한다.
-    const FRONTIER_K = state.cost === "go_quota" ? 0 : window.FRONTIER_K;
-    const frontier = [];
-    const priced = rows.filter((d) => d.x > 0);
-    [...priced].sort((a, b) => a.x - b.x || b.v - a.v).forEach((d) => {
-      const last = frontier[frontier.length - 1];
-      if (!last || d.v > last.v + FRONTIER_K * (d.x - last.x)) frontier.push(d);
+    const analysis = window.FrontierAnalysis.analyze(vis, {
+      weight: state.cost === "go_quota" ? 0 : window.FRONTIER_K,
+      frontierOnly: state.frontierOnly
     });
-    const onF = new Set(frontier.map((d) => d.id));
-    vis.forEach((d) => (d.front = onF.has(d.id)));
-
-    const finalVis = state.frontierOnly ? vis.filter((d) => d.front || d.kind === "free") : vis;
-
-    return { rows, vis: finalVis, frontier, laneLayout, yRange };
+    return { rows, vis: analysis.vis, frontier: analysis.frontier, analysis, laneLayout, yRange };
   }
 
   /* ---------- tooltip ---------- */
@@ -1696,9 +1672,11 @@
 
     const s = h("div", "tip-r");
     s.style.marginTop = "6px";
-    const stText = d.front
-      ? (isKo ? "★ 가치 프론티어 (파레토 최적)" : "★ Value Frontier (Pareto Optimal)")
-      : (isKo ? "열위 모델 (더 싼 모델이 더 우수)" : "Dominated (Cheaper model is smarter)");
+    const stText = d.kind === "free"
+      ? (isKo ? "무료 영역 (유료 Frontier와 별도)" : "Free lane (separate from priced Frontier)")
+      : d.front
+      ? (isKo ? "★ Frontier 포함" : "★ On Frontier")
+      : (isKo ? "Frontier 제외 (파레토 열위와 구별)" : "Outside Frontier (not necessarily dominated)");
     const st = h("span", null, stText);
     st.style.color = d.front ? "var(--accent)" : "var(--demote)";
     st.style.fontWeight = "600";
@@ -1868,7 +1846,7 @@
       // reserve its box, so the model label of that point moves aside
       // instead of overlapping the caption.
       const lastF = frontier[frontier.length - 1];
-      const edgeText = isKo ? "▲ Frontier Edge (최적 가치선)" : "▲ Frontier Edge (Pareto Frontier)";
+      const edgeText = "▲ Frontier Edge";
       const edgeW = edgeText.length * 6.4;
       let edgeX = X(lastF.x) + 10;
       let edgeAnchor = "start";
@@ -1920,6 +1898,7 @@
 
       const hit = el("circle", {
         cx, cy, r: 14, fill: "transparent", class: "hit", tabindex: "0", role: "img",
+        "data-model-id": d.id, "data-frontier": String(d.front),
         "aria-label": `${d.name}: ${METRIC} ${num(d.v, 1)}, ${cfg.fmt(d.x)}`
       });
       hit.style.cursor = "pointer";
@@ -2326,18 +2305,24 @@
   function render() {
     tipHide();
     const isKo = (window.I18N && window.I18N.lang === "ko");
-    const { rows, vis, frontier, laneLayout, yRange } = compute();
+    const { rows, vis, frontier, analysis, laneLayout, yRange } = compute();
     $("count").textContent = isKo
       ? `${vis.length}개 / 전체 ${rows.length}개 모델 · ${frontier.length}개 프론티어`
       : `${vis.length} / ${rows.length} models · ${frontier.length} frontier picks`;
 
     const cfg = getCostConfig()[state.cost];
+    window.FrontierAnalysis.render($("conditionAnalysis"), analysis, {
+      isKo, title: cfg.title, unit: cfg.unit,
+      formatCost: v => (state.cost === "go_quota" ? "" : "$") + Number(v.toPrecision(4)),
+      quota: state.cost === "go_quota",
+      effective: state.cost === "go_effective" || state.cost === "go_task"
+    });
     $("scatterTitle").textContent = isKo
       ? `지능 지수 vs ${cfg.title}: ${METRIC}`
       : `Intelligence Index vs ${cfg.title}: ${METRIC}`;
     $("scatterCap").textContent = isKo
-      ? `${cfg.cap} 주황색 최상단 최적선(Frontier Edge) 위의 모델들이 동일 비용 대비 최고 성능을 내는 파레토 최적 모델입니다.`
-      : `${cfg.cap} Models on the orange Frontier Edge deliver the highest capability per dollar (Pareto optimal).`;
+      ? `${cfg.cap} 주황색 Frontier Edge는 현재 조건에서 비용 증가 대비 점수 상승 기준을 통과한 모델을 연결합니다. 실제 작업 성능을 보장하지 않습니다.`
+      : `${cfg.cap} The orange Frontier Edge connects models meeting the score-gain threshold for increased cost under the current conditions. It does not establish workload performance.`;
     $("scatter").setAttribute("aria-label", `Scatter plot of ${METRIC} versus ${cfg.title}`);
     $("budgetHead").textContent = (isKo ? "체감 예산 " : "Effective Budget ") + cfg.unit;
     $("budgetPrice").textContent = cfg.col;
@@ -2364,6 +2349,7 @@
     }
 
     drawScatter(rows, vis, frontier, laneLayout, yRange);
+    $("scatter").dataset.frontierIds = JSON.stringify(frontier.map(d => d.id));
     budgetTable(vis);
     updateKindSummary();
     const scoreSuffix = isKo ? "점" : " pts";
@@ -2657,7 +2643,7 @@
       lines.push(`• ${isKo ? "데이터 프라이버시" : "Privacy"}: ${isKo ? "학습 활용/기여자 포함" : "Include contributors"}`);
     }
     if (s.frontierOnly) {
-      lines.push(`• ${isKo ? "프론티어" : "Frontier"}: ${isKo ? "파레토 최적선 모델만" : "Frontier only"}`);
+      lines.push(`• ${isKo ? "프론티어" : "Frontier"}: ${isKo ? "Frontier 모델만" : "Frontier only"}`);
     }
     if (s.models && s.models.length > 0) {
       const modelStr = s.models.slice(0, 3).join(", ") + (s.models.length > 3 ? (isKo ? ` 외 ${s.models.length - 3}개` : ` +${s.models.length - 3} more`) : "");
@@ -2934,11 +2920,6 @@
   }
 
   /* ---------- event listeners ---------- */
-  document.querySelectorAll("#aiSetSeg button").forEach((b) => b.addEventListener("click", () => {
-    aiSetId = b.dataset.aiset;
-    renderGoAiSummary();
-  }));
-
   document.querySelectorAll("#costSeg button").forEach((b) => b.addEventListener("click", () => {
     state.cost = b.dataset.cost;
     document.querySelectorAll("#costSeg button").forEach((o) => o.setAttribute("aria-pressed", o === b ? "true" : "false"));
@@ -3021,25 +3002,7 @@
       render();
       renderProviderSections();
       renderPresetPills();
-      renderGoAiSummary();
       if (advSection) updateAdvFiltersBtn(advSection.classList.contains("open"));
-    });
-  }
-
-  // AI summary box (precomputed sets in data/summaries.js)
-  let aiSetId = "overview";
-  function renderGoAiSummary() {
-    const card = document.getElementById("aiSummaryCard");
-    const txt = document.getElementById("aiSummaryText");
-    const S = window.__SUMMARIES__ || {};
-    if (!card || !txt) return;
-    const isKo = (window.I18N && window.I18N.lang === "ko");
-    const shown = window.SummaryView
-      ? window.SummaryView.render(txt, S[aiSetId], isKo)
-      : false;
-    card.style.display = shown ? "block" : "none";
-    document.querySelectorAll("#aiSetSeg button").forEach(b => {
-      b.setAttribute("aria-pressed", b.dataset.aiset === aiSetId ? "true" : "false");
     });
   }
 
@@ -3047,7 +3010,6 @@
   loadStateFromUrl();
   syncStateToUrl();
   renderPresetPills();
-  renderGoAiSummary();
   render();
 
   if (document.readyState === "loading") {
