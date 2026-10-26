@@ -31,63 +31,84 @@ def fetch_url(url):
 
 # 1. Fetch official /v2/docs/console/go/
 console_models = []
+privacy_info = {}
 print("1. Fetching official pricing & limits from opencode.ai/v2/docs/console/go/...")
 try:
     doc_html = fetch_url("https://opencode.ai/v2/docs/console/go/")
-    panel_start = doc_html.find('id="go-pricing-panel-go"')
-    panel_end = doc_html.find('id="go-pricing-panel-go-plus"')
-    panel_html = doc_html[panel_start:panel_end] if panel_start != -1 else doc_html
-    rows = re.findall(r'<tr>(.*?)</tr>', panel_html, re.DOTALL)
-    for r in rows[1:]:
-        cols = re.findall(r'<td[^>]*>(.*?)</td>', r, re.DOTALL)
-        if len(cols) >= 5:
-            mname = re.sub(r'<[^>]+>', '', cols[0]).strip()
-            inp = cols[1].strip()
-            out = cols[2].strip()
-            cached_read = cols[3].strip()
-            cached_write = cols[4].strip() if len(cols) > 5 else '-'
-            limit_col = cols[-1]
-            lim_match = re.search(r'\$(\d+)', limit_col)
-            lim = int(lim_match.group(1)) if lim_match else 0
-            limit_text = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', limit_col)).strip()
-            unlimited = 'unlimited' in limit_text.lower()
-            inp_num = float(re.sub(r'[^0-9.]', '', inp)) if re.search(r'[0-9]', inp) else 0.0
-            out_num = float(re.sub(r'[^0-9.]', '', out)) if re.search(r'[0-9]', out) else 0.0
-            blended = (3 * inp_num + out_num) / 4.0 if (inp_num or out_num) else 0.0
-            console_models.append({
-                'name': mname,
-                'input': inp_num,
-                'output': out_num,
-                'cached_read': cached_read,
-                'cached_write': cached_write,
-                'monthly_limit': lim,
-                'limit_text': limit_text,
-                'unlimited': unlimited,
-                'blended': blended
-            })
-    # Parse Privacy table
-    privacy_info = {}
-    privacy_match = re.search(r'<h2 id=\"privacy\">Privacy</h2>(.*?)(?:<h2|$)', doc_html, re.DOTALL)
-    if privacy_match:
-        p_rows = re.findall(r'<tr>(.*?)</tr>', privacy_match.group(1), re.DOTALL)
-        for pr in p_rows[1:]:
-            p_cols = [re.sub(r'<[^>]+>', '', c).strip() for c in re.findall(r'<t[dh]>(.*?)</t[dh]>', pr, re.DOTALL)]
-            if len(p_cols) >= 3:
-                p_name = p_cols[0]
-                p_train = p_cols[1]
-                p_ret = p_cols[2]
-                privacy_info[p_name.lower()] = {
-                    'training': p_train,
-                    'retention': p_ret,
-                    'trains_on_data': (p_train.lower() == 'yes')
-                }
-    print(f"   Successfully parsed privacy terms for {len(privacy_info)} models!")
-    print(f"   Successfully parsed {len(console_models)} official model rows from /v2/docs/console/go/!")
 except Exception as e:
     print(f"   Console doc fetch note ({e}), using cached fallback.")
+    doc_html = None
     if os.path.exists(os.path.join(DATA_DIR, "opencode_console_go_table.json")):
         console_models = json.load(open(os.path.join(DATA_DIR, "opencode_console_go_table.json")))
-    privacy_info = {}
+
+def first_price(cell):
+    # Cells may carry a struck-through original plus a discounted price
+    # (e.g. "<del>$4.00</del> $2.00"). Drop the <del>/<s> content first so the
+    # effective (current) price is parsed; stripping all non-numeric chars
+    # would otherwise glue them into "4.002.00" and crash float().
+    cell = re.sub(r'<(del|s|strike)[^>]*>.*?</\1>', '', cell, flags=re.DOTALL | re.IGNORECASE)
+    m = re.search(r'\d+\.?\d*', re.sub(r'<[^>]+>', '', cell))
+    return float(m.group(0)) if m else 0.0
+
+if doc_html:
+    # Pricing and privacy are parsed independently: a new cell format in one
+    # table must never wipe out the other table's data again.
+    try:
+        panel_start = doc_html.find('id="go-pricing-panel-go"')
+        panel_end = doc_html.find('id="go-pricing-panel-go-plus"')
+        panel_html = doc_html[panel_start:panel_end] if panel_start != -1 else doc_html
+        rows = re.findall(r'<tr>(.*?)</tr>', panel_html, re.DOTALL)
+        for r in rows[1:]:
+            cols = re.findall(r'<td[^>]*>(.*?)</td>', r, re.DOTALL)
+            if len(cols) >= 5:
+                mname = re.sub(r'<[^>]+>', '', cols[0]).strip()
+                inp = cols[1].strip()
+                out = cols[2].strip()
+                cached_read = cols[3].strip()
+                cached_write = cols[4].strip() if len(cols) > 5 else '-'
+                limit_col = cols[-1]
+                lim_match = re.search(r'\$(\d+)', limit_col)
+                lim = int(lim_match.group(1)) if lim_match else 0
+                limit_text = re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', ' ', limit_col)).strip()
+                unlimited = 'unlimited' in limit_text.lower()
+                inp_num = first_price(inp)
+                out_num = first_price(out)
+                blended = (3 * inp_num + out_num) / 4.0 if (inp_num or out_num) else 0.0
+                console_models.append({
+                    'name': mname,
+                    'input': inp_num,
+                    'output': out_num,
+                    'cached_read': cached_read,
+                    'cached_write': cached_write,
+                    'monthly_limit': lim,
+                    'limit_text': limit_text,
+                    'unlimited': unlimited,
+                    'blended': blended
+                })
+        print(f"   Successfully parsed {len(console_models)} official model rows from /v2/docs/console/go/!")
+    except Exception as e:
+        print(f"   Pricing table parse note ({e}), using cached fallback.")
+        if not console_models and os.path.exists(os.path.join(DATA_DIR, "opencode_console_go_table.json")):
+            console_models = json.load(open(os.path.join(DATA_DIR, "opencode_console_go_table.json")))
+    try:
+        # Parse Privacy table
+        privacy_match = re.search(r'<h2 id=\"privacy\">Privacy</h2>(.*?)(?:<h2|$)', doc_html, re.DOTALL)
+        if privacy_match:
+            p_rows = re.findall(r'<tr>(.*?)</tr>', privacy_match.group(1), re.DOTALL)
+            for pr in p_rows[1:]:
+                p_cols = [re.sub(r'<[^>]+>', '', c).strip() for c in re.findall(r'<t[dh]>(.*?)</t[dh]>', pr, re.DOTALL)]
+                if len(p_cols) >= 3:
+                    p_name = p_cols[0]
+                    p_train = p_cols[1]
+                    p_ret = p_cols[2]
+                    privacy_info[p_name.lower()] = {
+                        'training': p_train,
+                        'retention': p_ret,
+                        'trains_on_data': (p_train.lower() == 'yes')
+                    }
+        print(f"   Successfully parsed privacy terms for {len(privacy_info)} models!")
+    except Exception as e:
+        print(f"   Privacy table parse note ({e}), privacy flags may be incomplete.")
 
 # 2. Fetch 5h limits from opencode.ai/go
 go_limits = {}

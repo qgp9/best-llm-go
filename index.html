@@ -1287,6 +1287,10 @@
     if (match) {
       return {
         ...m,
+        // Show the Go subscription name (e.g. "Muse Spark 1.3 Contributor"),
+        // not the AA benchmark variant name (e.g. "Muse Spark 1.3 (Max)").
+        name: match.name,
+        market_name: m.name,
         isGo: true,
         go_id: match.go_id,
         allowance: match.allowance,
@@ -1646,6 +1650,8 @@
     const rows = [
       [METRIC, num(d.v, 1) + scoreSuffix],
       [isKo ? "제조사" : "Creator", d.creator || "—"],
+      ...(d.market_name && d.market_name !== d.name
+        ? [[isKo ? "AA 벤치마크명" : "AA benchmark name", d.market_name]] : []),
       [isKo ? "플랫폼" : "Platform", (d.platform && d.platform.length) ? d.platform.join(", ") : "—"],
       [isKo ? "Go 월간 한도" : "Go Monthly Cap", d.kind === "free" ? (isKo ? "Free ($0, 한도 차감 없음)" : "Free ($0, no allowance burn)") : (d.allowance ? `$${d.allowance} (${isKo ? '배율' : 'multiplier'} x${d.multiplier})` : "—")],
       [isKo ? "5시간 롤링 제한" : "5h Rolling Limit", d.requests_5h ? `${num(d.requests_5h)} requests / 5h` : (d.unlimited ? (isKo ? "무제한 (한시적)" : "Unlimited (limited time)") : "—")],
