@@ -137,20 +137,47 @@ except Exception as e:
         for m in json.load(open(os.path.join(DATA_DIR, "opencode_go_models.json"))):
             go_limits[m['id']] = m.get('requests_5h')
 
-# 3. Fetch latest Artificial Analysis benchmark snapshot
-print("3. Fetching latest Artificial Analysis benchmark snapshot...")
-try:
-    aa_text = fetch_url("https://bestmodelforyourbudget.terrydjony.com/data/models.json")
-    aa_data = json.loads(aa_text)
-    with open(os.path.join(DATA_DIR, "models.json"), "w") as f:
-        f.write(aa_text)
-    with open(os.path.join(DATA_DIR, "models.js"), "w") as f:
-        f.write("window.__MODELS_DATA__ = " + aa_text + ";")
-    print(f"   Successfully fetched {len(aa_data.get('models', []))} models from Artificial Analysis!")
-except Exception as e:
-    print(f"   AA snapshot fetch note ({e}), using cached fallback.")
+# 3. Artificial Analysis benchmark snapshot.
+# FREEZE_AA=1 pins the snapshot: AA is mid-migration to Intelligence Index
+# v5.0 and models without a v5.0 score yet (e.g. GLM-5.3-Flash) vanish from
+# the feed instead of just going stale. While frozen, the committed
+# data/models.json (v4-era) is reused untouched so the whole site stays on
+# one consistent index version. Unset the flag once the v5.0 rollout
+# completes. A shrink guard below also protects the unfrozen path.
+FREEZE_AA = os.environ.get("FREEZE_AA", "") == "1"
+# Refuse a fresh snapshot that lost more than this share of models vs cache.
+AA_SHRINK_GUARD = 0.6
+print("3. Artificial Analysis benchmark snapshot...")
+if FREEZE_AA:
+    print("   Frozen (FREEZE_AA=1): reusing committed data/models.json, no fetch.")
     with open(os.path.join(DATA_DIR, "models.json")) as f:
         aa_data = json.load(f)
+    with open(os.path.join(DATA_DIR, "models.js"), "w") as f:
+        f.write("window.__MODELS_DATA__ = " + json.dumps(aa_data) + ";")
+    print(f"   Pinned snapshot: {len(aa_data.get('models', []))} models (fetched {aa_data.get('fetched_at', 'unknown')}).")
+else:
+    try:
+        aa_text = fetch_url("https://bestmodelforyourbudget.terrydjony.com/data/models.json")
+        aa_data = json.loads(aa_text)
+        try:
+            with open(os.path.join(DATA_DIR, "models.json")) as f:
+                prev_count = len(json.load(f).get("models", []))
+        except (OSError, ValueError):
+            prev_count = 0
+        new_count = len(aa_data.get("models", []))
+        if prev_count and new_count < prev_count * (1 - AA_SHRINK_GUARD):
+            print(f"   AA snapshot shrank {prev_count} -> {new_count}: keeping cached snapshot.")
+        else:
+            with open(os.path.join(DATA_DIR, "models.json"), "w") as f:
+                f.write(aa_text)
+            with open(os.path.join(DATA_DIR, "models.js"), "w") as f:
+                f.write("window.__MODELS_DATA__ = " + aa_text + ";")
+            print(f"   Successfully fetched {new_count} models from Artificial Analysis!")
+            aa_data = json.loads(open(os.path.join(DATA_DIR, "models.json")).read())
+    except Exception as e:
+        print(f"   AA snapshot fetch note ({e}), using cached fallback.")
+        with open(os.path.join(DATA_DIR, "models.json")) as f:
+            aa_data = json.load(f)
 aa_models = aa_data.get("models", [])
 
 aliases = {
