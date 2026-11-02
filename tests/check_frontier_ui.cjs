@@ -133,6 +133,31 @@ async function main() {
   await evaluate(`document.getElementById('multiplierSel').value=[...document.getElementById('multiplierSel').options].find(o=>parseFloat(o.value)>1).value; document.getElementById('multiplierSel').dispatchEvent(new Event('change'))`);
   await check('multiplier');
   await evaluate(`document.getElementById('multiplierSel').value=''; document.getElementById('multiplierSel').dispatchEvent(new Event('change')); document.getElementById('minIdx').value='40'; document.getElementById('minIdx').dispatchEvent(new Event('input'))`);
+  // Dynamic tiers: back to Go scope so Go model identities are stable under
+  // collapse (market variants could otherwise win the same base name).
+  await evaluate(`document.querySelector('[data-scope="go_only"]').click()`);
+  // Dynamic tiers: every allowance in the data gets a dropdown option,
+  // a legend entry and a proper badge (no "Non-Go" for real Go tiers).
+  const tiers = await evaluate(`(() => ({
+    mults: [...document.getElementById('multiplierSel').options].map(o => o.value),
+    legend: document.getElementById('legendTiers').textContent,
+    deepseekTag: (() => {
+      const tr = [...document.querySelectorAll('#tbl tbody tr')].find(tr => tr.textContent.includes('DeepSeek V4.1 Flash (Off-Peak)'));
+      return tr ? tr.textContent : null;
+    })(),
+    deepseekRing: (() => {
+      const hit = document.querySelector('#scatter .hit[data-model-id="opencode-go/deepseek-v4.1-flash"]');
+      if (!hit) return null;
+      const ring = [...document.querySelectorAll('#scatter circle')].find(c =>
+        c.getAttribute('r') === '8.5' && c.getAttribute('cx') === hit.dataset.cx && c.getAttribute('cy') === hit.dataset.cy);
+      return ring ? getComputedStyle(ring).stroke : null;
+    })()
+  }))()`);
+  assert.ok(tiers.mults.includes('8'), 'multiplier list has x8.0');
+  assert.ok(tiers.legend.includes('$80'), 'legend has $80 tier');
+  assert.ok(tiers.deepseekTag && tiers.deepseekTag.includes('$80') && !tiers.deepseekTag.includes('Non-Go'), 'DeepSeek shows $80 badge');
+  assert.equal(tiers.deepseekRing, 'rgb(139, 92, 246)', 'DeepSeek ring uses tier80 color');
+  console.log('dynamic tiers ($80/$20): PASS');
   await check('minimum score');
   await evaluate(`document.getElementById('search').value='no-such-model-for-test'; document.getElementById('search').dispatchEvent(new Event('input'))`);
   result=await check('empty search');
