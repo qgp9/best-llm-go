@@ -1996,14 +1996,17 @@
       const is15 = d.allowance === 15;
       const isTrain = !!d.trains_on_data;
 
+      // Outer ring/base goes into the clipped group BEFORE the center,
+      // otherwise the opaque base would cover the center (plotG paints
+      // after previously appended svg children).
       if (is60) {
-        svg.appendChild(el("circle", { cx, cy, r: 8.5, fill: "none", stroke: "var(--tier60)", "stroke-width": 1.5 }));
+        plotG.appendChild(el("circle", { cx, cy, r: 8.5, fill: "none", stroke: "var(--tier60)", "stroke-width": 1.5 }));
       } else if (is30) {
-        svg.appendChild(el("circle", { cx, cy, r: 8.5, fill: "none", stroke: "var(--tier30)", "stroke-width": 1.5 }));
+        plotG.appendChild(el("circle", { cx, cy, r: 8.5, fill: "none", stroke: "var(--tier30)", "stroke-width": 1.5 }));
       } else if (is15) {
-        svg.appendChild(el("circle", { cx, cy, r: 8.5, fill: "none", stroke: "var(--tier15)", "stroke-width": 1.5 }));
+        plotG.appendChild(el("circle", { cx, cy, r: 8.5, fill: "none", stroke: "var(--tier15)", "stroke-width": 1.5 }));
       } else {
-        svg.appendChild(el("circle", { cx, cy, r: 7.5, fill: "var(--surface)" }));
+        plotG.appendChild(el("circle", { cx, cy, r: 7.5, fill: "var(--surface)" }));
       }
 
       // Center circle (red border indicator if training on data)
