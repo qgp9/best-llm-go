@@ -207,6 +207,55 @@ async function main() {
   await evaluate(`document.getElementById('scatter').dispatchEvent(new MouseEvent('click', {bubbles: true}))`);
   assert.equal(await evaluate(`document.getElementById('crossPin').style.display`), 'none');
   console.log('crosshair hover/pin/unpin: PASS');
+  // Axis sliders: dragging the X min-handle narrows the price window,
+  // dragging the Y window pans it; the frontier analysis must not change.
+  await navigate('index.html');
+  result = await check('slider base');
+  const sliderBase = result.graph;
+  assert.ok(await evaluate(`!!document.getElementById('axisSliders')`));
+  const zxBefore = await evaluate(`new URLSearchParams(location.search).get('zx0')`);
+  await evaluate(`(() => {
+    const h = document.querySelector('#axisSliders [data-slider="x0"]');
+    const r = h.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    h.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: cx, clientY: cy}));
+    document.getElementById('scatter').dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: cx + 80, clientY: cy}));
+    document.getElementById('scatter').dispatchEvent(new PointerEvent('pointerup', {bubbles: true}));
+  })()`);
+  const zxAfter = await evaluate(`new URLSearchParams(location.search).get('zx0')`);
+  assert.ok(zxAfter !== null && (zxBefore === null || parseFloat(zxAfter) > parseFloat(zxBefore)), 'x min-handle drag narrows price window');
+  result = await check('slider x narrowed', true);
+  assert.deepEqual(result.graph, sliderBase);
+  await evaluate(`(() => {
+    const w = document.querySelector('#axisSliders [data-slider="ywin"]');
+    const r = w.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    w.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: cx, clientY: cy}));
+    document.getElementById('scatter').dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: cx, clientY: cy - 40}));
+    document.getElementById('scatter').dispatchEvent(new PointerEvent('pointerup', {bubbles: true}));
+  })()`);
+  // NOTE: with the Y axis at full domain there is nothing to pan, so this
+  // drag is a no-op by design (same as ECharts) — zoom Y first, then pan.
+  await evaluate(`document.getElementById('zoomIn').click()`);
+  const zyBefore = await evaluate(`new URLSearchParams(location.search).get('zy0')`);
+  assert.ok(zyBefore !== null, 'zoom-in sets y window');
+  await evaluate(`(() => {
+    const w = document.querySelector('#axisSliders [data-slider="ywin"]');
+    const r = w.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    w.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true, button: 0, clientX: cx, clientY: cy}));
+    document.getElementById('scatter').dispatchEvent(new PointerEvent('pointermove', {bubbles: true, clientX: cx, clientY: cy - 40}));
+    document.getElementById('scatter').dispatchEvent(new PointerEvent('pointerup', {bubbles: true}));
+  })()`);
+  const zyAfter = await evaluate(`new URLSearchParams(location.search).get('zy0')`);
+  assert.ok(zyAfter !== null && parseFloat(zyAfter) > parseFloat(zyBefore), 'y window drag pans index window');
+  result = await check('slider y panned', true);
+  assert.deepEqual(result.graph, sliderBase);
+  await evaluate(`document.getElementById('zoomReset').click()`);
+  assert.ok(await evaluate(`!location.search.includes('zx0=') && !location.search.includes('zy0=')`));
+  result = await check('slider reset', true);
+  assert.deepEqual(result.graph, sliderBase);
+  console.log('axis slider drag/pan/reset: PASS');
   // Render a long label through the real DOM renderer, including narrow layout.
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:false});
   await evaluate(`FrontierAnalysis.render(document.getElementById('conditionAnalysis'),FrontierAnalysis.analyze([{id:'long',name:'Long model name '.repeat(40),x:1,v:20}]),{isKo:true,title:'test',unit:'/1M',formatCost:String})`);

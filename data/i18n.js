@@ -92,7 +92,7 @@
       zoom_in: "Zoom in",
       zoom_out: "Zoom out",
       zoom_reset: "Reset",
-      zoom_hint: "Scroll to zoom · Shift+scroll: price only · drag to pan · double-click to reset · click a dot to pin crosshair",
+      zoom_hint: "Scroll to zoom · Shift+scroll: price only · drag to pan · double-click to reset · click a dot to pin crosshair · axis sliders set the range",
 
       // Strategy Guide
       guide_hdr: "OpenCode Go Strategy & Model Guide",
@@ -352,7 +352,7 @@
       zoom_in: "확대",
       zoom_out: "축소",
       zoom_reset: "초기화",
-      zoom_hint: "휠: 확대/축소 · Shift+휠: 가격축만 · 드래그: 이동 · 더블클릭: 초기화 · 점 클릭: 십자선 고정",
+      zoom_hint: "휠: 확대/축소 · Shift+휠: 가격축만 · 드래그: 이동 · 더블클릭: 초기화 · 점 클릭: 십자선 고정 · 축 슬라이더로 범위 지정",
 
       // Strategy Guide
       guide_hdr: "OpenCode Go 실전 모델 가이드",

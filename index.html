@@ -1737,7 +1737,7 @@
   /* ---------- scatter ---------- */
   function drawScatter(rows, vis, frontier, laneLayout, yRange) {
     const svg = $("scatter"); svg.replaceChildren();
-    const W = 960, H = 540, M = { t: 26, r: 40, b: 56, l: 62 };
+    const W = 960, H = 540, M = { t: 26, r: 64, b: 92, l: 62 };
     const pw = W - M.l - M.r, ph = H - M.t - M.b;
 
     const isKo = (window.I18N && window.I18N.lang === "ko");
@@ -1850,6 +1850,58 @@
     yt.textContent = "Artificial Analysis " + METRIC;
     svg.appendChild(yt);
 
+    // Range sliders on each axis (ECharts-style dataZoom): the track always
+    // spans the full domain with a mini overview of the data, two handles
+    // set the visible window, and the window itself drags to pan. Dragging
+    // a handle back out re-expands the range, so zoom-out needs no separate
+    // gesture. Double-click resets.
+    if (xs.length) {
+      const xSlY = M.t + ph + 60, xSlH = 8;
+      const ySlX = W - 34, ySlW = 8;
+      const slG = el("g", { id: "axisSliders", style: "touch-action:none" });
+      const fullXLo = fullLogX[0], fullXHi = fullLogX[1];
+      const ox = (v) => plotLeft + (Math.log10(v) - fullXLo) / (fullXHi - fullXLo) * plotWidth;
+      const oy = (v) => M.t + (fullY[1] - v) / (fullY[1] - fullY[0]) * ph;
+      const curX = (state.zoom && state.zoom.x) || [Math.pow(10, fullXLo), Math.pow(10, fullXHi)];
+      const curY = (state.zoom && state.zoom.y) || [fullY[0], fullY[1]];
+      // overview dots (full-domain mapping, unaffected by zoom)
+      paidVis.forEach((d) => {
+        slG.appendChild(el("circle", { cx: ox(d.x), cy: xSlY + xSlH / 2, r: 1.6, fill: d.front ? "var(--accent)" : "var(--demote)", opacity: 0.55 }));
+        slG.appendChild(el("circle", { cx: ySlX + ySlW / 2, cy: oy(d.v), r: 1.6, fill: d.front ? "var(--accent)" : "var(--demote)", opacity: 0.55 }));
+      });
+      const mkTrack = (x, y, w, hgt, kind) => {
+        slG.appendChild(el("rect", { x, y, width: w, height: hgt, rx: 4, fill: "var(--wash)", stroke: "var(--line)", "data-slider": kind }));
+      };
+      const mkWin = (x, y, w, hgt, kind) => {
+        slG.appendChild(el("rect", { x, y, width: w, height: hgt, rx: 4, fill: "var(--accent)", opacity: 0.14, stroke: "var(--accent)", "stroke-width": 1, style: "cursor:grab", "data-slider": kind }));
+      };
+      const mkHandle = (x, y, w, hgt, kind, cursor) => {
+        slG.appendChild(el("rect", { x: x - w / 2, y: y - hgt / 2, width: w, height: hgt, rx: Math.min(w, hgt) / 2, fill: "var(--surface)", stroke: "var(--ink-3)", "stroke-width": 1.5, style: `cursor:${cursor}`, "data-slider": kind }));
+      };
+      // X slider
+      mkTrack(plotLeft, xSlY, plotWidth, xSlH, "xtrack");
+      const wx0 = ox(curX[0]), wx1 = ox(curX[1]);
+      mkWin(Math.min(wx0, wx1), xSlY, Math.abs(wx1 - wx0), xSlH, "xwin");
+      mkHandle(wx0, xSlY + xSlH / 2, 10, 18, "x0", "ew-resize");
+      mkHandle(wx1, xSlY + xSlH / 2, 10, 18, "x1", "ew-resize");
+      const xLab = el("text", { x: Math.min(Math.max((wx0 + wx1) / 2, plotLeft + 40), plotLeft + plotWidth - 40), y: xSlY + xSlH + 13, "text-anchor": "middle", class: "tick", "font-size": "10px", fill: "var(--ink-3)" });
+      xLab.textContent = `${fmtTick(curX[0])} – ${fmtTick(curX[1])}`;
+      slG.appendChild(xLab);
+      // Y slider
+      mkTrack(ySlX, M.t, ySlW, ph, "ytrack");
+      const wy0 = oy(curY[0]), wy1 = oy(curY[1]);
+      const wyTop = Math.min(wy0, wy1);
+      mkWin(ySlX, wyTop, ySlW, Math.abs(wy1 - wy0), "ywin");
+      mkHandle(ySlX + ySlW / 2, wyTop, 18, 10, "y1", "ns-resize");
+      mkHandle(ySlX + ySlW / 2, wyTop + Math.abs(wy1 - wy0), 18, 10, "y0", "ns-resize");
+      const yLabT = el("text", { x: ySlX + ySlW + 4, y: wyTop + 3, class: "tick", "font-size": "9.5px", fill: "var(--ink-3)" });
+      yLabT.textContent = num(curY[1], 1);
+      const yLabB = el("text", { x: ySlX + ySlW + 4, y: wyTop + Math.abs(wy1 - wy0) + 3, class: "tick", "font-size": "9.5px", fill: "var(--ink-3)" });
+      yLabB.textContent = num(curY[0], 1);
+      slG.append(yLabT, yLabB);
+      svg.appendChild(slG);
+    }
+
     // Frontier upper edge and fill
     // Boxes of already placed labels; the frontier caption reserves its slot
     // here so that model labels never end up on top of it.
@@ -1897,13 +1949,14 @@
       const lastF = frontier[frontier.length - 1];
       const edgeText = "▲ Frontier Edge";
       const edgeW = edgeText.length * 6.4;
+      const capRight = xs.length ? W - 70 : W - 6; // keep clear of the Y slider
       let edgeX = X(lastF.x) + 10;
       let edgeAnchor = "start";
-      if (edgeX + edgeW > W - 6) { edgeX = X(lastF.x) - 10; edgeAnchor = "end"; }
+      if (edgeX + edgeW > capRight) { edgeX = X(lastF.x) - 10; edgeAnchor = "end"; }
       if (edgeAnchor === "start") {
         edgeX = Math.min(Math.max(edgeX, plotLeft + 4), plotLeft + plotWidth - edgeW - 4);
       } else {
-        edgeX = Math.min(Math.max(edgeX, plotLeft + edgeW + 4), W - 6);
+        edgeX = Math.min(Math.max(edgeX, plotLeft + edgeW + 4), capRight);
       }
       const edgeY = Math.max(M.t + 12, Math.min(Y(lastF.v) - 12, M.t + ph - 4));
       const edgeLabel = el("text", {
@@ -1921,7 +1974,7 @@
       // (e.g. the ▲ glyph is wide), which used to clip the caption.
       const measuredW = edgeLabel.getComputedTextLength() || edgeW;
       if (edgeAnchor === "start" && edgeX + measuredW > W - 6) {
-        edgeX = Math.max(plotLeft + 4, W - 6 - measuredW);
+        edgeX = Math.max(plotLeft + 4, capRight - measuredW);
         edgeLabel.setAttribute("x", edgeX);
       }
       placed.push({
@@ -3217,7 +3270,23 @@
     });
     let panStart = null;
     let panMoved = false;
+    let sliderDrag = null; // {kind, origX, origY} — svg-captured, survives re-render
+    const sliderKind = (e) => (e.target && e.target.closest && e.target.closest("[data-slider]") && chartView && chartView.hasPaid)
+      ? e.target.closest("[data-slider]").dataset.slider : null;
+    const svgPx = (e) => {
+      const v = chartView, r = svg.getBoundingClientRect();
+      return { x: (e.clientX - r.left) / r.width * 960, y: (e.clientY - r.top) / r.height * 540 };
+    };
     svg.addEventListener("pointerdown", (e) => {
+      const kind = sliderKind(e);
+      if (e.button === 0 && kind && !["xtrack", "ytrack"].includes(kind)) {
+        const cur = state.zoom || {};
+        sliderDrag = { kind, origX: cur.x ? [...cur.x] : null, origY: cur.y ? [...cur.y] : null, cx: e.clientX, cy: e.clientY, cx0: e.clientX, cy0: e.clientY };
+        panMoved = false;
+        try { svg.setPointerCapture(e.pointerId); } catch (_) {}
+        svg.style.cursor = "grabbing";
+        return;
+      }
       if (e.button !== 0 || e.target.closest(".hit") || !chartView || !chartView.hasPaid) return;
       const cur = state.zoom;
       if (!cur || (!cur.x && !cur.y)) return; // nothing to move when fully zoomed out
@@ -3227,6 +3296,56 @@
       svg.style.cursor = "grabbing";
     });
     svg.addEventListener("pointermove", (e) => {
+      if (sliderDrag && chartView) {
+        const v = chartView;
+        if (Math.hypot(e.clientX - sliderDrag.cx0, e.clientY - sliderDrag.cy0) > 3) panMoved = true;
+        const r = svg.getBoundingClientRect();
+        const sx = 960 / r.width, sy = 540 / r.height;
+        const px = (e.clientX - r.left) * sx, py = (e.clientY - r.top) * sy;
+        const cur = state.zoom || {};
+        let nx = cur.x || null, ny = cur.y || null;
+        const fullLo = Math.pow(10, v.fullLogX[0]), fullHi = Math.pow(10, v.fullLogX[1]);
+        const clampPx = Math.min(Math.max(px, v.plotLeft), v.plotLeft + v.plotWidth);
+        const clampPy = Math.min(Math.max(py, v.mT), v.mT + v.plotH);
+        const invFullLogX = (q) => v.fullLogX[0] + (q - v.plotLeft) / v.plotWidth * (v.fullLogX[1] - v.fullLogX[0]);
+        const invFullY = (q) => v.fullY[1] - (q - v.mT) / v.plotH * (v.fullY[1] - v.fullY[0]);
+        const k = sliderDrag.kind;
+        if (k === "x0" || k === "x1") {
+          const base = (sliderDrag.origX || [fullLo, fullHi]);
+          const nl = Math.pow(10, invFullLogX(clampPx));
+          if (k === "x0") nx = [Math.min(nl, base[1] / 1.2), base[1]];
+          else nx = [base[0], Math.max(nl, base[0] * 1.2)];
+        } else if (k === "y0" || k === "y1") {
+          const base = (sliderDrag.origY || [v.fullY[0], v.fullY[1]]);
+          const nv = invFullY(clampPy);
+          if (k === "y0") ny = [Math.min(nv, base[1] - 2), base[1]];
+          else ny = [base[0], Math.max(nv, base[0] + 2)];
+        } else if (k === "xwin" || k === "ywin") {
+          const dxV = (e.clientX - sliderDrag.cx) * sx, dyV = (e.clientY - sliderDrag.cy) * sy;
+          sliderDrag.cx = e.clientX; sliderDrag.cy = e.clientY;
+          if (k === "xwin" && sliderDrag.origX) {
+            const l0 = Math.log10(sliderDrag.origX[0]), l1 = Math.log10(sliderDrag.origX[1]);
+            const d = dxV / v.plotWidth * (v.fullLogX[1] - v.fullLogX[0]);
+            const nl0 = l0 + d, nl1 = l1 + d, [g0, g1] = v.fullLogX, span = l1 - l0;
+            if (span < g1 - g0 - 1e-9) {
+              const sh = Math.min(Math.max(nl0, g0), g1 - span) - nl0;
+              nx = [Math.pow(10, nl0 + sh), Math.pow(10, nl1 + sh)];
+            } else nx = sliderDrag.origX;
+          }
+          if (k === "ywin" && sliderDrag.origY) {
+            const [a0, a1] = sliderDrag.origY, span = a1 - a0;
+            const d = -dyV / v.plotH * (v.fullY[1] - v.fullY[0]);
+            const na0 = a0 + d, na1 = a1 + d, [g0, g1] = v.fullY;
+            if (span < g1 - g0 - 1e-9) {
+              const sh = Math.min(Math.max(na0, g0), g1 - span) - na0;
+              ny = [na0 + sh, na1 + sh];
+            } else ny = sliderDrag.origY;
+          }
+        }
+        state.zoom = normalizeZoom(nx, ny);
+        scheduleRender();
+        return;
+      }
       if (!panStart || !chartView) return;
       if (Math.hypot(e.clientX - panStart.ox, e.clientY - panStart.oy) > 4) panMoved = true;
       const v = chartView;
@@ -3263,12 +3382,11 @@
       scheduleRender();
     });
     const endPan = () => {
-      if (!panStart) return;
-      const moved = panStart.moved;
+      if (!panStart && !sliderDrag) return;
       panStart = null;
+      sliderDrag = null;
       svg.style.cursor = "";
       syncStateToUrl();
-      return moved;
     };
     svg.addEventListener("pointerup", endPan);
     svg.addEventListener("pointercancel", endPan);
@@ -3296,6 +3414,7 @@
     svg.addEventListener("click", (e) => {
       if (panMoved) { panMoved = false; return; }
       if (!chartView) return;
+      if (e.target && e.target.closest && e.target.closest("[data-slider]")) return;
       const hit = e.target && e.target.closest ? e.target.closest(".hit") : null;
       if (hit && hit.dataset.modelId) {
         pinnedId = (pinnedId === hit.dataset.modelId) ? null : hit.dataset.modelId;
