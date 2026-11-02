@@ -359,6 +359,8 @@
   .focus-ring { opacity: 0; fill: none; stroke: var(--accent); stroke-width: 2; pointer-events: none; }
 
   .legend { display: flex; gap: 20px; flex-wrap: wrap; margin: 18px 0 0; font-size: 13.5px; color: var(--ink-2); align-items: center; }
+  .chart-toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 0; align-items: center; }
+  .zoom-hint { font-size: 12px; color: var(--ink-3); margin-left: auto; }
   .legend span { display: inline-flex; align-items: center; gap: 7px; }
   .key { width: 11px; height: 11px; border-radius: 50%; flex: none; }
   .key.line { width: 18px; height: 2px; border-radius: 1px; }
@@ -1039,6 +1041,12 @@
 <div class="card">
   <h2 id="scatterTitle">Intelligence Index vs Effective Price</h2>  <p class="cap" id="scatterCap">Cost-efficiency analysis. The orange line on top is the <b>Frontier Edge</b>, representing Pareto-optimal models with highest capability per cost.</p>
   <svg id="scatter" viewBox="0 0 960 540" role="img" aria-label="Scatter plot of capability index versus price"></svg>
+  <div class="chart-toolbar" role="toolbar" aria-label="chart zoom controls">
+    <button type="button" class="btn btn-sm" id="zoomIn">＋ <span data-i18n="zoom_in">Zoom in</span></button>
+    <button type="button" class="btn btn-sm" id="zoomOut">－ <span data-i18n="zoom_out">Zoom out</span></button>
+    <button type="button" class="btn btn-sm" id="zoomReset">⟲ <span data-i18n="zoom_reset">Reset</span></button>
+    <span class="zoom-hint" data-i18n="zoom_hint">Scroll to zoom · Shift+scroll: price only · drag to pan · double-click to reset</span>
+  </div>
   <div class="legend">
     <span><i class="key" style="background:var(--accent)"></i><span data-i18n="leg_frontier">On Frontier</span></span>
     <span><i class="key" style="background:var(--demote)"></i><span data-i18n="leg_dominated">Outside Frontier</span></span>
@@ -1359,6 +1367,7 @@
     q: "",
     frontierOnly: false,
     labelsAll: false,
+    zoom: null,
     showAllIndex: false,
     sortK: "effective_price",
     sortDir: 1
@@ -1756,14 +1765,48 @@
       if (!freeVis.length) return;
     }
     const xmin = xs.length ? Math.min(...xs) / 1.5 : 1, xmax = xs.length ? Math.max(...xs) * 1.5 : 10;
-    const x0 = Math.log10(xmin), x1 = Math.log10(xmax);
-    const ystep = 5;
-    const y0 = Math.floor((Math.min(...ys) - 2) / ystep) * ystep;
-    const y1 = Math.ceil((Math.max(...ys) + 2) / ystep) * ystep;
+    const fullLogX = [Math.log10(xmin), Math.log10(xmax)];
+    const ystepFull = 5;
+    const fullY = [Math.floor((Math.min(...ys) - 2) / ystepFull) * ystepFull,
+      Math.ceil((Math.max(...ys) + 2) / ystepFull) * ystepFull];
+
+    // Zoom override (data coordinates), clamped into the full domains.
+    // state.zoom = {x:[loPrice,hiPrice]|null, y:[loIdx,hiIdx]|null}.
+    let exLog = null, eyDom = null;
+    if (state.zoom) {
+      if (state.zoom.x && xs.length) {
+        const lo = Math.max(state.zoom.x[0], xmin), hi = Math.min(state.zoom.x[1], xmax);
+        if (hi / lo >= 1.2) exLog = [Math.log10(lo), Math.log10(hi)];
+      }
+      if (state.zoom.y) {
+        const lo = Math.max(state.zoom.y[0], fullY[0]), hi = Math.min(state.zoom.y[1], fullY[1]);
+        if (hi - lo >= 2) eyDom = [lo, hi];
+      }
+    }
+    const x0 = exLog ? exLog[0] : fullLogX[0], x1 = exLog ? exLog[1] : fullLogX[1];
+    const y0 = eyDom ? eyDom[0] : fullY[0], y1 = eyDom ? eyDom[1] : fullY[1];
+    const ystep = (() => {
+      const span = y1 - y0;
+      for (const s of [1, 2, 5, 10, 20, 25, 50]) if (span / s <= 8) return s;
+      return 100;
+    })();
+    const fmtYTick = (v) => Number.isInteger(v) ? String(v) : (+v.toFixed(1));
 
     const plotWidth = pw - LANE;
     const X = (v) => plotLeft + (Math.log10(v) - x0) / (x1 - x0) * plotWidth;
     const Y = (v) => M.t + ph - (v - y0) / (y1 - y0) * ph;
+    const inPlotX = (cx) => cx >= plotLeft - 1 && cx <= plotLeft + plotWidth + 1;
+    const inPlotY = (cy) => cy >= M.t - 1 && cy <= M.t + ph + 1;
+
+    // Clip marks to the chart body (margins stay clean when zoomed/panned).
+    const defs = el("defs");
+    const clipId = "plotClip";
+    const clip = el("clipPath", { id: clipId });
+    clip.appendChild(el("rect", { x: M.l, y: M.t, width: pw, height: ph }));
+    defs.appendChild(clip);
+    svg.appendChild(defs);
+    const plotG = el("g", { "clip-path": "url(#plotClip)" });
+    svg.appendChild(plotG);
 
     // Free lane background + label
     if (LANE) {
@@ -1780,15 +1823,15 @@
     }
 
     // Y grid
-    for (let v = y0; v <= y1; v += ystep) {
+    for (let k = 0, v = Math.ceil(y0 / ystep) * ystep; v <= y1 + 1e-9; k++, v = Math.ceil(y0 / ystep) * ystep + k * ystep) {
       svg.appendChild(el("line", { x1: M.l, x2: M.l + pw, y1: Y(v), y2: Y(v), stroke: "var(--grid)", "stroke-width": 1 }));
       const t = el("text", { x: M.l - 12, y: Y(v) + 4, "text-anchor": "end", class: "tick" });
-      t.textContent = v;
+      t.textContent = fmtYTick(v);
       svg.appendChild(t);
     }
 
     // X grid
-    if (xs.length) niceLogTicks(xmin, xmax).forEach((v) => {
+    if (xs.length) niceLogTicks(Math.pow(10, x0), Math.pow(10, x1)).forEach((v) => {
       svg.appendChild(el("line", { x1: X(v), x2: X(v), y1: M.t, y2: M.t + ph, stroke: "var(--grid)", "stroke-width": 1 }));
       const t = el("text", { x: X(v), y: M.t + ph + 22, "text-anchor": "middle", class: "tick" });
       t.textContent = fmtTick(v);
@@ -1830,12 +1873,12 @@
       if (frontier.length > 1) {
         const first = frontier[0], last = frontier[frontier.length - 1];
         const areaPoints = `${X(first.x)},${M.t + ph} ` + stepPoints.join(" ") + ` ${X(last.x)},${M.t + ph}`;
-        svg.appendChild(el("polygon", { points: areaPoints, class: "frontier-area" }));
+        plotG.appendChild(el("polygon", { points: areaPoints, class: "frontier-area" }));
       }
 
       // Step frontier curve
       if (stepPoints.length > 1) {
-        svg.appendChild(el("polyline", {
+        plotG.appendChild(el("polyline", {
           points: stepPoints.join(" "),
           class: "frontier-step"
         }));
@@ -1843,7 +1886,7 @@
 
       // Direct Upper Envelope (Connecting best points)
       const pts = frontier.map((d) => `${X(d.x)},${Y(d.v)}`).join(" ");
-      svg.appendChild(el("polyline", {
+      plotG.appendChild(el("polyline", {
         points: pts,
         class: "frontier-edge"
       }));
@@ -1857,6 +1900,11 @@
       let edgeX = X(lastF.x) + 10;
       let edgeAnchor = "start";
       if (edgeX + edgeW > W - 6) { edgeX = X(lastF.x) - 10; edgeAnchor = "end"; }
+      if (edgeAnchor === "start") {
+        edgeX = Math.min(Math.max(edgeX, plotLeft + 4), plotLeft + plotWidth - edgeW - 4);
+      } else {
+        edgeX = Math.min(Math.max(edgeX, plotLeft + edgeW + 4), W - 6);
+      }
       const edgeY = Math.max(M.t + 12, Math.min(Y(lastF.v) - 12, M.t + ph - 4));
       const edgeLabel = el("text", {
         x: edgeX,
@@ -1869,9 +1917,16 @@
       });
       edgeLabel.textContent = edgeText;
       svg.appendChild(edgeLabel);
+      // Reposition by measured width: the estimate above can be short
+      // (e.g. the ▲ glyph is wide), which used to clip the caption.
+      const measuredW = edgeLabel.getComputedTextLength() || edgeW;
+      if (edgeAnchor === "start" && edgeX + measuredW > W - 6) {
+        edgeX = Math.max(plotLeft + 4, W - 6 - measuredW);
+        edgeLabel.setAttribute("x", edgeX);
+      }
       placed.push({
-        bx: edgeAnchor === "start" ? edgeX : edgeX - edgeW,
-        by: edgeY - 11, w: edgeW, h: 13
+        bx: edgeAnchor === "start" ? edgeX : edgeX - measuredW,
+        by: edgeY - 11, w: measuredW, h: 13
       });
     }
 
@@ -1879,6 +1934,7 @@
     const ordered = [...paidVis].sort((a, b) => (a.front ? 1 : 0) - (b.front ? 1 : 0));
     ordered.forEach((d) => {
       const cx = X(d.x), cy = Y(d.v);
+      if (!inPlotX(cx) || !inPlotY(cy)) return;
       const c = d.front ? "var(--accent)" : "var(--demote)";
       const is60 = d.allowance === 60;
       const is30 = d.allowance === 30;
@@ -1897,9 +1953,9 @@
 
       // Center circle (red border indicator if training on data)
       if (isTrain) {
-        svg.appendChild(el("circle", { cx, cy, r: 6.5, fill: c, stroke: "#ef4444", "stroke-width": 2 }));
+        plotG.appendChild(el("circle", { cx, cy, r: 6.5, fill: c, stroke: "#ef4444", "stroke-width": 2 }));
       } else {
-        svg.appendChild(el("circle", { cx, cy, r: 5.5, fill: c }));
+        plotG.appendChild(el("circle", { cx, cy, r: 5.5, fill: c }));
       }
 
       const hit = el("circle", {
@@ -1913,7 +1969,7 @@
         const b = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
         return [b.left + cx / vb.width * b.width, b.top + cy / vb.height * b.height];
       });
-      svg.append(hit, ring);
+      plotG.append(hit, ring);
     });
 
     // Free ($0) models live in their own lane on the left of the price axis
@@ -1936,10 +1992,11 @@
         const col = slot ? slot.col : i % columns;
         const cx = M.l + 12 + col * colWidth + colWidth / 2;
         const cy = Y(d.v);
+        if (!inPlotY(cy)) return;
         const isTrain = !!d.trains_on_data;
         // diamond marker for free models
         const r = 6.5;
-        svg.appendChild(el("polygon", {
+        plotG.appendChild(el("polygon", {
           points: `${cx},${cy - r} ${cx + r},${cy} ${cx},${cy + r} ${cx - r},${cy}`,
           fill: isTrain ? "var(--demote)" : "#3b82f6",
           stroke: isTrain ? "#ef4444" : "#1d4ed8", "stroke-width": isTrain ? 2 : 1
@@ -1954,7 +2011,7 @@
           const b = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal;
           return [b.left + cx / vb.width * b.width, b.top + cy / vb.height * b.height];
         });
-        svg.append(hit, ring);
+        plotG.append(hit, ring);
         laneDots.push({ bx: cx - 8, by: cy - 8, w: 16, h: 16 });
         // label the strongest free models only, and only when it fits
         if (slot ? slot.order < 8 : i < 8) {
@@ -1978,12 +2035,13 @@
 
     // Greedy label placement
     const labelLayer = el("g");
-    const plotVis = paidVis;
+    const plotVis = paidVis.filter((d) => inPlotX(X(d.x)) && inPlotY(Y(d.v)));
     const dots = [...plotVis.map((o) => ({ bx: X(o.x) - 8, by: Y(o.v) - 8, w: 16, h: 16 })), ...laneDots];
     const byPriority = [...plotVis].sort((a, b) => (b.front ? 1 : 0) - (a.front ? 1 : 0) || b.v - a.v);
 
     byPriority.forEach((d) => {
       const cx = X(d.x), cy = Y(d.v);
+      if (!inPlotX(cx) || !inPlotY(cy)) return;
       const w = d.label.length * 6.3 + 6, hgt = 13;
       const cands = [
         { x: cx, y: cy - 12, anc: "middle", bx: cx - w / 2, by: cy - 12 - hgt },
@@ -2000,6 +2058,94 @@
       lb.textContent = d.label; labelLayer.appendChild(lb);
     });
     svg.appendChild(labelLayer);
+
+    // View transform for zoom/pan handlers (data coordinates + geometry).
+    chartView = xs.length ? {
+      plotLeft, plotWidth, fullLogX, fullY,
+      xLog: [x0, x1], yDom: [y0, y1], hasPaid: true,
+      svgW: W, svgH: H, mT: M.t, plotH: ph
+    } : null;
+  }
+
+  /* ---------- chart zoom & pan ---------- */
+  // state.zoom = {x:[loPrice,hiPrice]|null, y:[loIdx,hiIdx]|null} in data
+  // coordinates. Null (or missing side) means the full domain on that axis.
+  let chartView = null;
+  let panRaf = 0;
+
+  function svgPoint(svg, evt) {
+    const r = svg.getBoundingClientRect();
+    return {
+      x: (evt.clientX - r.left) / r.width * 960,
+      y: (evt.clientY - r.top) / r.height * 540
+    };
+  }
+
+  function normalizeZoom(x, y) {
+    // Snap back to null when a side covers (almost) the full domain,
+    // so the URL stays clean when fully zoomed out.
+    let nx = null, ny = null;
+    if (x && chartView) {
+      const [flo, fhi] = [Math.pow(10, chartView.fullLogX[0]), Math.pow(10, chartView.fullLogX[1])];
+      const lo = Math.max(x[0], flo), hi = Math.min(x[1], fhi);
+      if (hi / lo >= 1.2 && (lo > flo * 1.001 || hi < fhi * 0.999)) nx = [lo, hi];
+    }
+    if (y && chartView) {
+      const [fy0, fy1] = chartView.fullY;
+      const lo = Math.max(y[0], fy0), hi = Math.min(y[1], fy1);
+      if (hi - lo >= 2 && (lo > fy0 + 1e-9 || hi < fy1 - 1e-9)) ny = [lo, hi];
+    }
+    return (nx || ny) ? { x: nx, y: ny } : null;
+  }
+
+  function setZoom(x, y) {
+    state.zoom = normalizeZoom(x, y);
+    render();
+    syncStateToUrl();
+  }
+
+  function resetZoom() {
+    if (!state.zoom) return;
+    state.zoom = null;
+    render();
+    syncStateToUrl();
+  }
+
+  function zoomAt(px, py, factor, axes) {
+    const v = chartView;
+    if (!v || !v.hasPaid) return;
+    const cur = state.zoom || {};
+    let nx = null, ny = null;
+    if (axes.x !== false) {
+      const curX = cur.x || [Math.pow(10, v.fullLogX[0]), Math.pow(10, v.fullLogX[1])];
+      const l0 = Math.log10(curX[0]), l1 = Math.log10(curX[1]);
+      const cx = Math.min(Math.max((px - v.plotLeft) / v.plotWidth * (l1 - l0) + l0, l0), l1);
+      const nl0 = cx - (cx - l0) * factor, nl1 = cx + (l1 - cx) * factor;
+      nx = [Math.pow(10, nl0), Math.pow(10, nl1)];
+    } else if (cur.x) {
+      nx = cur.x;
+    }
+    if (axes.y !== false) {
+      const curY = cur.y || v.fullY;
+      const c = v.yDom[0] + (v.mT + v.plotH - py) / v.plotH * (v.yDom[1] - v.yDom[0]);
+      const cc = Math.min(Math.max(c, curY[0]), curY[1]);
+      const nl0 = cc - (cc - curY[0]) * factor, nl1 = cc + (curY[1] - cc) * factor;
+      ny = [nl0, nl1];
+    } else if (cur.y) {
+      ny = cur.y;
+    }
+    setZoom(nx, ny);
+  }
+
+  function zoomCenter(factor, axes) {
+    const v = chartView;
+    if (!v || !v.hasPaid) return;
+    zoomAt(v.plotLeft + v.plotWidth / 2, v.mT + v.plotH / 2, factor, axes || { x: true, y: true });
+  }
+
+  function scheduleRender() {
+    if (panRaf) return;
+    panRaf = requestAnimationFrame(() => { panRaf = 0; render(); });
   }
 
   /* ---------- bars ---------- */
@@ -2785,6 +2931,7 @@
         maker: state.maker,
         frontierOnly: state.frontierOnly,
         collapse: state.collapse,
+        zoom: state.zoom,
         models: [...state.selectedModelIds].filter((id) => !id.startsWith("opencode-go/"))
       };
       localStorage.setItem(OPENCODE_STORAGE_KEY, JSON.stringify(toSave));
@@ -2800,6 +2947,14 @@
     if (state.includeTrain) params.set("train", "1");
     if (!state.includeNoTrain) params.set("notrain", "0");
     if (state.maker) params.set("maker", state.maker);
+    if (state.zoom && state.zoom.x) {
+      params.set("zx0", +state.zoom.x[0].toPrecision(4));
+      params.set("zx1", +state.zoom.x[1].toPrecision(4));
+    }
+    if (state.zoom && state.zoom.y) {
+      params.set("zy0", +state.zoom.y[0].toPrecision(4));
+      params.set("zy1", +state.zoom.y[1].toPrecision(4));
+    }
 
     if (state.selectionMode === "custom" && state.selectedModelIds.size > 0) {
       // Pick names
@@ -2813,7 +2968,7 @@
 
   function loadStateFromUrl() {
     const params = new URLSearchParams(window.location.search);
-    const hasUrlParams = params.has("cost") || params.has("mode") || params.has("models") || params.has("train") || params.has("scope") || params.has("minIdx") || params.has("maker") || params.has("mult");
+    const hasUrlParams = params.has("cost") || params.has("mode") || params.has("models") || params.has("train") || params.has("scope") || params.has("minIdx") || params.has("maker") || params.has("mult") || params.has("zx0") || params.has("zy0");
 
     if (hasUrlParams) {
       if (params.has("cost")) state.cost = params.get("cost");
@@ -2824,6 +2979,11 @@
       if (params.has("train")) state.includeTrain = params.get("train") === "1" || params.get("train") === "true";
       if (params.has("notrain")) state.includeNoTrain = params.get("notrain") !== "0";
       if (params.has("maker")) state.maker = params.get("maker");
+      const zx0 = parseFloat(params.get("zx0")), zx1 = parseFloat(params.get("zx1"));
+      const zy0 = parseFloat(params.get("zy0")), zy1 = parseFloat(params.get("zy1"));
+      const zx = (isFinite(zx0) && isFinite(zx1) && zx0 > 0 && zx1 > zx0) ? [zx0, zx1] : null;
+      const zy = (isFinite(zy0) && isFinite(zy1) && zy1 > zy0) ? [zy0, zy1] : null;
+      state.zoom = (zx || zy) ? { x: zx, y: zy } : null;
 
       if (params.has("models")) {
         const list = params.get("models").split(",").map((s) => s.trim()).filter(Boolean);
@@ -2846,6 +3006,7 @@
           if (s.maker) state.maker = s.maker;
           if (typeof s.frontierOnly === "boolean") state.frontierOnly = s.frontierOnly;
           if (typeof s.collapse === "boolean") state.collapse = s.collapse;
+          if (s.zoom && (Array.isArray(s.zoom.x) || Array.isArray(s.zoom.y))) state.zoom = s.zoom;
           if (Array.isArray(s.models)) {
             state.selectedModelIds.clear();
             s.models.forEach((m) => state.selectedModelIds.add(m));
@@ -2928,6 +3089,7 @@
   /* ---------- event listeners ---------- */
   document.querySelectorAll("#costSeg button").forEach((b) => b.addEventListener("click", () => {
     state.cost = b.dataset.cost;
+    state.zoom = null; // price axis meaning changed
     document.querySelectorAll("#costSeg button").forEach((o) => o.setAttribute("aria-pressed", o === b ? "true" : "false"));
     render();
     syncStateToUrl();
@@ -2935,6 +3097,7 @@
 
   document.querySelectorAll("#scopeSeg button").forEach((b) => b.addEventListener("click", () => {
     state.scope = b.dataset.scope;
+    state.zoom = null; // model pool (and axis range) changed
     document.querySelectorAll("#scopeSeg button").forEach((o) => o.setAttribute("aria-pressed", o === b ? "true" : "false"));
     updateMakers();
     updateMultipliers();
@@ -2942,6 +3105,78 @@
     render();
     syncStateToUrl();
   }));
+
+  /* ---------- chart zoom & pan ---------- */
+  $("zoomIn").addEventListener("click", () => zoomCenter(0.5));
+  $("zoomOut").addEventListener("click", () => zoomCenter(2));
+  $("zoomReset").addEventListener("click", resetZoom);
+  {
+    const svg = $("scatter");
+    svg.addEventListener("wheel", (e) => {
+      if (!chartView || !chartView.hasPaid) return;
+      e.preventDefault();
+      const pt = svgPoint(svg, e);
+      const f = Math.pow(1.0015, e.deltaY);
+      const axes = e.shiftKey ? { x: true, y: false } : e.altKey ? { x: false, y: true } : { x: true, y: true };
+      zoomAt(pt.x, pt.y, f, axes);
+    }, { passive: false });
+    svg.addEventListener("dblclick", (e) => {
+      if (e.target.closest(".hit")) return;
+      resetZoom();
+    });
+    let panStart = null;
+    svg.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0 || e.target.closest(".hit") || !chartView || !chartView.hasPaid) return;
+      const cur = state.zoom;
+      if (!cur || (!cur.x && !cur.y)) return; // nothing to move when fully zoomed out
+      panStart = { x: e.clientX, y: e.clientY };
+      try { svg.setPointerCapture(e.pointerId); } catch (_) {}
+      svg.style.cursor = "grabbing";
+    });
+    svg.addEventListener("pointermove", (e) => {
+      if (!panStart || !chartView) return;
+      const v = chartView;
+      const cur = state.zoom || {};
+      const r = svg.getBoundingClientRect();
+      const dxPx = e.clientX - panStart.x, dyPx = e.clientY - panStart.y;
+      panStart = { x: e.clientX, y: e.clientY };
+      let nx = null, ny = null;
+      if (cur.x) {
+        const l0 = Math.log10(cur.x[0]), l1 = Math.log10(cur.x[1]);
+        const d = dxPx / r.width * 960 / v.plotWidth * (l1 - l0);
+        const nl0 = l0 - d, nl1 = l1 - d;
+        const [g0, g1] = v.fullLogX;
+        if (nl1 - nl0 < g1 - g0 - 1e-9) {
+          const sh = Math.min(Math.max(nl0, g0), g1 - (nl1 - nl0)) - nl0;
+          nx = [Math.pow(10, nl0 + sh), Math.pow(10, nl1 + sh)];
+        } else {
+          nx = cur.x;
+        }
+      }
+      if (cur.y) {
+        const [a0, a1] = cur.y;
+        const d = dyPx / r.height * 540 / v.plotH * (a1 - a0);
+        const na0 = a0 + d, na1 = a1 + d;
+        const [g0, g1] = v.fullY;
+        if (na1 - na0 < g1 - g0 - 1e-9) {
+          const sh = Math.min(Math.max(na0, g0), g1 - (na1 - na0)) - na0;
+          ny = [na0 + sh, na1 + sh];
+        } else {
+          ny = cur.y;
+        }
+      }
+      state.zoom = (nx || ny) ? { x: nx, y: ny } : null;
+      scheduleRender();
+    });
+    const endPan = () => {
+      if (!panStart) return;
+      panStart = null;
+      svg.style.cursor = "";
+      syncStateToUrl();
+    };
+    svg.addEventListener("pointerup", endPan);
+    svg.addEventListener("pointercancel", endPan);
+  }
 
   $("minIdx").addEventListener("input", (e) => { state.minIdx = +e.target.value; $("minIdxVal").textContent = e.target.value; render(); syncStateToUrl(); });
   $("collapse").addEventListener("change", (e) => { state.collapse = e.target.checked; render(); syncStateToUrl(); });

@@ -89,6 +89,10 @@
       leg_tier30: "$30 Tier (x3.0)",
       leg_tier15: "$15 Tier (x1.5)",
       leg_training: "Training: Yes",
+      zoom_in: "Zoom in",
+      zoom_out: "Zoom out",
+      zoom_reset: "Reset",
+      zoom_hint: "Scroll to zoom · Shift+scroll: price only · drag to pan · double-click to reset",
 
       // Strategy Guide
       guide_hdr: "OpenCode Go Strategy & Model Guide",
@@ -345,6 +349,10 @@
       leg_tier30: "$30 티어 (x3.0)",
       leg_tier15: "$15 티어 (x1.5)",
       leg_training: "학습 활용: Yes",
+      zoom_in: "확대",
+      zoom_out: "축소",
+      zoom_reset: "초기화",
+      zoom_hint: "휠: 확대/축소 · Shift+휠: 가격축만 · 드래그: 이동 · 더블클릭: 초기화",
 
       // Strategy Guide
       guide_hdr: "OpenCode Go 실전 모델 가이드",

@@ -70,7 +70,7 @@ async function main() {
     }
     throw Error('page did not initialize '+JSON.stringify({errors,diagnostic:await evaluate(`({url:location.href,ready:document.readyState,i18n:!!window.I18N,analysis:!!window.__analysis,api:!!window.FrontierAnalysis})`)}));
   }
-  async function check(label) {
+  async function check(label, subsetMarkers) {
     const result=await evaluate(`(() => {
       const box=document.getElementById('conditionAnalysis');
       return {graph:JSON.parse(document.getElementById('scatter').dataset.frontierIds),
@@ -82,7 +82,14 @@ async function main() {
     })()`);
     assert.deepEqual(result.graph,result.analysis,label);
     assert.deepEqual(result.graph,result.expected,label);
-    assert.deepEqual([...result.graph].sort(),result.markers,label);
+    if (subsetMarkers) {
+      // Zoomed view: off-screen frontier dots are not drawn, but every
+      // visible marker must belong to the (unchanged) frontier.
+      assert.ok(result.markers.length > 0, label);
+      assert.ok(result.markers.every((id) => result.graph.includes(id)), label);
+    } else {
+      assert.deepEqual([...result.graph].sort(),result.markers,label);
+    }
     assert.ok(result.text.length>50,label);
     console.log(label+': PASS ('+result.priced+' priced, '+result.graph.length+' frontier, '+result.free+' free)');
     return result;
@@ -146,6 +153,35 @@ async function main() {
   await navigate('index.html','&fk=0');
   assert.equal(await evaluate('__analysis.weight'),0);
   await check('plain Pareto fk=0');
+  // Chart zoom: buttons, wheel, pan and reset must not change the analysis,
+  // and the zoom window must round-trip through the URL.
+  await navigate('index.html');
+  result = await check('zoom base');
+  const baseIds = result.graph;
+  assert.ok(await evaluate(`!!document.getElementById('zoomIn') && !!document.getElementById('zoomOut') && !!document.getElementById('zoomReset')`));
+  await evaluate(`document.getElementById('zoomIn').click()`);
+  assert.ok(await evaluate(`location.search.includes('zx0=') && location.search.includes('zy0=')`));
+  result = await check('zoomed in', true);
+  assert.deepEqual(result.graph, baseIds);
+  await evaluate(`document.getElementById('zoomOut').click()`);
+  result = await check('zoomed out', true);
+  assert.deepEqual(result.graph, baseIds);
+  await evaluate(`document.getElementById('scatter').dispatchEvent(new WheelEvent('wheel',{deltaY:-240,bubbles:true,cancelable:true}))`);
+  assert.ok(await evaluate(`location.search.includes('zx0=')`));
+  result = await check('wheel zoom', true);
+  assert.deepEqual(result.graph, baseIds);
+  await evaluate(`document.getElementById('zoomReset').click()`);
+  assert.ok(await evaluate(`!location.search.includes('zx0=') && !location.search.includes('zy0=')`));
+  result = await check('zoom reset');
+  assert.deepEqual(result.graph, baseIds);
+  // Reload with the zoom params in the URL: the window must be restored.
+  await evaluate(`document.getElementById('zoomIn').click()`);
+  const zoomParams = await evaluate(`[...new URLSearchParams(location.search).entries()].filter(([k])=>/^z[xy][01]$/.test(k)).map(([k,v])=>k+'='+v).join('&')`);
+  assert.ok(zoomParams.includes('zx0='));
+  await navigate('index.html', '&' + zoomParams);
+  assert.ok(await evaluate(`location.search.includes('zx0=')`));
+  result = await check('zoom from URL', true);
+  assert.deepEqual(result.graph, baseIds);
   // Render a long label through the real DOM renderer, including narrow layout.
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:false});
   await evaluate(`FrontierAnalysis.render(document.getElementById('conditionAnalysis'),FrontierAnalysis.analyze([{id:'long',name:'Long model name '.repeat(40),x:1,v:20}]),{isKo:true,title:'test',unit:'/1M',formatCost:String})`);
