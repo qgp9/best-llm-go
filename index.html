@@ -1931,10 +1931,12 @@
     }
 
     // Draw dots
+    const coordsById = new Map();
     const ordered = [...paidVis].sort((a, b) => (a.front ? 1 : 0) - (b.front ? 1 : 0));
     ordered.forEach((d) => {
       const cx = X(d.x), cy = Y(d.v);
       if (!inPlotX(cx) || !inPlotY(cy)) return;
+      coordsById.set(d.id, { cx, cy });
       const c = d.front ? "var(--accent)" : "var(--demote)";
       const is60 = d.allowance === 60;
       const is30 = d.allowance === 30;
@@ -1960,7 +1962,7 @@
 
       const hit = el("circle", {
         cx, cy, r: 14, fill: "transparent", class: "hit", tabindex: "0", role: "img",
-        "data-model-id": d.id, "data-frontier": String(d.front),
+        "data-model-id": d.id, "data-frontier": String(d.front), "data-cx": cx, "data-cy": cy,
         "aria-label": `${d.name}: ${METRIC} ${num(d.v, 1)}, ${cfg.fmt(d.x)}`
       });
       hit.style.cursor = "pointer";
@@ -1993,6 +1995,7 @@
         const cx = M.l + 12 + col * colWidth + colWidth / 2;
         const cy = Y(d.v);
         if (!inPlotY(cy)) return;
+        coordsById.set(d.id, { cx, cy });
         const isTrain = !!d.trains_on_data;
         // diamond marker for free models
         const r = 6.5;
@@ -2003,6 +2006,7 @@
         }));
         const hit = el("circle", {
           cx, cy, r: 12, fill: "transparent", class: "hit", tabindex: "0", role: "img",
+          "data-model-id": d.id, "data-cx": cx, "data-cy": cy, "data-free": "1",
           "aria-label": `${d.name}: ${METRIC} ${num(d.v, 1)}, $0 (free)`
         });
         hit.style.cursor = "pointer";
@@ -2059,12 +2063,40 @@
     });
     svg.appendChild(labelLayer);
 
+    // Crosshair layer (hover + pinned). pointer-events:none so hit-testing
+    // for dots/tooltips/pan is unaffected.
+    const crossG = el("g", { id: "crosshairLayer", "pointer-events": "none" });
+    const mkLine = (dash, stroke, op) => {
+      const l = el("line", { stroke, "stroke-width": 1, "stroke-dasharray": dash, opacity: op });
+      crossG.appendChild(l);
+      return l;
+    };
+    const hovG = el("g", { id: "crossHov", style: "display:none" });
+    const hovV = mkLine("4 3", "var(--ink-3)", 0.7);
+    const hovH = mkLine("4 3", "var(--ink-3)", 0.7);
+    hovG.append(hovV, hovH);
+    const hovXp = el("rect", { fill: "var(--surface)", stroke: "var(--line)", "stroke-width": 1 });
+    const hovXt = el("text", { "font-size": "10px", fill: "var(--ink-2)" });
+    const hovYp = el("rect", { fill: "var(--surface)", stroke: "var(--line)", "stroke-width": 1 });
+    const hovYt = el("text", { "font-size": "10px", fill: "var(--ink-2)" });
+    hovG.append(hovXp, hovXt, hovYp, hovYt);
+    const pinG = el("g", { id: "crossPin", style: "display:none" });
+    const pinV = mkLine("none", "var(--accent)", 0.85);
+    const pinH = mkLine("none", "var(--accent)", 0.85);
+    const pinRing = el("circle", { r: 11, fill: "none", stroke: "var(--accent)", "stroke-width": 2 });
+    pinG.append(pinV, pinH, pinRing);
+    crossG.append(hovG, pinG);
+    svg.appendChild(crossG);
+    const cross = { hov: hovG, hovV, hovH, hovXp, hovXt, hovYp, hovYt, pin: pinG, pinV, pinH, pinRing };
+
     // View transform for zoom/pan handlers (data coordinates + geometry).
     chartView = xs.length ? {
       plotLeft, plotWidth, fullLogX, fullY,
       xLog: [x0, x1], yDom: [y0, y1], hasPaid: true,
-      svgW: W, svgH: H, mT: M.t, plotH: ph
+      svgW: W, svgH: H, mT: M.t, plotH: ph, mL: M.l, pw,
+      fmtX: (v) => cfg.fmt(v), coords: coordsById, cross: cross
     } : null;
+    redrawPinned();
   }
 
   /* ---------- chart zoom & pan ---------- */
@@ -2072,6 +2104,8 @@
   // coordinates. Null (or missing side) means the full domain on that axis.
   let chartView = null;
   let panRaf = 0;
+  // Model id whose crosshair stays pinned after click (session-only).
+  let pinnedId = null;
 
   function svgPoint(svg, evt) {
     const r = svg.getBoundingClientRect();
@@ -2146,6 +2180,61 @@
   function scheduleRender() {
     if (panRaf) return;
     panRaf = requestAnimationFrame(() => { panRaf = 0; render(); });
+  }
+
+  /* ---------- chart crosshair ---------- */
+  // Hover crosshair follows the pointer (snapped to a dot when over one);
+  // clicking a dot pins its crosshair until background click or Esc.
+  function moveCrosshair(c, cx, cy, xText, v) {
+    const top = v.mT, bot = v.mT + v.plotH, left = v.mL, right = v.mL + v.pw;
+    c.hovV.setAttribute("x1", cx); c.hovV.setAttribute("x2", cx);
+    c.hovV.setAttribute("y1", top); c.hovV.setAttribute("y2", bot);
+    c.hovH.setAttribute("x1", left); c.hovH.setAttribute("x2", right);
+    c.hovH.setAttribute("y1", cy); c.hovH.setAttribute("y2", cy);
+    // X readout (bottom-inside of plot)
+    const xt = xText != null ? xText : v.fmtX(
+      Math.pow(10, v.xLog[0] + (Math.min(Math.max(cx, v.plotLeft), v.plotLeft + v.plotWidth) - v.plotLeft) / v.plotWidth * (v.xLog[1] - v.xLog[0])));
+    setPill(c.hovXp, c.hovXt, xt, Math.min(Math.max(cx, left + 34), right - 34), bot - 8, "middle");
+    // Y readout (left-inside of plot)
+    setPill(c.hovYp, c.hovYt, num(v.yDom[0] + (bot - cy) / v.plotH * (v.yDom[1] - v.yDom[0]), 1),
+      left + 4, Math.min(Math.max(cy - 8, top + 4), bot - 18), "start");
+    c.hov.style.display = "block";
+  }
+
+  function setPill(rect, text, str, x, y, anchor) {
+    text.textContent = str;
+    const w = Math.max(34, str.length * 6 + 12);
+    let bx = anchor === "middle" ? x - w / 2 : x;
+    rect.setAttribute("x", bx); rect.setAttribute("y", y - 4);
+    rect.setAttribute("width", w); rect.setAttribute("height", 17);
+    rect.setAttribute("rx", 8);
+    text.setAttribute("x", anchor === "middle" ? bx + w / 2 : bx + 8);
+    text.setAttribute("y", y + 8);
+    text.setAttribute("text-anchor", anchor);
+  }
+
+  function hideHoverCrosshair() {
+    if (chartView && chartView.cross) chartView.cross.hov.style.display = "none";
+  }
+
+  function redrawPinned() {
+    if (!chartView || !chartView.cross) return;
+    const c = chartView.cross, v = chartView;
+    const p = pinnedId ? v.coords.get(pinnedId) : null;
+    if (!p) { c.pin.style.display = "none"; return; }
+    const top = v.mT, bot = v.mT + v.plotH, left = v.mL, right = v.mL + v.pw;
+    c.pinV.setAttribute("x1", p.cx); c.pinV.setAttribute("x2", p.cx);
+    c.pinV.setAttribute("y1", top); c.pinV.setAttribute("y2", bot);
+    c.pinH.setAttribute("x1", left); c.pinH.setAttribute("x2", right);
+    c.pinH.setAttribute("y1", p.cy); c.pinH.setAttribute("y2", p.cy);
+    c.pinRing.setAttribute("cx", p.cx); c.pinRing.setAttribute("cy", p.cy);
+    c.pin.style.display = "block";
+  }
+
+  function unpin() {
+    if (!pinnedId) return;
+    pinnedId = null;
+    if (chartView && chartView.cross) chartView.cross.pin.style.display = "none";
   }
 
   /* ---------- bars ---------- */
@@ -2458,6 +2547,8 @@
     tipHide();
     const isKo = (window.I18N && window.I18N.lang === "ko");
     const { rows, vis, frontier, analysis, laneLayout, yRange } = compute();
+    // Drop a pinned crosshair whose model is no longer visible.
+    if (pinnedId && !vis.some((d) => d.id === pinnedId)) pinnedId = null;
     $("count").textContent = isKo
       ? `${vis.length}개 / 전체 ${rows.length}개 모델 · ${frontier.length}개 프론티어`
       : `${vis.length} / ${rows.length} models · ${frontier.length} frontier picks`;
@@ -3125,16 +3216,19 @@
       resetZoom();
     });
     let panStart = null;
+    let panMoved = false;
     svg.addEventListener("pointerdown", (e) => {
       if (e.button !== 0 || e.target.closest(".hit") || !chartView || !chartView.hasPaid) return;
       const cur = state.zoom;
       if (!cur || (!cur.x && !cur.y)) return; // nothing to move when fully zoomed out
-      panStart = { x: e.clientX, y: e.clientY };
+      panStart = { x: e.clientX, y: e.clientY, ox: e.clientX, oy: e.clientY };
+      panMoved = false;
       try { svg.setPointerCapture(e.pointerId); } catch (_) {}
       svg.style.cursor = "grabbing";
     });
     svg.addEventListener("pointermove", (e) => {
       if (!panStart || !chartView) return;
+      if (Math.hypot(e.clientX - panStart.ox, e.clientY - panStart.oy) > 4) panMoved = true;
       const v = chartView;
       const cur = state.zoom || {};
       const r = svg.getBoundingClientRect();
@@ -3170,12 +3264,49 @@
     });
     const endPan = () => {
       if (!panStart) return;
+      const moved = panStart.moved;
       panStart = null;
       svg.style.cursor = "";
       syncStateToUrl();
+      return moved;
     };
     svg.addEventListener("pointerup", endPan);
     svg.addEventListener("pointercancel", endPan);
+    // Hover crosshair: snapped to a dot when over one, free-floating
+    // with axis readouts otherwise. Hidden when leaving the chart.
+    svg.addEventListener("pointermove", (e) => {
+      if (panStart || !chartView || !chartView.cross) return;
+      const v = chartView;
+      const hit = e.target && e.target.closest ? e.target.closest(".hit") : null;
+      if (hit && hit.dataset.cx !== undefined) {
+        moveCrosshair(v.cross, +hit.dataset.cx, +hit.dataset.cy,
+          hit.dataset.free === "1" ? "$0" : null, v);
+        return;
+      }
+      const pt = svgPoint(svg, e);
+      if (pt.x < v.mL || pt.x > v.mL + v.pw || pt.y < v.mT || pt.y > v.mT + v.plotH) {
+        hideHoverCrosshair();
+        return;
+      }
+      moveCrosshair(v.cross, pt.x, pt.y, pt.x < v.plotLeft ? "$0" : null, v);
+    });
+    svg.addEventListener("pointerleave", hideHoverCrosshair);
+    // Click a dot to pin its crosshair (click again to release); background
+    // click releases too unless it was a pan drag.
+    svg.addEventListener("click", (e) => {
+      if (panMoved) { panMoved = false; return; }
+      if (!chartView) return;
+      const hit = e.target && e.target.closest ? e.target.closest(".hit") : null;
+      if (hit && hit.dataset.modelId) {
+        pinnedId = (pinnedId === hit.dataset.modelId) ? null : hit.dataset.modelId;
+        redrawPinned();
+      } else {
+        unpin();
+      }
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") unpin();
+    });
   }
 
   $("minIdx").addEventListener("input", (e) => { state.minIdx = +e.target.value; $("minIdxVal").textContent = e.target.value; render(); syncStateToUrl(); });

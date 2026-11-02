@@ -182,6 +182,31 @@ async function main() {
   assert.ok(await evaluate(`location.search.includes('zx0=')`));
   result = await check('zoom from URL', true);
   assert.deepEqual(result.graph, baseIds);
+  // Crosshair: hover shows dashed guides with axis readouts, click pins.
+  await navigate('index.html');
+  await check('crosshair base');
+  const crossVisible = await evaluate(`(() => {
+    const svg = document.getElementById('scatter');
+    const r = svg.getBoundingClientRect();
+    const opts = {bubbles: true, cancelable: true, clientX: r.left + r.width * 0.6, clientY: r.top + r.height * 0.4};
+    svg.dispatchEvent(new PointerEvent('pointermove', opts));
+    return { hasLayer: !!document.getElementById('crosshairLayer'), hovVisible: document.getElementById('crossHov').style.display === 'block' };
+  })()`);
+  assert.ok(crossVisible.hasLayer, 'crosshair layer exists');
+  assert.ok(crossVisible.hovVisible, 'hover crosshair shows on pointermove');
+  await evaluate(`document.getElementById('scatter').dispatchEvent(new PointerEvent('pointerleave', {bubbles: true}))`);
+  assert.equal(await evaluate(`document.getElementById('crossHov').style.display`), 'none');
+  // Click the first paid dot: pin appears; background click releases it.
+  const pinned = await evaluate(`(() => {
+    const dot = document.querySelector('#scatter .hit[data-model-id][data-cx]');
+    const r = dot.getBoundingClientRect();
+    dot.dispatchEvent(new MouseEvent('click', {bubbles: true, clientX: r.left + r.width / 2, clientY: r.top + r.height / 2}));
+    return { id: dot.dataset.modelId, pinVisible: document.getElementById('crossPin').style.display === 'block' };
+  })()`);
+  assert.ok(pinned.id && pinned.pinVisible, 'pinned crosshair shows on dot click');
+  await evaluate(`document.getElementById('scatter').dispatchEvent(new MouseEvent('click', {bubbles: true}))`);
+  assert.equal(await evaluate(`document.getElementById('crossPin').style.display`), 'none');
+  console.log('crosshair hover/pin/unpin: PASS');
   // Render a long label through the real DOM renderer, including narrow layout.
   await command('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:false});
   await evaluate(`FrontierAnalysis.render(document.getElementById('conditionAnalysis'),FrontierAnalysis.analyze([{id:'long',name:'Long model name '.repeat(40),x:1,v:20}]),{isKo:true,title:'test',unit:'/1M',formatCost:String})`);
